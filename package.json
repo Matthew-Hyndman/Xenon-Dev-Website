@@ -18,6 +18,7 @@
     "@angular/platform-browser": "^17.3.0",
     "@angular/platform-browser-dynamic": "^17.3.0",
     "@angular/router": "^17.3.0",
+    "amplify-angular-template": "file:",
     "aws-amplify": "^6.6.6",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
@@ -25,7 +26,7 @@
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^17.3.4",
-    "@angular/cli": "^17.3.4",
+    "@angular/cli": "^17.3.15",
     "@angular/compiler-cli": "^17.3.0",
     "@aws-amplify/backend": "^1.5.1",
     "@aws-amplify/backend-cli": "^1.3.0",
