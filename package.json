@@ -18,6 +18,7 @@
     "@angular/platform-browser": "^17.3.0",
     "@angular/platform-browser-dynamic": "^17.3.0",
     "@angular/router": "^17.3.0",
+    "@aws-amplify/ui-angular": "^5.1.1",
     "amplify-angular-template": "file:",
     "aws-amplify": "^6.6.6",
     "rxjs": "~7.8.0",
