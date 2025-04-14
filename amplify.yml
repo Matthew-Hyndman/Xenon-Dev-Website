@@ -1,4 +1,4 @@
-version: 1
+version: 2
 backend:
   phases:
     build:
@@ -19,5 +19,5 @@ frontend:
       - '**/*'
   cache:
     paths:
-      - .npm/**/*
-      - node_modules/**/*
+      #- .npm/**/*
+      #- node_modules/**/*
