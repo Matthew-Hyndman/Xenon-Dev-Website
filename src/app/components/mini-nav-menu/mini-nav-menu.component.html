@@ -1,0 +1,18 @@
+<div class="col form-header section-content">
+    <div class="row" style="display: flex; flex-direction: row">
+      <a routerLink="/landing">
+        <img src="assets\images\logo-title.png" alt="title" class="title-img" />
+      </a>
+    </div>
+      <button class="menu-toggle mini-menu-button" (click)="toggleSidebar()">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+    
+    <div class="row" [hidden]="sidebarActive" style="overflow:auto; position: absolute; z-index: 1;">
+      <!--links here-->
+      @for (link of links; track link) {
+      <a class="mobile-navbar-link" routerLink={{ link.path }} (click)="selectedLink()">{{ link.name }}</a>
+      }
+    </div>
+  </div>
+  

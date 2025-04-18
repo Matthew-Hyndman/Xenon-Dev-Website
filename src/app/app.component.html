@@ -1,4 +1,95 @@
-<amplify-authenticator>
+<div class="page-wrapper">
+  <!-- MENU SIDEBAR-->
+  <aside class="menu-sidebar d-none d-lg-block">
+    <div class="logo">
+      <a routerLink="/landing">
+        <img
+          src="assets\images\New-logo.png"
+          alt="Matthew's Personal Website"
+          class="img-responsive logo"
+        />
+      </a>
+    </div>
+
+    <div class="menu-sidebar-content">
+      <!--nav buttons here-->
+      @for (link of links; track link) {
+      <a class="sidebar-link" routerLink={{ link.path }}>{{link.name}}</a>
+      <br />
+    }
+      
+      <!--<a class="sidebar-link" routerLink="/landing">Welcome</a>
+      <br />
+      <a class="sidebar-link" routerLink="/site-info">About</a>
+      <br />
+      <a class="sidebar-link" routerLink="/black-jack-help">Black Jack</a>-->
+    </div>
+  </aside>
+  <!-- END MENU SIDEBAR-->
+
+  <!-- PAGE CONTAINER-->
+  <div class="page-container">
+    <!-- HEADER DESKTOP-->
+    <header class="header-desktop">
+      <div class="section-content section-content-p30">
+        <div class="container-fluid">
+          <div class="header-wrap">
+            <!--top components here-->
+            <app-mini-nav-menu></app-mini-nav-menu>
+          </div>
+          <div class="account-wrap"></div>
+        </div>
+      </div>
+    </header>
+    <!-- END HEADER DESKTOP-->
+
+    <!-- MAIN CONTENT-->
+    <div class="main-content">
+      <div class="section-content section-content-p30">
+        <div class="container-fulid">
+          <router-outlet></router-outlet>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ENDS PAGE CONTAINER -->
+
+<footer>
+  <ul>
+    <p>Social:</p>
+    <li>
+      <a href="https://www.linkedin.com/in/matthew-hyndman-41580b164/"
+        ><i class="fa-brands fa-linkedin fa-2xl"></i
+      ></a>
+    </li>
+    <li>
+      <a href="https://github.com/Matthew-Hyndman"
+        ><i class="fa-brands fa-github fa-2xl"></i
+      ></a>
+    </li>
+    <hr />
+      <p>Micro services / plug-ins used in the making of this website:</p>      
+      <li>
+        <a href="https://fontawesome.com"
+          ><i class="fa-solid fa-font-awesome fa-2xl"></i
+        ></a>
+      </li>
+      <li>
+        <a href="https://getbootstrap.com"
+          ><i class="fa-brands fa-bootstrap fa-2xl"></i
+        ></a>
+      </li>
+      <li class="footer-image">
+        <a href="https://github.com/sweetalert2/ngx-sweetalert2">
+          <img src="assets/images/ngx-sweetalert2-logo.png" alt=""
+        /></a>
+      </li>
+  </ul>
+</footer>
+
+<!--<amplify-authenticator>
     <ng-template
       amplifySlot="authenticated"
       let-user="user"
@@ -7,4 +98,4 @@
       <app-todos></app-todos>
       <button (click)="signOut()">Sign Out</button>
     </ng-template>
-  </amplify-authenticator>
+  </amplify-authenticator>-->
