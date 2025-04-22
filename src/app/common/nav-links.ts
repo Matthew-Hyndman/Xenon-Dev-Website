@@ -5,7 +5,7 @@ import { LinkObj } from "./link-obj";
 export class NavLinks {
     public links = [
         new LinkObj('Welcome', '/landing'),
-        //new LinkObj('About', '/site-info'),
-        //new LinkObj('BlackJack', '/black-jack-help')
+        new LinkObj('About', '/site-info'),
+        new LinkObj('BlackJack', '/black-jack-help')
     ];
 }

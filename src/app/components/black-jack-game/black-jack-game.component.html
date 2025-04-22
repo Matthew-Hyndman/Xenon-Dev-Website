@@ -1,0 +1,57 @@
+<h1>Black Jack</h1>
+<div class="col responsive-col">
+  <div class="card-area">
+    <div class="row">
+      <h3>Dealer</h3>
+      @for (card of dealerHand.cards; track card) {
+      <img
+        class="card"
+        src="{{ card.imageUrl }}"
+        alt="value: {{ card.value }}"
+      />
+      }
+      <h3>Score: {{ dealerHand.handValue }}</h3>
+    </div>
+    <hr />
+    <div class="card-area">
+      <div class="row">
+        <h3>Player</h3>
+        @for (card of playerHand.cards; track card) {
+        <img
+          class="card"
+          src="{{ card.imageUrl }}"
+          alt="value: {{ card.value }}"
+        />
+        }
+        <h3>Score: {{ playerHand.handValue }}</h3>
+      </div>
+    </div>
+  </div>
+  <hr/>
+  <div class="row">
+    <button class="game-button" appNoDoubleClick (click)="playerPickCard()">Hit</button>
+    <button class="game-button" appNoDoubleClick (click)="stay()">Stay</button>
+    <label class="game-info-box">Wins: {{playerHand.wins}}</label>
+    <label class="game-info-box">Losses: {{dealerHand.wins}}</label>
+    <button class="game-button" appNoDoubleClick routerLink="/black-jack-help">Help</button>
+  </div>
+  <div class="row">
+    @if (useBettingSystem) {
+    <button class="game-button" appNoDoubleClick (click)="doubleDown()">Double Down</button>
+    <label class="game-info-box">Your Pot: {{pot}}</label>
+    <label class="game-info-box">Your Bet: {{bet}}</label>
+    }
+    
+  </div>
+  <div class="row"><label class="au-label">
+    <span class="check-box"><input
+      type="checkbox"
+      class="au-checkbox"
+      (change)="isBettingEnabled($event)"
+      [checked] = useBettingSystem
+      
+    /> Use Betting</span>
+  </label></div>
+</div>
+
+

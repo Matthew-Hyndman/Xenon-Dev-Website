@@ -1,0 +1,156 @@
+<h1>Black Jack rules and disclaimer</h1>
+<h3>Rules</h3>
+<p><strong>Objective</strong></p>
+
+<p>
+  The goal of blackjack is to beat the dealer's hand without exceeding a total
+  of 21.
+</p>
+
+<p><strong>Card Values</strong></p>
+<ul>
+  <p>
+    <li>Number cards (2-10) are worth their face value.</li>
+    <li>Face cards (Jack, Queen, King) are worth 10 points.</li>
+    <li>
+      Aces can be worth 1 or 11 points, depending on which value helps the hand
+      the most.
+    </li>
+  </p>
+</ul>
+<p><strong>Game Play</strong></p>
+
+<ul>
+  <p>
+    <li><b>Betting:</b> Players place their bets.</li>
+    <li>
+      <b>Dealing:</b> The dealer and player will start the game with one card.
+    </li>
+    <li>
+      <b>Player's Turn:</b> Starting with the player to the dealer's left, each
+      player has options:
+    </li>
+  </p>
+  <ul>
+    <p>
+      <li>
+        <i>Hit:</i> Take another card. Players can hit as many times as they
+        want, but if they go over 21, they bust (lose).
+      </li>
+      <li><i>Stay:</i> Keep their current hand and end their turn.</li>
+      <li>
+        <i>Double Down:</i> Double their bet and receive only one more card.
+      </li>
+    </p>
+  </ul>
+  <p>
+    <li>
+      <b>Dealer's Turn:</b> After you; the players have completed your turn. The
+      dealer must hit until their total is your score or higher without going
+      Bust.
+    </li>
+    <li>
+      <b>Winning:</b> Players win if their hand total is higher than the
+      dealer's without exceeding 21, or if the dealer busts. If the player and
+      dealer have the same total, it's a Draw, and the player's bet is returned.
+    </li>
+  </p>
+</ul>
+<p><strong>Payouts</strong></p>
+<ul>
+  <p>
+    <li><b>Winning Hand:</b> Typically pays 1:1.</li>
+    <li>
+      <b>Blackjack:</b> A two-card hand of 21 (Ace + 10-value card) usually pays
+      3:2.
+    </li>
+  </p>
+</ul>
+
+<p><strong>Strategy Tips</strong></p>
+<ul></ul>
+<p>
+  Blackjack is a mix of luck and strategy, making it an exciting game, hope you
+  enjoy!
+</p>
+<hr />
+<br />
+<h3>Liability Disclaimer:</h3>
+<div class="col">
+  <p>
+    Please read and understand the following liability disclaimer before
+    participating in this blackjack game:
+  </p>
+
+  <p>
+    1. <strong>Non-Monetary Tokens:</strong> This game uses tokens for betting
+    purposes. These tokens do not have any real-world monetary value and cannot
+    be exchanged for cash or other goods and services outside of this game.
+  </p>
+  <p>
+    2. <strong>Entertainment Purposes Only:</strong> This blackjack game is
+    designed for entertainment and recreational purposes. Participation in this
+    game should be solely for enjoyment, and no financial gain or loss is
+    involved.
+  </p>
+  <p>
+    3. <strong>Age Requirement:</strong> Players must be at least 18 years old
+    (or the legal age of majority in your jurisdiction) to participate in this
+    game.
+  </p>
+  <p>
+    4. <strong>Responsible Gaming:</strong> Even though this game uses
+    non-monetary tokens, we encourage responsible gaming practices. Set personal
+    limits and ensure that gameplay does not interfere with your daily
+    responsibilities and well-being.
+  </p>
+  <p>
+    5. <strong>No Liability for Losses:</strong> As this game involves no real
+    money, we are not liable for any perceived losses or negative consequences
+    resulting from participation in this game.
+  </p>
+  <p>
+    6. <strong>Game Fairness:</strong> The fairness of this game is ensured by
+    random number generators (RNGs) and regulatory oversight. If you have any
+    concerns about the game's fairness, please contact the game administrators.
+  </p>
+  <p>
+    7. <strong>Changes to Rules:</strong> We reserve the right to modify or
+    update the game's rules and regulations at any time. Players are responsible
+    for staying informed about any changes.
+  </p>
+  <p>
+    By participating in this blackjack game, you acknowledge that you have read,
+    understood, and agreed to this liability disclaimer and the game's terms and
+    conditions
+  </p>
+</div>
+<div class="row input-space">
+  <form formGroup="blackJackHelpFromGroup">
+    <div formGroupName="blackJackHelpChildFromGroup">
+      <label class="au-label">
+        <span class="check-box"
+          >*
+          <input
+            class="check-box"
+            type="checkbox"
+            formControlName="disclaimer"
+            (change)="setIsAgreedToTermsAndConditions($event)"
+          />
+          You have read, understood and agree to the above disclaimer
+        </span>
+      </label>
+      @if (showErrorMessage) {
+      <div class="row alert alert-danger mt-1">
+        You must tick the check box to Continue to the game
+      </div>
+      }
+
+      <div class="row">
+        <button type="submit" class="btn btn-info" (click)="onContinue()">
+          Continue
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
