@@ -3,8 +3,12 @@ import { Deck } from './game-objects/deck';
 import { Hand } from '../../common/hand';
 import { Router } from '@angular/router';
 import { BlackJackHelpService } from '../../services/black-jack-help.service';
-import Swal from 'sweetalert2';
+import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
 import { Card } from '../../common/card';
+import Swal from 'sweetalert2';
+import { ReactiveFormsModule } from '@angular/forms';
+import { provideClientHydration } from '@angular/platform-browser';
+import { NoDoubleClickDirective } from '../../directives/no-double-click.directive';
 
 const MAX_HAND_VALUE = 21;
 
@@ -13,7 +17,7 @@ const MAX_HAND_VALUE = 21;
   standalone: true,
   imports: [],
   templateUrl: './black-jack-game.component.html',
-  styleUrl: './black-jack-game.component.css'
+  styleUrl: './black-jack-game.component.css',
 })
 export class BlackJackGameComponent implements OnInit {
 
@@ -37,7 +41,7 @@ export class BlackJackGameComponent implements OnInit {
   constructor(
     private router: Router,
     private blackJackHelpService: BlackJackHelpService
-  ) {}
+    ) {}
 
   ngOnInit(): void {
     let theDataIsTrue = this.blackJackHelpService.isHasUserAgreedToDisclaimerTrue();
@@ -70,7 +74,7 @@ export class BlackJackGameComponent implements OnInit {
       this.bet = 0;
       await Swal.fire({
         title: 'How many tokens are you betting',
-        allowOutsideClick: false,
+        allowOutsideClick: false,        
         draggable: true,
         html: `
     <input
@@ -184,7 +188,7 @@ export class BlackJackGameComponent implements OnInit {
       await Swal.fire({
         title: 'Draw!',
         text: `you scored: ${this.playerHand.handValue} | dealer scored: ${this.dealerHand.handValue}`,
-        draggable: true,
+        //draggable: true,
         didClose: () => {},
       });
       if (this.useBettingSystem) {
@@ -224,7 +228,7 @@ export class BlackJackGameComponent implements OnInit {
         title: winType,
         text: `you scored: ${this.playerHand.handValue} | dealer scored: ${this.dealerHand.handValue}`,
         imageUrl: 'assets/images/trophy.png',
-        draggable: true,
+        //draggable: true,
         didClose: () => {},
       });
       if (this.useBettingSystem) {
@@ -252,7 +256,7 @@ export class BlackJackGameComponent implements OnInit {
         title: lossType,
         text: `you scored: ${this.playerHand.handValue} | dealer scored: ${this.dealerHand.handValue}`,
         icon: 'error',
-        draggable: true,
+        //draggable: true,
         didClose: () => {},
       });
       if (this.isDoublingDown) { this.pot -= this.bet } 

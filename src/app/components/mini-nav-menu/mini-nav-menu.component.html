@@ -11,7 +11,7 @@
     <div class="row" [hidden]="sidebarActive" style="overflow:auto; position: absolute; z-index: 1;">
       <!--links here-->
       @for (link of links; track link) {
-      <a class="mobile-navbar-link" routerLink={{ link.path }} (click)="selectedLink()">{{ link.name }}</a>
+      <a class="mobile-navbar-link" href={{link.path}} (click)="selectedLink()">{{ link.name }}</a>
       }
     </div>
   </div>

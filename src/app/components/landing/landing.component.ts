@@ -18,11 +18,11 @@ export class LandingComponent {
 
     if (this.blackJackHelpService.isHasUserAgreedToDisclaimerNull()) {
       if (this.blackJackHelpService.isHasUserAgreedToDisclaimerTrue()) {
-        this.blckJackGameRoute = '/black-jack-game';
+        this.blckJackGameRoute = "/black-jack-game";
         return
       }
     } 
-      this.blckJackGameRoute = '/black-jack-help';
+      this.blckJackGameRoute = "/black-jack-help";
     
   }
 

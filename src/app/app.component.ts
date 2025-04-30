@@ -7,6 +7,8 @@ import { AmplifyAuthenticatorModule, AuthenticatorService } from '@aws-amplify/u
 import { MiniNavMenuComponent } from "./components/mini-nav-menu/mini-nav-menu.component";
 import { NavLinks } from './common/nav-links';
 import { LinkObj } from './common/link-obj';
+import { routes } from './app.routes';
+import { LandingComponent } from './components/landing/landing.component';
 
 Amplify.configure(outputs);
 
@@ -15,7 +17,8 @@ Amplify.configure(outputs);
   standalone: true,
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
-  imports: [RouterOutlet, /*TodosComponent,*/ AmplifyAuthenticatorModule, MiniNavMenuComponent],
+  imports: [RouterOutlet, /*TodosComponent, AmplifyAuthenticatorModule,*/ MiniNavMenuComponent],
+  
 })
 export class AppComponent {
   title = 'Xenon-Dev';
@@ -24,6 +27,7 @@ export class AppComponent {
   constructor (private navLinks: NavLinks){
     this.links = this.navLinks.links;
   }
+
   
   /*title = 'amplify-angular-template';
 

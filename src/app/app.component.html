@@ -2,7 +2,7 @@
   <!-- MENU SIDEBAR-->
   <aside class="menu-sidebar d-none d-lg-block">
     <div class="logo">
-      <a routerLink="/landing">
+      <a href="/landing">
         <img
           src="assets\images\New-logo.png"
           alt="Matthew's Personal Website"
@@ -14,7 +14,7 @@
     <div class="menu-sidebar-content">
       <!--nav buttons here-->
       @for (link of links; track link) {
-      <a class="sidebar-link" routerLink={{ link.path }}>{{link.name}}</a>
+      <a class="sidebar-link" href={{link.path}}>{{link.name}}</a>
       <br />
     }      
     </div>
@@ -51,7 +51,7 @@
 <!-- ENDS PAGE CONTAINER -->
 
 <footer>
-  <ul>
+  <ul style="margin-bottom: 0%;">
     <p>Social:</p>
     <li>
       <a href="https://www.linkedin.com/in/matthew-hyndman-41580b164/"

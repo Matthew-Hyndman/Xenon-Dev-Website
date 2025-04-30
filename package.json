@@ -19,9 +19,13 @@
     "@angular/platform-browser-dynamic": "^17.3.0",
     "@angular/router": "^17.3.0",
     "@aws-amplify/ui-angular": "^5.1.1",
+    "@sweetalert2/ngx-sweetalert2": "^13.0.0",
     "amplify-angular-template": "file:",
     "aws-amplify": "^6.6.6",
+    "bootstrap": "^5.3.5",
     "rxjs": "~7.8.0",
+    "sweetalert": "^2.1.2",
+    "sweetalert2": "^11.0.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.3"
   },

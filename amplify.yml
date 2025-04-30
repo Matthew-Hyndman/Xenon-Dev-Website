@@ -1,5 +1,5 @@
 #increment version by 1 with every new deployment
-version: 2
+version: 3
 backend:
   phases:
     build:
@@ -20,5 +20,5 @@ frontend:
       - '**/*'
   cache:
     paths:
-      #- .npm/**/*
-      #- node_modules/**/*
+      - .npm/**/*
+      - node_modules/**/*
