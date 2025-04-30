@@ -1,5 +1,5 @@
 #increment version by 1 with every new deployment
-version: 3
+version: 1
 backend:
   phases:
     build:
