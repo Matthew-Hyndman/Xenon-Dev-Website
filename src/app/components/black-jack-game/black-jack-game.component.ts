@@ -3,12 +3,8 @@ import { Deck } from './game-objects/deck';
 import { Hand } from '../../common/hand';
 import { Router } from '@angular/router';
 import { BlackJackHelpService } from '../../services/black-jack-help.service';
-import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
 import { Card } from '../../common/card';
 import Swal from 'sweetalert2';
-import { ReactiveFormsModule } from '@angular/forms';
-import { provideClientHydration } from '@angular/platform-browser';
-import { NoDoubleClickDirective } from '../../directives/no-double-click.directive';
 
 const MAX_HAND_VALUE = 21;
 

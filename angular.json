@@ -16,6 +16,14 @@
             "outputPath": "dist/amplify-angular-template",
             "index": "src/index.html",
             "browser": "src/main.ts",
+            "optimization": {
+              "scripts": true,
+              "styles": {
+                "minify": true,
+                "inlineCritical": false
+              },
+              "fonts": true
+            },
             "polyfills": [
               "zone.js"
             ],
