@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, HostListener } from '@angular/core';
 import { NavLinks } from '../../common/nav-links';
 import { LinkObj } from '../../common/link-obj';
 
@@ -16,6 +16,13 @@ export class MiniNavMenuComponent {
 
   constructor(private navLinks: NavLinks) {
     this.links = this.navLinks.links;
+  }
+
+  @HostListener('document:mousewheel', ['$event'])
+  onDocumentMousewheelEvent(event: any){
+    if (!this.sidebarActive) {
+      this.sidebarActive = true;
+    }
   }
 
   toggleSidebar() {

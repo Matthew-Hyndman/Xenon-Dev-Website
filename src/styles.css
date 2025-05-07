@@ -130,12 +130,12 @@ a:hover {
 
 .page-container {
   background: #003789;
-  padding-left: 200px
 }
 
 .main-content {
   padding-top: 116px;
-  min-height: 100vh
+  min-height: 100vh;
+  animation: fade-in 1.5s;
 }
 
 aside.menu-sidebar.d-none.d-lg-block.clr {
@@ -159,7 +159,7 @@ aside.menu-sidebar.d-none.d-lg-block.clr {
   position: fixed;
   top: 0;
   right: 0;
-  left: 200px;
+  left: 0;
   height: 75px;
   z-index: 3
 }
@@ -341,8 +341,20 @@ input.au-input.au-input-xl {
   padding-top: 3px;
   max-width: 200px;
   width: 100%;
+   
 }
 
+.sidebar-link:hover{
+  transform: scaleY(1.5);
+  background-color: rgb(0, 127, 211);
+  transition: 0.3s;
+}
+
+.sidebar-link:active{
+  transform: scale(0.75);
+  transform: scale(1);
+  transition: 0.5;
+}
 /* 
 * ----------------------------
 * Left Menu Bar
@@ -847,7 +859,7 @@ a.primary-btn {
 }
 
 a.primary-btn:hover {
-  background: #003789;
+  background: #ffffff;
   color: #fff
 }
 
@@ -984,8 +996,8 @@ footer ul li {
 
   .logo {
       text-align: center;
-      /*height: 5%;
-      width: 10%;*/
+      height: auto;
+      min-width: 10%;
   }
 
   .header-desktop {
@@ -1207,11 +1219,29 @@ footer ul li {
 }
 
 .card {
-  border: solid 3px #fff;
+  border: solid 2px #fff;
   padding: 8px;
   max-width: 10%;
   max-height: 20%;
+  box-shadow: 8px 6px 17px #000;
+
+  -webkit-animation-name: flip-x;
+  -webkit-animation-duration: 1s;
+  -webkit-animation-timing-function: linear;
+
+  -moz-animation-name: flip-x;
+  -moz-animation-duration: 1s;
+  -moz-animation-timing-function: linear;
+
+  -ms-animation-name: flip-x;
+  -ms-animation-duration: 1s;
+  -ms-animation-timing-function: linear;
+
+  animation-name: flip-x;
+  animation-duration: 1s;
+  animation-timing-function: linear;
 }
+
 
 .card-area {
   width: 100%;
@@ -1285,6 +1315,10 @@ p {
 
 @media (max-width: 991px) {
 
+  .nav{
+    display: none;
+  }
+
   .header-desktop{
       
       height: 150px;
@@ -1344,6 +1378,65 @@ p {
       width: 36%;
   }
 }
+
+@keyframes fade-in{
+  from{
+    translate: 0 25vw;
+    opacity: 0%;  
+  } 
+
+  to{
+    translate: 0 0;
+    opacity: 100%;
+  }
+}
+
+
+
+@-ms-keyframes flip-x {
+  from{-ms-transform: rotateY(90deg);}
+  to{-ms-transform: rotateY(0deg);}
+}
+
+@-moz-keyframes flip-x {
+  from{-moz-transform: rotateY(90deg);}
+  to{-moz-transform: rotateY(0deg);}
+}
+
+@-webkit-keyframes flip-x {
+  from{-webkit-transform: rotateY(90deg);}
+  to{-webkit-transform: rotateY(0deg);}
+}
+
+@keyframes flip-x {
+  from{transform: rotateY(90deg);}
+  to{transform: rotateY(0deg);}
+}
+
+.nav-link:hover{
+  box-shadow: 0px 0px 11px 2px #fff, inset 0px 0px 5px 0px #fff;
+  animation-name: nav-link-hover;
+  animation-duration: 1.5s;
+  
+
+}
+
+.nav-link{
+  position: relative;
+  border-radius: 5px;
+}
+
+@keyframes nav-link-hover{
+  from{
+    box-shadow: 0px 0px 0px 0px #fff, inset 0px 0px 0px 0px #fff;   
+    /*linear-gradient(90deg,rgba(35, 201, 219, 1) 0%, rgba(24, 186, 24, 1) 50%, rgba(255, 59, 59, 1) 100%);*/ 
+  }
+
+  to{
+    box-shadow: 0px 0px 11px 2px #fff, inset 0px 0px 5px 0px #fff;
+  }
+}
+
 
 /*body {
     margin: 0;

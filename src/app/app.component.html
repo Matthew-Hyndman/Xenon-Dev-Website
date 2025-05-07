@@ -1,35 +1,51 @@
 <div class="page-wrapper">
-  <!-- MENU SIDEBAR-->
-  <aside class="menu-sidebar d-none d-lg-block">
-    <div class="logo">
-      <a href="/landing">
-        <img
-          src="assets\images\New-logo.png"
-          alt="Matthew's Personal Website"
-          class="img-responsive logo"
-        />
-      </a>
-    </div>
-
-    <div class="menu-sidebar-content">
-      <!--nav buttons here-->
-      @for (link of links; track link) {
-      <a class="sidebar-link" href={{link.path}}>{{link.name}}</a>
-      <br />
-    }      
-    </div>
-  </aside>
-  <!-- END MENU SIDEBAR-->
-
+  <!-- MENU NAVBAR-->
   <!-- PAGE CONTAINER-->
   <div class="page-container">
     <!-- HEADER DESKTOP-->
     <header class="header-desktop">
-      <div class="section-content section-content-p30">
+      <div class="section-content">
         <div class="container-fluid">
           <div class="header-wrap">
             <!--top components here-->
-            <app-mini-nav-menu></app-mini-nav-menu>
+            <nav class="navbar navbar-expand">
+
+              <app-mini-nav-menu class="navbar-toggler collapsed"></app-mini-nav-menu>
+
+              <div class="navbar-collapse collapse">
+                <div class="navbar-brand">
+                  <a href="/landing" style="max-width: 40vh; display: 2 2 flex;">
+                    <img
+                      src="assets\images\New-logo.png"
+                      alt="Matthew's Personal Website"
+                      class="logo"
+                      style="max-width: 15%; "
+                    />
+                    <img
+                      src="assets\images\logo-title.png"
+                      alt="title"
+                      class="title-img"
+                    />
+                  </a>
+                </div>
+
+                <ul class="navbar-nav mr-auto">
+                  <!--nav buttons here-->
+                  @for (link of links; track link) {
+                  <li class="nav-item">
+                    <a
+                      class="nav-link"
+                      href="{{ link.path }}"
+                      style="color: white"
+                      >{{ link.name }}</a
+                    >
+                  </li>
+
+                  }
+                </ul>
+              </div>
+            </nav>
+            <!-- END MENU NAVBAR-->
           </div>
           <div class="account-wrap"></div>
         </div>
@@ -38,33 +54,27 @@
     <!-- END HEADER DESKTOP-->
 
     <!-- MAIN CONTENT-->
-    <div class="main-content">
-      <div class="section-content section-content-p30">
-        <div class="container-fulid">
-          <router-outlet></router-outlet>
-        </div>
-      </div>
-    </div>
+
+    <router-outlet></router-outlet>
   </div>
-</div>
 
-<!-- ENDS PAGE CONTAINER -->
+  <!-- ENDS PAGE CONTAINER -->
 
-<footer>
-  <ul style="margin-bottom: 0%;">
-    <p>Social:</p>
-    <li>
-      <a href="https://www.linkedin.com/in/matthew-hyndman-41580b164/"
-        ><i class="fa-brands fa-linkedin fa-2xl"></i
-      ></a>
-    </li>
-    <li>
-      <a href="https://github.com/Matthew-Hyndman"
-        ><i class="fa-brands fa-github fa-2xl"></i
-      ></a>
-    </li>
-    <hr />
-      <p>Micro services / plug-ins used in the making of this website:</p>      
+  <footer>
+    <ul style="margin-bottom: 0%">
+      <p>Social:</p>
+      <li>
+        <a href="https://www.linkedin.com/in/matthew-hyndman-41580b164/"
+          ><i class="fa-brands fa-linkedin fa-2xl"></i
+        ></a>
+      </li>
+      <li>
+        <a href="https://github.com/Matthew-Hyndman"
+          ><i class="fa-brands fa-github fa-2xl"></i
+        ></a>
+      </li>
+      <hr />
+      <p>Micro services / plug-ins used in the making of this website:</p>
       <li>
         <a href="https://fontawesome.com"
           ><i class="fa-solid fa-font-awesome fa-2xl"></i
@@ -80,10 +90,17 @@
           <img src="assets/images/ngx-sweetalert2-logo.png" alt=""
         /></a>
       </li>
-  </ul>
-</footer>
+      <hr />
+      <p>This website is hosted on:</p>
+      <li>
+        <a href="https://aws.amazon.com/amplify/"
+          ><i class="fa-brands fa-aws fa-2xl"></i
+        ></a>
+      </li>
+    </ul>
+  </footer>
 
-<!--<amplify-authenticator>
+  <!--<amplify-authenticator>
     <ng-template
       amplifySlot="authenticated"
       let-user="user"
@@ -93,3 +110,4 @@
       <button (click)="signOut()">Sign Out</button>
     </ng-template>
   </amplify-authenticator>-->
+</div>

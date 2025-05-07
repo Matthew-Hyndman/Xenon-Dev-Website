@@ -16,7 +16,14 @@ const MAX_HAND_VALUE = 21;
   styleUrl: './black-jack-game.component.css',
 })
 export class BlackJackGameComponent implements OnInit {
+/*
 
+issues:
+
+* The betting tokens always show the maximum 
+amount rather than the last amount betted.
+
+*/
   deck!: Deck;
   dealerHand!: Hand;
   playerHand!: Hand;
@@ -68,6 +75,7 @@ export class BlackJackGameComponent implements OnInit {
 
     if (this.useBettingSystem) {
       this.bet = 0;
+      const default_Bet_amount = this.roundValue(this.pot / 2);
       await Swal.fire({
         title: 'How many tokens are you betting',
         allowOutsideClick: false,        
@@ -75,12 +83,12 @@ export class BlackJackGameComponent implements OnInit {
         html: `
     <input
       type="number"
-      value="${this.pot}"
+      value="${default_Bet_amount}"
       step="1"
       class="swal2-input"
       id="range-value">`,
         input: 'range',
-        inputValue: this.pot,
+        inputValue: default_Bet_amount,
         inputAttributes: {
           min: '0',
           max: String(this.pot),
@@ -95,8 +103,8 @@ export class BlackJackGameComponent implements OnInit {
           Swal.getPopup()!.querySelector('output')!.style.display = 'none';
           inputRange.style.width = '100%';
           inputRange.max = String(this.pot);
-          inputRange.value = String(this.pot);
-          this.bet = this.pot;
+          inputRange.value = String(default_Bet_amount);
+          this.bet = default_Bet_amount;
 
           inputRange.addEventListener('input', () => {
             inputNumber.value = inputRange.value;
@@ -184,7 +192,7 @@ export class BlackJackGameComponent implements OnInit {
       await Swal.fire({
         title: 'Draw!',
         text: `you scored: ${this.playerHand.handValue} | dealer scored: ${this.dealerHand.handValue}`,
-        //draggable: true,
+        draggable: true,
         didClose: () => {},
       });
       if (this.useBettingSystem) {
@@ -224,7 +232,7 @@ export class BlackJackGameComponent implements OnInit {
         title: winType,
         text: `you scored: ${this.playerHand.handValue} | dealer scored: ${this.dealerHand.handValue}`,
         imageUrl: 'assets/images/trophy.png',
-        //draggable: true,
+        draggable: true,
         didClose: () => {},
       });
       if (this.useBettingSystem) {
@@ -232,9 +240,7 @@ export class BlackJackGameComponent implements OnInit {
         let payOutMultiplyer: number = (this.isHandBlackJack(this.playerHand)) ? 1.5 : 2;
         (this.isDoublingDown) ? payout = 2 * (payOutMultiplyer * this.bet) : payout = payOutMultiplyer * this.bet;
         
-        if((payout % 2) > 0) { 
-          payout = Math.round(payout); 
-        }
+        payout = this.roundValue(payout);
         
         this.pot += payout;
       }
@@ -252,7 +258,7 @@ export class BlackJackGameComponent implements OnInit {
         title: lossType,
         text: `you scored: ${this.playerHand.handValue} | dealer scored: ${this.dealerHand.handValue}`,
         icon: 'error',
-        //draggable: true,
+        draggable: true,
         didClose: () => {},
       });
       if (this.isDoublingDown) { this.pot -= this.bet } 
@@ -273,5 +279,13 @@ export class BlackJackGameComponent implements OnInit {
       this.stay();
     }
     this.isDoublingDown = false;
+  }
+
+  roundValue(value: number){
+    if (value % 2) {      
+      value = Math.round(value);
+    }
+
+    return value;
   }
 }

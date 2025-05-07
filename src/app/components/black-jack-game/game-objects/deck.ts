@@ -37,7 +37,7 @@ export class Deck {
                         valueObj.name, 
                         suite, 
                         valueObj.value, 
-                        `assets\\images\\cards\\Default_Deck\\${suite}${valueObj.name}.jpg`)
+                        `assets\\images\\cards\\Default_Deck\\${suite}${valueObj.name}.png`)
                     )
                 )
         );
