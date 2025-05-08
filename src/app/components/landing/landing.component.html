@@ -41,6 +41,15 @@
           </p>
         </a>
         <!--<div class="col"></div>-->
+        <button class="row btn btn-info" style="max-width: 300px; max-height: 50px; position: relative; justify-self: center;" (click)="getCatFact()">
+          Get me a cool Cat Fact with an API
+        </button>
+        @if(this.showCatFact){
+          <div class="col text-center">
+        <img src="assets\images\dapper-cat.gif" alt="Sir Catalot" style="max-height: 200px; width: auto;"/>
+        <div class="bubble left">Good day! For this iteration's Fact: <br>{{ catFact.fact }}</div>
+      </div>
+        }
       </div>
     </div>
   </div>
