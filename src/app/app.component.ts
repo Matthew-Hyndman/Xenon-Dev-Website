@@ -22,6 +22,7 @@ Amplify.configure(outputs);
 })
 export class AppComponent {
   title = 'Xenon-Dev';
+  siteEmail='matthew@xenon-dev.com'
   links!: LinkObj[];
 
   constructor (private navLinks: NavLinks){
