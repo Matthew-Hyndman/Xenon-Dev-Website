@@ -1437,6 +1437,15 @@ p {
   }
 }
 
+.landing-page-item:hover{
+  border-radius: 10px;
+  box-shadow: 6px 15px 11px 2px black;
+  background: rgb(40, 83, 138);
+  font: black;
+  transform: scale(1.1);
+  transition: 0.75s;
+}
+
 /*
 --------------------
 RETRO SPEACH BUBBLES

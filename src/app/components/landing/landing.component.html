@@ -12,7 +12,7 @@
       <br />
       <div class="row responsive-row">
         <a
-          class="col responsive-col text-center"
+          class="col responsive-col text-center landing-page-item"
           style="text-decoration: none"
           href="/site-info"
         >
@@ -28,12 +28,12 @@
           </p>
         </a>
         <a
-          class="col responsive-col text-center"
+          class="col responsive-col text-center landing-page-item"
           style="text-decoration: none"
           href="{{ blckJackGameRoute }}"
         >
           <img class="img-icon" src="assets\images\black-jack-icon.png" />
-          <h2 class="mt-2">Black Jack</h2>
+          <h2 class="mt-2">&#9830;BlackJack&#9827;</h2>
           <p>
             Play a game of blackjack with casual rules. In this demo, the
             insurance rule will not apply, as the focus is on showcasing
@@ -42,13 +42,17 @@
         </a>
         <hr>
         <!--<div class="col"></div>-->
-        <button class="row btn btn-info" style="max-width: 300px; max-height: 50px; position: relative; justify-self: center; text-align: center;" (click)="getCatFact()">
+        <div class="row mb-1">
+        <button class="btn btn-info" style="max-width: 300px; max-height: 50px; position: relative; justify-self: center; text-align: center;" (click)="getCatFact()">
           Get me a cool Cat Fact with an API
         </button>
+      </div>
         @if(this.showCatFact){
           <div class="col text-center">
+            <div class="row">
         <img src="assets\images\dapper-cat.gif" alt="Sir Catalot" style="max-height: 200px; width: auto;"/>
         <div class="bubble left">Good day! For this iteration's Fact: <br>{{ catFact.fact }}</div>
+      </div>
       </div>
         }
         <p class="row" style="text-align: center;">API URL: https://catfact.ninja/fact <br>Swagger: https://catfact.ninja/<br> The Cat Fact Public API is accessed using Angular's built-in HTTP client module to send requests and retrieve data.</p>
