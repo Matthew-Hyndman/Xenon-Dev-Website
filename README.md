@@ -16,4 +16,5 @@ This library is licensed under the MIT-0 License. See the LICENSE file.
 ## Additional recourse references:
 
 [MightyKingVideo – Balatro – Playing Cards](https://www.spriters-resource.com/fullview/222133/)
+
 [majesticloulou – dapper cat](https://imgur.com/gallery/dapper-cat-5MndptK)
