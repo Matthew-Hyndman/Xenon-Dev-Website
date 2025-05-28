@@ -1,5 +1,8 @@
 CREATE DATABASE `xenon-dev-db` /*!40100 DEFAULT CHARACTER SET utf8mb4 */;
 
+CREATE USER 'xenondev'@'localhost' IDENTIFIED BY 'Xenon-Dev64!';
+GRANT ALL PRIVILEGES ON `xenon-dev-db`.* TO 'xenondev'@'localhost';
+
 USE `xenon-dev-db`;
 
 CREATE TABLE `user` (
