@@ -6,7 +6,7 @@ import java.util.Set;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.metamodel.EntityType;
-import org.springframework.beans.factory.annotation.Autowired;
+//import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
@@ -17,7 +17,6 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import com.xenon_dev.backend_server_website.entity.Player_Profile;
 import com.xenon_dev.backend_server_website.entity.User;
 
-import jakarta.persistence.EntityManager;
 
 @Configuration
 public class MyDataRestConfig implements RepositoryRestConfigurer {

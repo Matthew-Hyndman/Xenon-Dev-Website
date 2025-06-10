@@ -19,6 +19,8 @@
     "@angular/platform-browser-dynamic": "^17.3.0",
     "@angular/router": "^17.3.0",
     "@aws-amplify/ui-angular": "^5.1.1",
+    "@okta/okta-angular": "^5.2.0",
+    "@okta/okta-signin-widget": "^6.2.0",
     "@sweetalert2/ngx-sweetalert2": "^13.0.0",
     "amplify-angular-template": "file:",
     "aws-amplify": "^6.6.6",
