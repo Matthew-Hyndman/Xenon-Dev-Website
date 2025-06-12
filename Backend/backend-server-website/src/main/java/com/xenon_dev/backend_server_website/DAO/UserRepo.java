@@ -11,4 +11,6 @@ import com.xenon_dev.backend_server_website.entity.User;
 @RepositoryRestResource
 public interface UserRepo extends JpaRepository<User, Long> {
     
+    User findByEmail(String theEmail);
+
 }
