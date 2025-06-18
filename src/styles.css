@@ -1219,34 +1219,97 @@ footer ul li {
   width: 12%;
 }
 
+.card-entity{
+  --w: 12vw;
+  --h: 30vh;
+  width: var(--w);
+  height: var(--h);
+}
+
 .card {
-  border: solid 2px #fff;
-  padding: 8px;
-  max-width: 10%;
-  max-height: 20%;
+  border: solid 2px #000;
+  width: var(--w);
+  height: var(--h);
   box-shadow: 8px 6px 17px #000;
+  opacity: 100%;
+  position: absolute;
+  z-index: 1;
 
   -webkit-animation-name: flip-x;
   -webkit-animation-duration: 1s;
-  -webkit-animation-timing-function: linear;
+  -webkit-animation-timing-function: ease;
 
   -moz-animation-name: flip-x;
   -moz-animation-duration: 1s;
-  -moz-animation-timing-function: linear;
+  -moz-animation-timing-function: ease;
 
   -ms-animation-name: flip-x;
   -ms-animation-duration: 1s;
-  -ms-animation-timing-function: linear;
+  -ms-animation-timing-function: ease;
 
   animation-name: flip-x;
   animation-duration: 1s;
-  animation-timing-function: linear;
+  animation-timing-function: ease;
 }
 
+/*.card:hover{
+
+
+  /*-webkit-animation-name: flip-over;
+  -webkit-animation-direction: 1s;
+  -webkit-animation-timing-function: ease;
+
+  -moz-animation-name: flip-over;
+  -moz-animation-direction: 1s;
+  -moz-animation-timing-function: ease;
+
+  -ms-animation-name: flip-over;
+  -ms-animation-direction: 1s;
+  -ms-animation-timing-function: ease;*/
+
+  
+  /*animation-name: flip-over;
+  animation-delay: 0s;
+  animation-duration: 1s;
+  animation-timing-function: ease;
+  opacity: 0%;
+}*/
+
+
+.card-tool-tip{
+  /*max-width: 71px;
+  max-height: 95px;*/
+  width: var(--w);
+  height: var(--h) ;
+  background: linear-gradient(0deg,rgba(0, 55, 137, 1) 0%, rgba(9, 9, 121, 1) 75%, rgba(0, 123, 150, 1) 100%);
+  border: #000 2px solid ;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  z-index: 0;
+  position: relative;
+  opacity: 0%;
+}
+
+.card-tool-tip:hover{
+  animation-name: reveal-card-tool-tip;
+  animation-delay: 0s;
+  animation-duration: 1s;
+  animation-timing-function: ease;
+  opacity: 100%;
+}
 
 .card-area {
-  width: 100%;
-  height: 40%;
+ 
+  display: flex;
+  row-gap: 2px;
+  column-gap: 2px;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  top: 8vh;
+  bottom: 8vh;
 }
 
 .game-button {
@@ -1367,10 +1430,10 @@ p {
   }
 
   .card {
-      border: solid 1px #fff;
+      border: solid 1px #000000;
       padding: 1px;
-      max-width: 10%;
-      max-height: 20%;
+      /*max-width: 10%;
+      max-height: 20%;*/
   }
 
   .footer-image {
@@ -1425,6 +1488,96 @@ p {
   from{transform: rotateY(90deg);}
   to{transform: rotateY(0deg);}
 }
+
+/*
+    CARD TOOLTIP
+*/
+
+/*@-ms-keyframes flip-over {
+  0%{
+    -ms-transform: rotateY(0deg);
+    -ms-transform: scale(1);
+  }
+  50%{
+    -ms-transform: scale(1.2);
+  }
+  100%{
+    -ms-transform: rotateY(180deg);
+    -ms-transform: scale(1);
+  }
+}
+
+@-moz-keyframes flip-over {
+  0%{
+    -moz-transform: rotateY(0deg);
+    -moz-transform: scale(1);
+  }
+  50%{
+    -moz-transform: scale(1.2);
+  }
+  100%{
+    -moz-transform: rotateY(180deg);
+    -moz-transform: scale(1);
+  }
+}
+
+@-webkit-keyframes flip-over {
+  0%{
+    -webkit-transform: rotateY(0deg);
+    -webkit-transform: scale(1);
+  }
+  50%{
+    -webkit-transform: scale(1.2);
+  }
+  100%{
+    -webkit-transform: rotateY(180deg);
+    -webkit-transform: scale(1);
+  }
+}*/
+
+@keyframes flip-over {
+  0%{
+    transform: rotateY(0deg) scale(1);    
+    opacity: 100%;
+  }
+  
+  50%{
+    transform: rotateY(90deg) scale(1.2);
+    opacity: 100%;
+  }
+
+51%{
+    opacity: 0%;
+  }
+
+  100%{
+    transform: rotateY(180deg) scale(1) ;
+    opacity: 0%;
+  }
+}
+
+@keyframes reveal-card-tool-tip {
+  0%{
+    transform: rotateY(180deg) scale(1);    
+    opacity: 0%;
+  }
+  
+  50%{
+    transform: rotateY(90deg) scale(1.2);
+    opacity: 0%;
+  }
+
+51%{
+    opacity: 100%;
+  }
+
+  100%{
+    transform: rotateY(0deg) scale(1) ;
+    opacity: 100%;
+  }
+}
+
+/*///////////////////////////////*/
 
 .nav-link:hover{
   box-shadow: 0px 0px 11px 2px #fff, inset 0px 0px 5px 0px #fff;
