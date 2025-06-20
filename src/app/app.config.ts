@@ -3,7 +3,7 @@ import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
 
-import OktaAuth from '@okta/okta-auth-js/lib/OktaAuth';
+import OktaAuth from '@okta/okta-auth-js';
 import xenonDevConfig from '../app/config/xenon-dev-config';
 import { OktaAuthOptions } from '@okta/okta-auth-js';
 import { OKTA_CONFIG } from '@okta/okta-angular';

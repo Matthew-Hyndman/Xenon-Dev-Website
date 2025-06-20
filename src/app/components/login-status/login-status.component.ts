@@ -11,7 +11,7 @@ import OktaAuth from '@okta/okta-auth-js';
 })
 export class LoginStatusComponent implements OnInit{
 
-  IsAuthenticared?: boolean = false;
+  IsAuthenticated?: boolean = false;
   userFullName: string = '';
 
   storage: Storage = sessionStorage;
@@ -21,14 +21,14 @@ export class LoginStatusComponent implements OnInit{
   ngOnInit(): void {
     this.oktaAuthService.authState$.subscribe(
       (result) => {
-        this.IsAuthenticared = result.isAuthenticated;
+        this.IsAuthenticated = result.isAuthenticated;
         this.getUserDetails();
       }
     )
   }
 
   getUserDetails() {
-    if(this.IsAuthenticared){
+    if(this.IsAuthenticated){
       this.oktaAuth.getUser().then(
         (res: any) => {
           this.userFullName = res.name as string;

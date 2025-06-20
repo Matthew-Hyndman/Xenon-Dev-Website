@@ -4,7 +4,7 @@ import { BlackJackGameComponent } from './components/black-jack-game/black-jack-
 import { BlackJackHelpComponent } from './components/black-jack-help/black-jack-help.component';
 import { SiteInfoComponent } from './components/site-info/site-info.component';
 
-import OktaAuth from '@okta/okta-auth-js/lib/OktaAuth';
+import OktaAuth from '@okta/okta-auth-js';
 import { Injector } from '@angular/core';
 import { OktaAuthGuard, OktaCallbackComponent } from '@okta/okta-angular';
 import { LoginComponent } from './components/login/login.component';
