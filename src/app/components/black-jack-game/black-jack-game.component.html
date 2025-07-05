@@ -4,91 +4,120 @@
       <h1 style="color: black">Black Jack</h1>
       <div class="col responsive-col">
         <!--<div class="row card-area">-->
-          <div class="row">
-            <h3 style="color: black">Dealer</h3>
-            <!--@for (card of dealerHand.cards; track card) {
-            <img
-              class="card"
-              src="{{ card.imageUrl }}"
-              alt="value: {{ card.value }}"
-            />
-          }-->
-            <h3 class="mt-2" style="color: black">
-              Score: {{ dealerHand.handValue }}
-            </h3>
-
-            <hr />
-            
-              <h3 style="color: black">Player</h3>
-              <div class="row card-area">
-              @for (card of playerHand.cards; track card) {
-              <div class="card-entity">
+        <div class="row">
+          <h3 style="color: black">Dealer</h3>
+          @for (card of dealerHand.cards; track card) {
+          <div class="card-entity">
+            <div class="card-inner">
+              <img
+                class="card-front"
+                src="{{ card.imageUrl }}"
+                alt="value: {{ card.value }}"
+              />
+              <div class="card-back">
                 <img
-                  class="card"
+                  class="card-back-image"
+                  src="assets/images/card-tool-tip.png"
+                  alt="card-tool-tip"
+                />
+                <p>Value {{ card.value }}</p>
+              </div>
+            </div>
+          </div>
+          }
+          <h3 class="mt-2" style="color: black">
+            Score: {{ dealerHand.handValue }}
+          </h3>
+
+          <hr />
+
+          <h3 style="color: black">Player</h3>
+          <div class="row card-area">
+            @for (card of playerHand.cards; track card) {
+            <div class="card-entity">
+              <div class="card-inner">
+                <img
+                  class="card-front"
                   src="{{ card.imageUrl }}"
                   alt="value: {{ card.value }}"
                 />
-                <div class="card-tool-tip">
-                  <img src="assets/images/card-tool-tip.png" alt="card-tool-tip" />
+                <div class="card-back">
+                  <img
+                    class="card-back-image"
+                    src="assets/images/card-tool-tip.png"
+                    alt="card-tool-tip"
+                  />
                   <p>Value {{ card.value }}</p>
                 </div>
               </div>
-              }</div>
-              <h3 class="mt-2" style="color: black">
-                Score: {{ playerHand.handValue }}
-              </h3>
-            
-          </div>
-          <hr />
-          <div class="row">
-            <label
-              class="au-label"
-              style="display: flex; justify-content: center"
-            >
-              <span class="check-box" style="color: black"
-                ><input
-                  type="checkbox"
-                  class="au-checkbox"
-                  (change)="isBettingEnabled($event)"
-                  [checked]="useBettingSystem"
-                />
-                Use Betting</span
-              >
-            </label>
-          </div>
-          <div class="row">
-            <button
-              class="game-button"
-              appNoDoubleClick
-              (click)="playerPickCard()"
-            >
-              Hit
-            </button>
-            <button class="game-button" appNoDoubleClick (click)="stay()">
-              Stand
-            </button>
-            <label class="game-info-box">Wins: {{ playerHand.wins }}</label>
-            <label class="game-info-box">Losses: {{ dealerHand.wins }}</label>
-            <!--help button not working-->
-            <a
-              type="button"
-              class="game-button"
-              href="/black-jack-help"
-              style="text-align: center"
-            >
-              Help
-            </a>
-          </div>
-
-          <div class="row">
-            @if (useBettingSystem) {
-            <button class="game-button" appNoDoubleClick (click)="doubleDown()">
-              Double Down
-            </button>
-            <label class="game-info-box">Your Pot: {{ pot }}</label>
-            <label class="game-info-box">Your Bet: {{ bet }}</label>
+            </div>
             }
           </div>
+          <h3 class="mt-2" style="color: black">
+            Score: {{ playerHand.handValue }}
+          </h3>
+        </div>
+        <hr />
+        <div class="row">
+          <div class="input-section game-inputs-spaceing">
+            <span class="check-box" style="color: black"
+              ><input
+                type="checkbox"
+                class="au-checkbox"
+                (change)="isBettingEnabled($event)"
+                [checked]="useBettingSystem"
+              />
+              Use Betting</span
+            >
+
+            <span class="check-box item-tooltip" style="color: black"
+              ><input
+                type="checkbox"
+                class="au-checkbox"
+                (change)="isDealerCardDelayEnabled($event)"
+                [checked]="useDealerCardRevealDelay"
+              />
+              Use Dealer Card Reveal Delay
+              <span class="item-tooltiptext"
+                >Enables/Disables the delay of the dealer’s cards after
+                selecting "Stand"</span
+              ></span
+            >
+          </div>
+        </div>
+        <div class="row game-inputs-spaceing">
+          <button
+            class="game-button game-button-2"
+            appNoDoubleClick
+            (click)="playerPickCard()"
+          >
+            Hit
+          </button>
+          <button class="game-button game-button-2" appNoDoubleClick (click)="stay()">
+            Stand
+          </button>
+          <label class="game-info-box">Wins: {{ playerHand.wins }}</label>
+          <label class="game-info-box">Losses: {{ dealerHand.wins }}</label>
+          <!--help button not working-->
+          <a
+            type="button"
+            class="game-button game-button-2"
+            href="/black-jack-help"
+            style="text-align: center"
+          >
+            Help
+          </a>
+        </div>
+
+        <div class="row">
+          @if (useBettingSystem) {
+          <button class="game-button game-button-2" appNoDoubleClick (click)="doubleDown()">
+            Double Down
+          </button>
+          <label class="game-info-box">Your Pot: {{ pot }}</label>
+          <label class="game-info-box">Your Bet: {{ bet }}</label>
+          }
+        </div>
         <!--</div>-->
       </div>
     </div>

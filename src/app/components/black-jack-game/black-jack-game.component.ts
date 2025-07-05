@@ -1,21 +1,15 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit} from '@angular/core';
+
 import { Deck } from './game-objects/deck';
 import { Hand } from '../../common/hand';
 import { Router } from '@angular/router';
 import { BlackJackHelpService } from '../../services/black-jack-help.service';
+import { BlckJackGameService } from '../../services/blck-jack-game.service';
 import { Card } from '../../common/card';
 
 import Swal from 'sweetalert2';
-import { Animations } from '../../animations/animations';
 
 const MAX_HAND_VALUE = 21;
-
-const eventAnimationClass = new Animations();
-
-//assign the values later in the code create a method that let you refresh the
-var theCardsEntityElements: NodeListOf<Element>;
-var theCardFaceElements: NodeListOf<Element>;
-var theCardBackElements: NodeListOf<Element>;
 
 @Component({
   selector: 'app-black-jack-game',
@@ -33,6 +27,8 @@ export class BlackJackGameComponent implements OnInit {
 
   useBettingSystem = true;
 
+  useDealerCardRevealDelay = false;
+
   isFirstGame = true;
 
   isDoublingDown = false;
@@ -44,12 +40,15 @@ export class BlackJackGameComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private blackJackHelpService: BlackJackHelpService
+    private blackJackHelpService: BlackJackHelpService,
+    private blackJackGameService: BlckJackGameService
   ) {}
 
   ngOnInit(): void {
     let theDataIsTrue =
       this.blackJackHelpService.isHasUserAgreedToDisclaimerTrue();
+
+      this.useDealerCardRevealDelay = this.blackJackGameService.getDealerTimerToggle();
 
     if (theDataIsTrue) {
       this.startNewGame();
@@ -138,7 +137,6 @@ export class BlackJackGameComponent implements OnInit {
     //pick on card for the player
     this.addToHand(this.playerHand);
 
-    this.refreshAnimationElements()
   }
 
   addToHand(theHand: Hand) {
@@ -190,7 +188,9 @@ export class BlackJackGameComponent implements OnInit {
     do {
       this.addToHand(this.dealerHand);
       dealerScore = this.dealerHand.handValue;
-      await this.sleep(1250);
+      if(this.useDealerCardRevealDelay){
+        await this.sleep(1250);
+      }
       if (this.hasScoreExceededMaxValue(dealerScore)) {
         this.Bust(this.dealerHand);
         return;
@@ -289,6 +289,11 @@ export class BlackJackGameComponent implements OnInit {
     this.startNewGame();
   }
 
+  isDealerCardDelayEnabled(event: any){
+    this.useDealerCardRevealDelay = event.target.checked;
+    this.blackJackGameService.setDealerTimerToggle(event.target.checked);
+  }
+
   doubleDown() {
     this.isDoublingDown = true;
     this.playerPickCard();
@@ -305,50 +310,5 @@ export class BlackJackGameComponent implements OnInit {
 
     return value;
   }
-
-  //you are going to have to set up the element IDs in the HTML to be dynamically seachable instread of doing gereal searches like .querySelectorAll
-  refreshAnimationElements() {
-    theCardsEntityElements = document.querySelectorAll('.card-entity');
-    theCardFaceElements = document.querySelectorAll('.card');
-    theCardBackElements = document.querySelectorAll('.card-tool-tip');
-
-    let eventType = 'hover';
-
-    this.emptyCardEntityElements(eventType);
-
-    theCardsEntityElements.forEach((entity) => {
-      entity.addEventListener(
-        eventType,
-        this.filp_over_and_reveal_card_tool_tip()
-      );
-    });
-  }
-
-  emptyCardEntityElements(eventType: string){
-    if (theCardsEntityElements.length > 0) {
-      theCardsEntityElements.forEach((entity) =>
-        entity.removeEventListener(
-          eventType,
-          this.filp_over_and_reveal_card_tool_tip()
-        )
-      );
-    }
-  }
-
-  filp_over_and_reveal_card_tool_tip(): EventListener {
-    return () => {
-      theCardFaceElements.forEach((theFace) =>
-      theFace.animate(
-        eventAnimationClass.filp_over,
-        eventAnimationClass.default_animation_properties
-      )
-    );
-    theCardBackElements.forEach((theBack) =>
-      theBack.animate(
-        eventAnimationClass.reveal_card_tool_tip,
-        eventAnimationClass.default_animation_properties
-      )
-    );
-  };
-  }
+  
 }

@@ -1219,21 +1219,49 @@ footer ul li {
   width: 12%;
 }
 
-.card-entity{
-  --w: 12vw;
-  --h: 30vh;
-  width: var(--w);
-  height: var(--h);
+.game-inputs-spaceing{
+  gap: 15px;
 }
 
-.card {
+.card-entity{
+  --w: 150px;
+  --h: 200px;
+  width: var(--w);
+  height: var(--h);
+  background-color: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.card-inner{
+ position: relative;
+ text-align: center;
+ width: var(--w);
+ height: var(--h);
+ transition: transform 0.6s;
+ transform-style: preserve-3d;
+ display: flex;
+ justify-content: center;
+ align-items: center;
+}
+
+.card-entity:hover .card-inner{
+  transform: rotateY(180deg);
+}
+
+.card-front, .card-back{
+  position: absolute;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+.card-front {
   border: solid 2px #000;
   width: var(--w);
   height: var(--h);
   box-shadow: 8px 6px 17px #000;
-  opacity: 100%;
-  position: absolute;
-  z-index: 1;
+  background-color: white;
 
   -webkit-animation-name: flip-x;
   -webkit-animation-duration: 1s;
@@ -1252,33 +1280,8 @@ footer ul li {
   animation-timing-function: ease;
 }
 
-/*.card:hover{
 
-
-  /*-webkit-animation-name: flip-over;
-  -webkit-animation-direction: 1s;
-  -webkit-animation-timing-function: ease;
-
-  -moz-animation-name: flip-over;
-  -moz-animation-direction: 1s;
-  -moz-animation-timing-function: ease;
-
-  -ms-animation-name: flip-over;
-  -ms-animation-direction: 1s;
-  -ms-animation-timing-function: ease;*/
-
-  
-  /*animation-name: flip-over;
-  animation-delay: 0s;
-  animation-duration: 1s;
-  animation-timing-function: ease;
-  opacity: 0%;
-}*/
-
-
-.card-tool-tip{
-  /*max-width: 71px;
-  max-height: 95px;*/
+.card-back{
   width: var(--w);
   height: var(--h) ;
   background: linear-gradient(0deg,rgba(0, 55, 137, 1) 0%, rgba(9, 9, 121, 1) 75%, rgba(0, 123, 150, 1) 100%);
@@ -1287,17 +1290,8 @@ footer ul li {
   justify-content: center;
   flex-direction: column;
   align-items: center;
-  z-index: 0;
-  position: relative;
-  opacity: 0%;
-}
-
-.card-tool-tip:hover{
-  animation-name: reveal-card-tool-tip;
-  animation-delay: 0s;
-  animation-duration: 1s;
-  animation-timing-function: ease;
-  opacity: 100%;
+  box-shadow: 8px 6px 17px #000;
+  transform: rotateY(180deg);
 }
 
 .card-area {
@@ -1313,11 +1307,40 @@ footer ul li {
 }
 
 .game-button {
-  border: solid 1px #000;
-  background-color: #5087d9;
+  width: 130px;
+  height: 40px;
   color: #fff;
-  width: 8%;
-  height: fit-content;
+  border-radius: 5px;
+  padding: 10px 25px;
+  font-weight: 500;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  display: inline-block;
+  box-shadow: inset 2px 2px 2px 0px rgba(255,255,255,.5),
+   7px 7px 20px 0px rgba(0,0,0,.1),
+   4px 4px 5px 0px rgba(0,0,0,.1);
+  outline: none;
+  font-size: 15px;
+}
+
+.game-button-2{
+  background: #004dff;
+  background: linear-gradient(0deg, #004dff 0%, #004dff 100%);
+  border: none;
+}
+
+.game-button-2::before{
+  height: 0%;
+  width: 2px;
+}
+
+.game-button-2:active{
+  box-shadow: 4px 4px 6px 0 rgba(255,255,255,.5),
+              -4px -4px 6px 0 rgba(116, 125, 136, .5), 
+    inset -4px -4px 6px 0 rgba(255,255,255,.2),
+    inset 4px 4px 6px 0 rgba(0, 0, 0, .4);
 }
 
 .game-info-box {
@@ -1387,6 +1410,14 @@ p {
 
 @media (max-width: 991px) {
 
+  .card-entity{
+    --w: 100px;
+    --h: 125px;
+  }
+
+  .card-back-image{
+    visibility: hidden;
+  }
   .landing-item-box{
     flex-direction: column;
   }
@@ -1439,6 +1470,11 @@ p {
   .footer-image {
       height: 10%;
       width: 24%;
+  }
+
+  .item-tooltip .item-tooltiptext{
+    justify-self: center;
+    position: absolute;
   }
 }
 
@@ -1493,66 +1529,17 @@ p {
     CARD TOOLTIP
 */
 
-/*@-ms-keyframes flip-over {
-  0%{
-    -ms-transform: rotateY(0deg);
-    -ms-transform: scale(1);
-  }
-  50%{
-    -ms-transform: scale(1.2);
-  }
-  100%{
-    -ms-transform: rotateY(180deg);
-    -ms-transform: scale(1);
-  }
-}
-
-@-moz-keyframes flip-over {
-  0%{
-    -moz-transform: rotateY(0deg);
-    -moz-transform: scale(1);
-  }
-  50%{
-    -moz-transform: scale(1.2);
-  }
-  100%{
-    -moz-transform: rotateY(180deg);
-    -moz-transform: scale(1);
-  }
-}
-
-@-webkit-keyframes flip-over {
-  0%{
-    -webkit-transform: rotateY(0deg);
-    -webkit-transform: scale(1);
-  }
-  50%{
-    -webkit-transform: scale(1.2);
-  }
-  100%{
-    -webkit-transform: rotateY(180deg);
-    -webkit-transform: scale(1);
-  }
-}*/
-
 @keyframes flip-over {
   0%{
     transform: rotateY(0deg) scale(1);    
-    opacity: 100%;
   }
   
   50%{
     transform: rotateY(90deg) scale(1.2);
-    opacity: 100%;
-  }
-
-51%{
-    opacity: 0%;
   }
 
   100%{
     transform: rotateY(180deg) scale(1) ;
-    opacity: 0%;
   }
 }
 
@@ -1700,68 +1687,50 @@ RETRO SPEACH BUBBLES
   box-shadow: -4px -4px #fff, -4px 0 #fff, -8px 0 #fff, 0 -8px #fff, -4px 4px #000, -8px 4px #000, -12px 4px #000, -16px 4px #000, -12px 0 #000, -8px -4px #000, -4px -8px #000, 0 -4px #fff;
 }
 
-/*body {
-    margin: 0;
-    background: linear-gradient(180deg, rgb(117, 81, 194), rgb(255, 255, 255));
-    display: flex;
-    font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-    height: 100vh;
-    width: 100vw;
-    justify-content: center;
-    align-items: center;
-  }
+.item-tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.item-tooltip .item-tooltiptext {
+  visibility: hidden;
+  width: 30vw;
+  min-width: 300px;
+  background: rgba(58, 159, 217, 0.548);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(6.3px);
+  -webkit-backdrop-filter: blur(6.3px);
+  border: 1px solid rgba(58, 160, 217, 1);
+  color: #000000;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  font: sans-serif;
   
-  main {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
+  /* Position the tooltip */
+  position: absolute;
+  z-index: 1;
+  bottom: 100%;
+  left: 14%;
+  margin-left: -60px;
+}
+
+.item-tooltip:hover .item-tooltiptext {
+  visibility: visible;
+  animation: show-item-tooltip 1s;
+}
+
+@keyframes show-item-tooltip {
+  from{
+    opacity: 0%;
   }
-  
-  button {
-    border-radius: 8px;
-    border: 1px solid transparent;
-    padding: 0.6em 1.2em;
-    font-size: 1em;
-    font-weight: 500;
-    font-family: inherit;
-    background-color: #1a1a1a;
-    cursor: pointer;
-    transition: border-color 0.25s;
-    color: white;
+  to{
+    opacity: 100%;
   }
-  button:hover {
-    border-color: #646cff;
-  }
-  button:focus,
-  button:focus-visible {
-    outline: 4px auto -webkit-focus-ring-color;
-  }
-  
-  ul {
-    padding-inline-start: 0;
-    margin-block-start: 0;
-    margin-block-end: 0;
-    list-style-type: none;
-    display: flex;
-    flex-direction: column;
-    margin: 8px 0;
-    border: 1px solid black;
-    gap: 1px;
-    background-color: black;
-    border-radius: 8px;
-    overflow: auto;
-  }
-  
-  li {
-    background-color: white;
-    padding: 8px;
-  }
-  
-  li:hover {
-    background: #dadbf9;
-  }
-  
-  a {
-    font-weight: 800;
-    text-decoration: none;
-  }*/
+}
+
+.input-section{
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+}
