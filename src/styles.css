@@ -1412,6 +1412,16 @@ p {
 
 @media (max-width: 991px) {
 
+  p{
+    padding-left: 5% !important;
+    padding-right: 5% !important;
+    font-size: medium;
+  }
+
+  .check-box {
+    font-size: medium;
+  }
+
   .mobile-navbar-link{
   width: 100vw !important;
   visibility: visible !important;
