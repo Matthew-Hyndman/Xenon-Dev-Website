@@ -1432,10 +1432,6 @@ p {
     --h: 125px;
   }
 
-  .card-back-image {
-    visibility: hidden;
-  }
-
   .landing-item-box {
     flex-direction: column;
   }
