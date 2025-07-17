@@ -1,4 +1,4 @@
-## Welcomr to Xenon Dev's repository!!!
+## Welcome to Xenon Dev's repository!!!
 
 This repository is where Xenon Dev’s source code is backed-up and stored to then be deployed on ASW amplify.
 
