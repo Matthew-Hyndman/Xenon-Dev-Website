@@ -13,8 +13,6 @@ const MAX_HAND_VALUE = 21;
 
 @Component({
   selector: 'app-black-jack-game',
-  standalone: true,
-  imports: [],
   templateUrl: './black-jack-game.component.html',
   styleUrl: './black-jack-game.component.css',
 })

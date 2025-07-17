@@ -5,8 +5,7 @@ import { HttpClient, HttpClientModule, HttpHeaders } from '@angular/common/http'
 
 @Component({
   selector: 'app-landing',
-  standalone: true,
-  imports: [HttpClientModule],
+  //imports: [HttpClientModule],
   templateUrl: './landing.component.html',
   styleUrl: './landing.component.css'
 })

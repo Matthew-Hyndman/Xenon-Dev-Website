@@ -73,12 +73,33 @@
         </p>
       </ul>
 
-      <p><strong>Strategy Tips</strong></p>
+      <p><strong>Tips:</strong></p>
       <ul></ul>
-      <p>
-        Blackjack is a mix of luck and strategy, making it an exciting game,
-        hope you enjoy!
+      <p class="desktop-text" style="text-align: center;">
+        You can view a card’s value by hovering over it with your cursor <br>
+        Hover over The Card!
       </p>
+      <p class="mobile-text" style="text-align: center;">
+        You can view a card’s value by pressing it <br>
+        Press The Card!
+      </p>
+      <div class="card-entity" style="display: flex; justify-self: center;">
+            <div class="card-inner">
+              <img
+                class="card-front"
+                src="assets/images/cards/Default_Deck/DimKing.png"
+                alt="value: 10"
+              />
+              <div class="card-back">
+                <img
+                  class="card-back-image"
+                  src="assets/images/card-tool-tip.png"
+                  alt="card-tool-tip"
+                />
+                <p>Value 10</p>
+              </div>
+            </div>
+          </div>
       <hr />
       <br />
       <h3>Liability Disclaimer:</h3>
@@ -134,7 +155,7 @@
         </p>
       </div>
       <div class="row">
-        <form formGroup="blackJackHelpFromGroup">
+        <form [formGroup]="blackJackHelpFromGroup" (ngSubmit)="onContinue()">
           <div formGroupName="blackJackHelpChildFromGroup">
             <label class="au-label">
               <span class="check-box"
@@ -155,7 +176,7 @@
             }
 
             <div class="row">
-              <button type="button" class="btn btn-info" style="max-width: 100px;" (click)="onContinue()">
+              <button type="submit" class="btn btn-info" style="max-width: 100px;">
                 Continue
               </button>
             </div>
