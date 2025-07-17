@@ -1,8 +1,9 @@
-import { Routes } from '@angular/router';
+import { RouterModule, Routes } from '@angular/router';
 import { LandingComponent } from './components/landing/landing.component';
 import { BlackJackGameComponent } from './components/black-jack-game/black-jack-game.component';
 import { BlackJackHelpComponent } from './components/black-jack-help/black-jack-help.component';
 import { SiteInfoComponent } from './components/site-info/site-info.component';
+import { NgModule } from '@angular/core';
 
 export const routes: Routes = [
   { path: 'black-jack-game', component: BlackJackGameComponent },
@@ -12,3 +13,9 @@ export const routes: Routes = [
   { path: '**', redirectTo: '/landing', pathMatch: 'full' },
   { path: '', redirectTo: '/landing', pathMatch: 'full' },
 ];
+
+@NgModule({
+  imports: [RouterModule.forRoot(routes)],
+  exports: [RouterModule]
+})
+export class AppRoutingModule { }
