@@ -1,7 +1,7 @@
 import { ApplicationConfig } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
-import { routes } from './app.routes';
+import { routes } from './app-routing.module';
 
 import OktaAuth from '@okta/okta-auth-js';
 import xenonDevConfig from '../app/config/xenon-dev-config';

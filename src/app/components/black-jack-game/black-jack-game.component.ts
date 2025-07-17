@@ -1,29 +1,22 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit} from '@angular/core';
+
 import { Deck } from './game-objects/deck';
 import { Hand } from '../../common/hand';
 import { Router } from '@angular/router';
 import { BlackJackHelpService } from '../../services/black-jack-help.service';
+import { BlckJackGameService } from '../../services/blck-jack-game.service';
 import { Card } from '../../common/card';
+
 import Swal from 'sweetalert2';
 
 const MAX_HAND_VALUE = 21;
 
 @Component({
   selector: 'app-black-jack-game',
-  standalone: true,
-  imports: [],
   templateUrl: './black-jack-game.component.html',
   styleUrl: './black-jack-game.component.css',
 })
 export class BlackJackGameComponent implements OnInit {
-/*
-
-issues:
-
-* The betting tokens always show the maximum 
-amount rather than the last amount betted.
-
-*/
   deck!: Deck;
   dealerHand!: Hand;
   playerHand!: Hand;
@@ -31,6 +24,8 @@ amount rather than the last amount betted.
   totalPickedCards: number = 0;
 
   useBettingSystem = true;
+
+  useDealerCardRevealDelay = false;
 
   isFirstGame = true;
 
@@ -43,11 +38,15 @@ amount rather than the last amount betted.
 
   constructor(
     private router: Router,
-    private blackJackHelpService: BlackJackHelpService
-    ) {}
+    private blackJackHelpService: BlackJackHelpService,
+    private blackJackGameService: BlckJackGameService
+  ) {}
 
   ngOnInit(): void {
-    let theDataIsTrue = this.blackJackHelpService.isHasUserAgreedToDisclaimerTrue();
+    let theDataIsTrue =
+      this.blackJackHelpService.isHasUserAgreedToDisclaimerTrue();
+
+      this.useDealerCardRevealDelay = this.blackJackGameService.getDealerTimerToggle();
 
     if (theDataIsTrue) {
       this.startNewGame();
@@ -78,7 +77,7 @@ amount rather than the last amount betted.
       const default_Bet_amount = this.roundValue(this.pot / 2);
       await Swal.fire({
         title: 'How many tokens are you betting',
-        allowOutsideClick: false,        
+        allowOutsideClick: false,
         draggable: true,
         html: `
     <input
@@ -135,6 +134,7 @@ amount rather than the last amount betted.
 
     //pick on card for the player
     this.addToHand(this.playerHand);
+
   }
 
   addToHand(theHand: Hand) {
@@ -172,19 +172,28 @@ amount rather than the last amount betted.
     }
   }
 
+  hasScoreExceededMaxValue(theScore: number): boolean {
+    return theScore > MAX_HAND_VALUE;
+  }
+
+  async sleep(milsec: number) {
+    return new Promise((resolve) => setTimeout(resolve, milsec));
+  }
+
   async stay() {
     const playerScore = this.playerHand.handValue;
     let dealerScore = this.dealerHand.handValue;
     do {
       this.addToHand(this.dealerHand);
       dealerScore = this.dealerHand.handValue;
-      if (dealerScore > MAX_HAND_VALUE) {
+      if(this.useDealerCardRevealDelay){
+        await this.sleep(1250);
+      }
+      if (this.hasScoreExceededMaxValue(dealerScore)) {
         this.Bust(this.dealerHand);
         return;
       }
     } while (!this.isDealerScoreMoreThanPlayerScore());
-
-    //final dealer score not assined
 
     if (dealerScore === playerScore) {
       //a draw between the player and the dealer
@@ -212,8 +221,8 @@ amount rather than the last amount betted.
     return this.dealerHand.handValue > this.playerHand.handValue;
   }
 
-  isHandBlackJack(theHand: Hand) : boolean{
-    return theHand.hasCardFace('Ace') && theHand.hasCardValue(10);          
+  isHandBlackJack(theHand: Hand): boolean {
+    return theHand.hasCardFace('Ace') && theHand.hasCardValue(10);
   }
 
   async Bust(theHand: Hand) {
@@ -237,11 +246,15 @@ amount rather than the last amount betted.
       });
       if (this.useBettingSystem) {
         let payout: number = 0;
-        let payOutMultiplyer: number = (this.isHandBlackJack(this.playerHand)) ? 1.5 : 2;
-        (this.isDoublingDown) ? payout = 2 * (payOutMultiplyer * this.bet) : payout = payOutMultiplyer * this.bet;
-        
+        let payOutMultiplyer: number = this.isHandBlackJack(this.playerHand)
+          ? 1.5
+          : 2;
+        this.isDoublingDown
+          ? (payout = 2 * (payOutMultiplyer * this.bet))
+          : (payout = payOutMultiplyer * this.bet);
+
         payout = this.roundValue(payout);
-        
+
         this.pot += payout;
       }
     } else {
@@ -261,7 +274,9 @@ amount rather than the last amount betted.
         draggable: true,
         didClose: () => {},
       });
-      if (this.isDoublingDown) { this.pot -= this.bet } 
+      if (this.isDoublingDown) {
+        this.pot -= this.bet;
+      }
     }
     this.handThatWentBust = theHand;
     this.startNewGame();
@@ -272,20 +287,26 @@ amount rather than the last amount betted.
     this.startNewGame();
   }
 
+  isDealerCardDelayEnabled(event: any){
+    this.useDealerCardRevealDelay = event.target.checked;
+    this.blackJackGameService.setDealerTimerToggle(event.target.checked);
+  }
+
   doubleDown() {
     this.isDoublingDown = true;
     this.playerPickCard();
-    if(this.playerHand.handValue <= MAX_HAND_VALUE){
+    if (this.playerHand.handValue <= MAX_HAND_VALUE) {
       this.stay();
     }
     this.isDoublingDown = false;
   }
 
-  roundValue(value: number){
-    if (value % 2) {      
+  roundValue(value: number) {
+    if (value % 2) {
       value = Math.round(value);
     }
 
     return value;
   }
+  
 }

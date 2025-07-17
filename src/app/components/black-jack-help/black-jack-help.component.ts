@@ -5,8 +5,6 @@ import { BlackJackHelpService } from '../../services/black-jack-help.service';
 
 @Component({
   selector: 'app-black-jack-help',
-  standalone: true,
-  imports: [],
   templateUrl: './black-jack-help.component.html',
   styleUrl: './black-jack-help.component.css'
 })
