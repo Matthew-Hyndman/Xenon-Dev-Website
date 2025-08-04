@@ -1,6 +1,7 @@
 package com.xenon_dev.backend_server_website.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,9 +13,10 @@ import lombok.Setter;
 public class Player_Profile {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)    
-    @Column(name = "id")
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)  
+    @NotNull  
+    @Column(name = "playerId")
+    private Long playerId;
 
     @Column(name = "pot")
     private int pot;

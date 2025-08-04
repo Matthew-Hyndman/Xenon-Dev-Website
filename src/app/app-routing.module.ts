@@ -1,4 +1,4 @@
-import { RouterModule, Routes } from '@angular/router';
+import { RouterModule, Routes, Router } from '@angular/router';
 import { LandingComponent } from './components/landing/landing.component';
 import { BlackJackGameComponent } from './components/black-jack-game/black-jack-game.component';
 import { BlackJackHelpComponent } from './components/black-jack-help/black-jack-help.component';
@@ -13,7 +13,6 @@ import { AccountProfileComponent } from './components/account-profile/account-pr
 
 function sendToLoginPage(oktaAuth: OktaAuth, injector: Injector){
   const router = injector.get(Router);
-
   router.navigate(['/login']);
 }
 

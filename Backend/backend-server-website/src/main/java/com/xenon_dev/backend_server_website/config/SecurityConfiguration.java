@@ -1,5 +1,6 @@
 package com.xenon_dev.backend_server_website.config;
 
+import com.okta.spring.boot.oauth.Okta;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -17,7 +18,7 @@ public class SecurityConfiguration {
 
         http.authorizeHttpRequests(requsts -> 
         requsts
-            .requestMatchers("/**")/*update this after you learn more about spring security*/
+            .requestMatchers("api/profile/**")/*update this after you learn more about spring security*/
             .authenticated()
             .anyRequest().permitAll()
         ).oauth2ResourceServer(oauth2ResourceServer -> oauth2ResourceServer.jwt(Customizer.withDefaults()));
@@ -26,7 +27,8 @@ public class SecurityConfiguration {
 
         http.setSharedObject(ContentNegotiationStrategy.class, new HeaderContentNegotiationStrategy());
 
-        //set 401 body here
+        Okta.configureResourceServer401ResponseBody(http);
+
 
         http.csrf(AbstractHttpConfigurer::disable);
         return http.build();

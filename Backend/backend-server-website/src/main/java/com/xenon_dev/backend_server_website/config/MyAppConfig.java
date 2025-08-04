@@ -5,6 +5,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import org.springframework.lang.NonNull;
+
 @Configuration
 public class MyAppConfig implements WebMvcConfigurer {
     
@@ -14,8 +16,8 @@ public class MyAppConfig implements WebMvcConfigurer {
     @Value("${spring.data.rest.base-path}")
     private String basePath;
 
-    //@Override
-    public void addCorsMapping(CorsRegistry cors) {
+    @Override
+    public void addCorsMappings(@NonNull CorsRegistry cors) {
         cors.addMapping( basePath + "/**" ).allowedOrigins(theAllowedOrigins);
     }
 }

@@ -6,7 +6,6 @@ import java.util.Set;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.metamodel.EntityType;
-//import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
@@ -26,12 +25,11 @@ public class MyDataRestConfig implements RepositoryRestConfigurer {
 
     private EntityManager entityManager;
 
-    //@Autowired
-    public  MyDataRestConfig(EntityManager theEntityManager){
+    public MyDataRestConfig(EntityManager theEntityManager){
         entityManager = theEntityManager;
     }
-    
- @Override
+
+    @Override
     public void configureRepositoryRestConfiguration(RepositoryRestConfiguration config, CorsRegistry cors) {
         RepositoryRestConfigurer.super.configureRepositoryRestConfiguration(config, cors);
 
