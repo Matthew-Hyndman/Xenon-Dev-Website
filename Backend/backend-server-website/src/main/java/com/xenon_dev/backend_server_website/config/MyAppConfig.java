@@ -10,7 +10,7 @@ import org.springframework.lang.NonNull;
 @Configuration
 public class MyAppConfig implements WebMvcConfigurer {
     
-    @Value("${allowed.orignins}")
+    @Value("${allowed.origins}")
     private String[] theAllowedOrigins;
 
     @Value("${spring.data.rest.base-path}")

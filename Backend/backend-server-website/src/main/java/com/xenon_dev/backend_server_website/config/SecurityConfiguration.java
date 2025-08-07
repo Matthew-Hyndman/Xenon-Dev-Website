@@ -12,13 +12,28 @@ import org.springframework.web.accept.HeaderContentNegotiationStrategy;
 
 @Configuration
 public class SecurityConfiguration {
+    @Bean
+    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http.authorizeHttpRequests(requests ->
+                requests
+                        .requestMatchers("/api/user_profile/**").permitAll()
+                        //.anyRequest().permitAll()
+        );
 
+        http.cors(Customizer.withDefaults());
+    
+        http.setSharedObject(ContentNegotiationStrategy.class, new HeaderContentNegotiationStrategy());
+
+        http.csrf(AbstractHttpConfigurer::disable);
+        return http.build();
+    }
+/* 
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http.authorizeHttpRequests(requsts -> 
         requsts
-            .requestMatchers("api/profile/**")/*update this after you learn more about spring security*/
+            .requestMatchers("api/profile/**")
             .authenticated()
             .anyRequest().permitAll()
         ).oauth2ResourceServer(oauth2ResourceServer -> oauth2ResourceServer.jwt(Customizer.withDefaults()));
@@ -33,5 +48,5 @@ public class SecurityConfiguration {
         http.csrf(AbstractHttpConfigurer::disable);
         return http.build();
     }
-
+*/
 }

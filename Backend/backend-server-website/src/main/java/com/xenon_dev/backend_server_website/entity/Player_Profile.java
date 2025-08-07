@@ -13,9 +13,8 @@ import lombok.Setter;
 public class Player_Profile {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)  
-    @NotNull  
-    @Column(name = "playerId")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)    
+    @Column(name = "player_id")
     private Long playerId;
 
     @Column(name = "pot")

@@ -22,6 +22,6 @@ public class User {
     private String email;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "FK_player_id")
+    @JoinColumn(name = "FK_player_id", referencedColumnName = "player_id")
     private Player_Profile player_profile;
 }

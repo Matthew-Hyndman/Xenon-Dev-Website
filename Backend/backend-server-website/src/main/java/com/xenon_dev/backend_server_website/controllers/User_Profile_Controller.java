@@ -14,6 +14,7 @@ import com.xenon_dev.backend_server_website.service.User_Service_Impl;
 
 import jakarta.validation.Valid;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -66,4 +67,18 @@ public ResponseEntity<User> putMethodName(@PathVariable Long id, @RequestBody Us
     }
 }
 
+@DeleteMapping("deleteUser/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+        try {
+            userService.deleteUser(id);
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
+    /*@GetMapping("getUserByEmail/{email}")
+    public ResponseEntity<User> getUserByEmail(@PathVariable String email) {
+        
+    }*/
 }
