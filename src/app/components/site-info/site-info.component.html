@@ -131,20 +131,35 @@
         This update is only for correcting and applying new techniques I have
         learned recently.
       </p>
-      <p>As of writing this, Phase 2 is still underway.</p>
 
       <p>
         <strong>Phase 2</strong><br />
+        <!--add progrress bar to detail your progress here-->
         Upcoming: User accounts with security (Spring Boot and HTTPS), Blackjack
-        record keeping (track wins, losses, and pot in a database), and a
+        record keeping (track wins, losses, and pot amount, in a database), and a
         leaderboards feature. <br />
-        <i>Micro-Service to be integrated:</i><br />
-        <a style="color: #fff" class="text-center" href="https://www.okta.com"
+        <i>Services to be integrated:</i><br/>
+        <a style="color: #fff" class="text-center mt-3" href="https://www.keycloak.org"
           ><img
             class="img-icon"
-            src="assets\images\auth0_logo.png"
-          /><br /><strong>Auth-0 (connected via REST API)</strong></a
+            src="assets\images\keycloak-logo.png"
+          /><br /><strong>Keycloak</strong></a
         >
+        <br>
+        A REST API would be utilized to facilitate the secure transmission and reception 
+        of data, thereby enabling account security. To access stored user information, 
+        a sign-in system is essential. Keycloak is a suitable and free solution for 
+        implementing online sign-in security.
+        <br>
+        <a style="color: #fff" class="text-center mt-3" href="https://www.rabbitmq.com/"
+          ><img
+            class="img-icon"
+            src="assets\images\RabbitMQ-Light-logo.png"
+          /><br /><strong>RabbitMQ</strong></a
+        >
+        <br>
+        RabbitMQ is going to be used to funnel packages for the backend server to 
+        control traffic flow.
       </p>
 
       <p>
@@ -152,7 +167,7 @@
         Future Development: A mock eCommerce shop with customer accounts
         (managed by Auth-0), enabling the creation of mock transactions to
         demonstrate a working payment process.<br />
-        <i>Micro-Service to be integrated:</i><br />
+        <i>Service to be integrated:</i><br />
         <a style="color: #fff" class="text-center" href="https://www.stripe.com"
           ><img
             class="img-icon"
