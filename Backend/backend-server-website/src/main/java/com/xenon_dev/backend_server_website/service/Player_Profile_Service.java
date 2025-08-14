@@ -9,11 +9,11 @@ public interface Player_Profile_Service {
     
     //Player Profile Crud Operations
 
-    void createPlayerProfile(Player_Profile player_profile);
+    Player_Profile createPlayerProfile(Player_Profile player_profile);
 
     Optional<Player_Profile> getPlayerProfileById(Long id);
 
-    void updatePlayerProfile(Player_Profile player_profile);
+    Player_Profile updatePlayerProfile(Long id, Player_Profile player_profile);
 
     void deletePlayerProfile(Long id);
 

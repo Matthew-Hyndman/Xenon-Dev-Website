@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 
 import com.xenon_dev.backend_server_website.entity.User;
@@ -27,8 +28,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 
 
 @RestController
-@RequestMapping("/api/user_profile")
-public class User_Profile_Controller  {
+@RequestMapping("/api/user")
+public class User_Controller  {
     
     @Autowired
     private User_Service_Impl userService;
@@ -53,16 +54,18 @@ public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
     try {
         User theUser = userService.createUser(user);
         return ResponseEntity.ok(theUser);
-    } catch (Exception e) {
+    } catch (RuntimeException e) {
+        System.err.println(e.toString());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 }
 
 @PutMapping("updateUser/{id}")
-public ResponseEntity<User> putMethodName(@PathVariable Long id, @RequestBody User user) {
+public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User user) {
     try {
         return ResponseEntity.ok(userService.updateUser(id , user));
     } catch (RuntimeException e) {
+        System.err.println(e.toString());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 }
@@ -73,12 +76,18 @@ public ResponseEntity<User> putMethodName(@PathVariable Long id, @RequestBody Us
             userService.deleteUser(id);
             return ResponseEntity.noContent().build();
         } catch (RuntimeException e) {
+            System.err.println(e.toString());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
 
-    /*@GetMapping("getUserByEmail/{email}")
+    @GetMapping("getUserByEmail/{email}")
     public ResponseEntity<User> getUserByEmail(@PathVariable String email) {
-        
-    }*/
+        try {
+            return ResponseEntity.ok(userService.getUserByEmail(email));
+        } catch (RuntimeException e){
+            System.err.println(e.toString());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
 }

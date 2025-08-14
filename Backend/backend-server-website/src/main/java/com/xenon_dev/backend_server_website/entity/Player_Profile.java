@@ -1,5 +1,7 @@
 package com.xenon_dev.backend_server_website.entity;
 
+import org.springframework.boot.context.properties.bind.DefaultValue;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -13,7 +15,7 @@ import lombok.Setter;
 public class Player_Profile {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)    
+    @GeneratedValue(strategy = GenerationType.IDENTITY)  
     @Column(name = "player_id")
     private Long playerId;
 

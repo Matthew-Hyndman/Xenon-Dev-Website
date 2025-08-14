@@ -37,8 +37,9 @@ public class User_Service_Impl implements User_Service {
         );
         theUser.setName(user.getName());
         theUser.setEmail(user.getEmail());
+        theUser.setPlayer_profile(user.getPlayer_profile());
         // Update other fields as necessary
-        return userRepo.save(theUser);
+        return saveUser(theUser);
     }
     
 
@@ -52,5 +53,11 @@ public class User_Service_Impl implements User_Service {
         return userRepo.findAll();
     }
 
+    public User getUserByEmail(String theEmail){
+        return userRepo.findByEmail(theEmail);
+    }
 
+    public User saveUser(User user) {
+        return userRepo.save(user);
+    }
 }
