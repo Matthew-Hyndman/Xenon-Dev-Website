@@ -13,8 +13,6 @@ import org.springframework.http.ResponseEntity;
 import com.xenon_dev.backend_server_website.entity.User;
 import com.xenon_dev.backend_server_website.service.User_Service_Impl;
 
-import jakarta.validation.Valid;
-
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -49,7 +47,7 @@ public ResponseEntity<User> getUserDetailsWithId(@PathVariable Long id) {
 }
 
 @PostMapping("createUser")
-public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
+public ResponseEntity<User> createUser(@RequestBody User user) {
 
     try {
         User theUser = userService.createUser(user);

@@ -1,51 +1,43 @@
-import { Component, Inject, OnInit } from '@angular/core';
-import { OKTA_AUTH, OktaAuthStateService } from '@okta/okta-angular';
-import OktaAuth from '@okta/okta-auth-js';
-import OktaSignIn from '@okta/okta-signin-widget';
+import { APP_INITIALIZER, Component, inject, OnInit } from '@angular/core';
+
+import { AuthenticationService } from '../../services/authentication.service';
+import { Router } from '@angular/router';
+import { KeycloakService } from 'keycloak-angular';
 import xenonDevConfig from '../../config/xenon-dev-config';
+import { KeycloakProfile } from 'keycloak-js';
 
 @Component({
   selector: 'app-login',
-  standalone: true,
-  imports: [],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
 })
 export class LoginComponent implements OnInit {
-  oktaSignin: any;
 
-  constructor(
-    private oktaAuthService: OktaAuthStateService,
-    @Inject(OKTA_AUTH) private oktaAuth: OktaAuth
-  ) {
-    this.oktaSignin = new OktaSignIn({
-      logo: 'assets/images/logo-title.png',
-      baseUrl: xenonDevConfig.oidc.issuer.split('/oauth2')[0],
-      redirectUri: xenonDevConfig.oidc.redirectUri,
-      useClassicEngine: true,
-      authPrams: {
-        pkce: true,
-        issuer: xenonDevConfig.oidc.issuer,
-        scopes: xenonDevConfig.oidc.scopes,
-      },
-    });
+  private readonly keycloak = inject(KeycloakService);
+
+  public isLoggedIn = false;
+
+
+  public userProfile: KeycloakProfile | null = null;
+
+
+  constructor(private authService: AuthenticationService, private router: Router) { 
+    //initializeKeycloak(this.keycloak);
+    
+    //if (!this.authService.isLoggedIn()) {      
+      //this.authService.init();
+    //}
+    //this.router.navigate(['landing']);
   }
 
-  ngOnInit(): void {
-    this.oktaSignin.remove();
+  public async ngOnInit() {
+    await this.keycloak.login();
+    /*this.isLoggedIn = await this.keycloak.isLoggedIn();
 
-    this.oktaSignin.renderEl(
-      {
-        el: '#okta-sign-in-widget',
-      },
-      (response: any) => {
-        if (response.status === 'SUCCESS') {
-          this.oktaAuth.signInWithRedirect();
-        }
-      },
-      (error: any) => {
-        throw error;
-      }
-    );
+    if (this.isLoggedIn) {
+      this.userProfile = await this.keycloak.loadUserProfile();
+    }*/
   }
+
 }
+

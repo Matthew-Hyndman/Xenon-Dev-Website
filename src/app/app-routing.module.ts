@@ -5,22 +5,21 @@ import { BlackJackHelpComponent } from './components/black-jack-help/black-jack-
 import { SiteInfoComponent } from './components/site-info/site-info.component';
 import { NgModule } from '@angular/core';
 
-import OktaAuth from '@okta/okta-auth-js';
 import { Injector } from '@angular/core';
-import { OktaAuthGuard, OktaCallbackComponent } from '@okta/okta-angular';
 import { LoginComponent } from './components/login/login.component';
 import { AccountProfileComponent } from './components/account-profile/account-profile.component';
+import { keycloakGuard } from './services/keycloak.guard';
 
-function sendToLoginPage(oktaAuth: OktaAuth, injector: Injector){
+/*function sendToLoginPage(oktaAuth: OktaAuth, injector: Injector){
   const router = injector.get(Router);
   router.navigate(['/login']);
-}
+}*/
 
 export const routes: Routes = [
 
-  {path: 'login/callback', component: OktaCallbackComponent},
-  {path: 'login', component: LoginComponent},
-  {path: 'profile/:id', component: AccountProfileComponent, canActivate: [OktaAuthGuard], data: {onAuthRequired: sendToLoginPage}},
+  //{path: 'login/callback', component: OktaCallbackComponent},
+  {path: 'login', component: LoginComponent, /*canActivate: [keycloakGuard]*/},
+  //{path: 'profile/:id', component: AccountProfileComponent, canActivate: [OktaAuthGuard], data: {onAuthRequired: sendToLoginPage}},
 
   { path: 'black-jack-game', component: BlackJackGameComponent },
   { path: 'black-jack-help', component: BlackJackHelpComponent },

@@ -1,11 +1,9 @@
 export default {
-    oidc:{
-        clientId: '0oap2h5p84zmYRuLe5d7',
-        issuer: 'https://dev-16855930.okta.com/oauth2/default',
-        redirectUri: 
-            'http://localhost:4200/login/callback'
-            //, 'https://www.xenon-dev.com/login/callbck' use this in production
-        ,
-        scopes: ['openid', 'profile', 'email']
+  keycloak: {
+    local: {
+      url: 'http://localhost:8080',  // Must include full Keycloak URL
+      realm: 'Xenon-Dev-DEV-ENV',
+      clientId: 'xenon-dev-oauth2-client-dev-env-id'
     }
-}
+  }
+};

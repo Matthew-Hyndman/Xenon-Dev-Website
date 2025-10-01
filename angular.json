@@ -38,13 +38,17 @@
               "zone.js"
             ],
             "tsConfig": "tsconfig.app.json",
-            "assets": [              
-              "src/assets"
+            "assets": [
+              "src/assets",
+              {
+                "glob": "silent-check-sso.html",
+                "input": "src/assets",
+                "output": "/"
+              }
             ],
             "styles": [
-              "node_modules/bootstrap/dist/css/bootstrap.min.css",              
-              "src/styles.css",
-              "node_modules/@okta/okta-signin-widget/dist/css/okta-sign-in.min.css"
+              "node_modules/bootstrap/dist/css/bootstrap.min.css",
+              "src/styles.css"
             ],
             "scripts": []
           },
@@ -102,8 +106,7 @@
               "src/assets"
             ],
             "styles": [
-              "src/styles.css",
-              "node_modules/@okta/okta-signin-widget/dist/css/okta-sign-in.min.css"
+              "src/styles.css"
             ],
             "scripts": [],
             "karmaConfig": "karma.conf.js"

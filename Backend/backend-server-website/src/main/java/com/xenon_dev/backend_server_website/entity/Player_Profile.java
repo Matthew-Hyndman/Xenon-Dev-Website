@@ -1,9 +1,6 @@
 package com.xenon_dev.backend_server_website.entity;
 
-import org.springframework.boot.context.properties.bind.DefaultValue;
-
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 

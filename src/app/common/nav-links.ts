@@ -6,6 +6,10 @@ export class NavLinks {
     public links = [
         new LinkObj('Welcome', '/landing'),
         new LinkObj('About', '/site-info'),
-        new LinkObj('BlackJack', '/black-jack-help')
+        new LinkObj('BlackJack', '/black-jack-help'),
+    ];
+
+    public excludeLinksWhenLoggedOut = [
+        new LinkObj('Profile', '/profile')
     ];
 }
