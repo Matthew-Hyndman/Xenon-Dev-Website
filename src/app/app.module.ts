@@ -30,6 +30,7 @@ import {
   KeycloakService,
 } from 'keycloak-angular';
 import xenonDevConfig from './config/xenon-dev-config';
+import { AccountProfileComponent } from './components/account-profile/account-profile.component';
 
 export function initializeKeycloak(keycloak: KeycloakService) {
   return () =>
@@ -77,6 +78,7 @@ export function initializeKeycloak(keycloak: KeycloakService) {
     BlackJackHelpComponent,
     BlackJackGameComponent,
     NoDoubleClickDirective,
+    AccountProfileComponent,
   ],
   imports: [
     CommonModule,

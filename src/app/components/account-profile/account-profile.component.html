@@ -1,1 +1,186 @@
-<p>account-profile works!</p>
+<div class="main-content">
+  <div class="section-content section-content-p30">
+    <div class="container-fulid">
+      <h1>Your Profile</h1>
+      <div class="col responsive-col">
+        <div class="row">
+          <div class="table-format mb-3">
+            <form [formGroup]="profileForm">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Account Details</th>
+                    <th></th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody *ngIf="user; else loading">
+                  <!-- Username -->
+                  <tr>
+                    <td>
+                      <strong>Username:</strong>
+                    </td>
+                    @if(!editMode){
+                    <td>
+                      {{ user.username }}
+                    </td>
+                    <td></td>
+                    } @else {
+                    <td>
+                      <input
+                        class="xenon-profile-form-input"
+                        type="text"
+                        formControlName="username"
+                      />
+                    </td>
+                    <td>
+                      <button
+                        type="button"
+                        class="xenon-profile-form-revert-button"
+                        (click)="revertUsername()"
+                        tooltip="Revert Username"
+                      >
+                        <i
+                          class="fa-solid fa-arrow-rotate-left"
+                          style="color: white"
+                        ></i>
+                      </button>
+                    </td>
+                    }
+                  </tr>
+
+                  <!-- Email -->
+                  <tr>
+                    <td>
+                      <strong>Email:</strong>
+                    </td>
+                    @if(!editMode){
+                    <td>{{ user.email }}</td>
+                    <td></td>
+                    } @else {
+                    <td>
+                      <input
+                        class="xenon-profile-form-input"
+                        type="email"
+                        formControlName="email"
+                      />
+                    </td>
+                    <td>
+                      <button
+                        type="button"
+                        class="xenon-profile-form-revert-button"
+                        (click)="revertEmail()"
+                        tooltip="Revert Email"
+                      >
+                        <i
+                          class="fa-solid fa-arrow-rotate-left"
+                          style="color: white"
+                        ></i>
+                      </button>
+                    </td>
+                    }
+                  </tr>
+
+                  <!-- Name -->
+                  @if(!editMode){
+                  <tr>
+                    <td>
+                      <strong>Name:</strong>
+                    </td>
+                    <td>{{ user.firstName }} {{ user.lastName }}</td>
+                    <td></td>
+                  </tr>
+                  } @else {
+                  <tr>
+                    <td>
+                      <strong>First Name:</strong>
+                    </td>
+                    <td>
+                      <input
+                        class="xenon-profile-form-input"
+                        type="text"
+                        formControlName="firstName"
+                      />
+                    </td>
+                    <td>
+                      <button
+                        type="button"
+                        class="xenon-profile-form-revert-button"
+                        (click)="revertFirstname()"
+                        tooltip="Revert First Name"
+                      >
+                        <i
+                          class="fa-solid fa-arrow-rotate-left"
+                          style="color: white"
+                        ></i>
+                      </button>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      <strong>Last Name:</strong>
+                    </td>
+                    <td>
+                      <input
+                        class="xenon-profile-form-input"
+                        type="text"
+                        formControlName="lastName"
+                      />
+                    </td>
+                    <td>
+                      <button
+                        type="button"
+                        class="xenon-profile-form-revert-button"
+                        (click)="revertLastname()"
+                        tooltip="Revert Last Name"
+                      >
+                        <i
+                          class="fa-solid fa-arrow-rotate-left"
+                          style="color: white"
+                        ></i>
+                      </button>
+                    </td>
+                  </tr>
+                  }
+                </tbody>
+              </table>
+            </form>
+            <!-- only visible when loading -->
+            <ng-template #loading>
+              <tr>
+                <td colspan="2"><p>Loading user details...</p></td>
+              </tr>
+            </ng-template>
+
+            <!-- buttons -->
+            @if (editMode) {
+            <div class="mt-2">
+              <button class="btn btn-info" type="button" (click)="revert()">
+                Revert
+              </button>
+              <button class="btn btn-info" type="button" (click)="save()">
+                Save
+              </button>
+            </div>
+            } @else {
+            <button
+              class="btn btn-info"
+              type="button"
+              (click)="toggleEditMode()"
+            >
+              Edit
+            </button>
+            }
+
+            <ng-template #loading>
+              <tr>
+                <td colspan="2"><p>Loading user details...</p></td>
+              </tr>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
