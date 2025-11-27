@@ -14,9 +14,7 @@ export class AuthenticationService {
   private readonly _isLoggedIn$ = new BehaviorSubject<boolean | null>(null);
   public readonly isLoggedIn$ = this._isLoggedIn$.asObservable();
 
-  private readonly _userProfile$ = new BehaviorSubject<KeycloakProfile | null>(
-    null
-  );
+  private readonly _userProfile$ = new BehaviorSubject<KeycloakProfile | null>(null);
   public readonly userProfile$ = this._userProfile$.asObservable();
 
   constructor() {

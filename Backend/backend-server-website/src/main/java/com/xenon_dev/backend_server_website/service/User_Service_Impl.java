@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.xenon_dev.backend_server_website.DAO.UserRepo;
+import com.xenon_dev.backend_server_website.entity.Player_Profile;
 import com.xenon_dev.backend_server_website.entity.User;
 
 @Service
@@ -18,19 +19,19 @@ public class User_Service_Impl implements User_Service {
     @Autowired
     private UserRepo userRepo;
 
-    @Override
+    /*@Override
     public User createUser(User user) {
        return userRepo.save(user);
-    }
+    }*/
 
     @Override
-    public Optional<User> getUserById(Long id) {
+    public Optional<User> getUserById(String id) {
         return Optional.ofNullable(userRepo.findById(id).orElseThrow(() -> 
             new RuntimeException("User not found with id: " + id)
         ));
     }
 
-    @Override
+    /*@Override
     public User updateUser(Long id, User user) {
         User theUser = userRepo.findById(id).orElseThrow(() -> 
             new RuntimeException("User not found with id: " + id)
@@ -40,24 +41,29 @@ public class User_Service_Impl implements User_Service {
         theUser.setPlayer_profile(user.getPlayer_profile());
         // Update other fields as necessary
         return saveUser(theUser);
-    }
+    }*/
     
 
-    @Override
+    /*@Override
     public void deleteUser(Long id) {
         userRepo.deleteById(id);
-    }
+    }*/
 
     @Override
     public List<User> getAllUsers() {
         return userRepo.findAll();
     }
 
-    public User getUserByEmail(String theEmail){
+    /*public User getUserByEmail(String theEmail){
         return userRepo.findByEmail(theEmail);
-    }
+    }*/
 
     public User saveUser(User user) {
         return userRepo.save(user);
+    }
+
+    @Override
+    public Optional<Player_Profile> getPlayerProfileByUserId(String id) {
+        return userRepo.findPlayerProfileByUserId(id);        
     }
 }

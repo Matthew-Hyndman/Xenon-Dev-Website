@@ -7,20 +7,15 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 
+import com.xenon_dev.backend_server_website.entity.Player_Profile;
 import com.xenon_dev.backend_server_website.entity.User;
 import com.xenon_dev.backend_server_website.service.User_Service_Impl;
 
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-//import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.PutMapping;
 
 
 
@@ -32,6 +27,7 @@ public class User_Controller  {
     @Autowired
     private User_Service_Impl userService;
 
+    /*/
 @GetMapping("getAllUsers")
 public ResponseEntity<List<User>> getAllUsers() {
     List<User> users = userService.getAllUsers();
@@ -39,14 +35,23 @@ public ResponseEntity<List<User>> getAllUsers() {
 }
 
 @GetMapping("getUserDetails/{id}")
-public ResponseEntity<User> getUserDetailsWithId(@PathVariable Long id) {
+public ResponseEntity<User> getUserDetailsWithId(@PathVariable String id) {
     Optional<User> user = userService.getUserById(id);
     return  user.map(ResponseEntity::ok)
             .orElse(ResponseEntity.notFound().build());
 
 }
+*/
 
-@PostMapping("createUser")
+@GetMapping("getPlayerDetails/{id}")
+    public ResponseEntity<Player_Profile> getPlayerDetailsWithId(@PathVariable String id) {
+        Optional<Player_Profile> player = userService.getPlayerProfileByUserId(id);
+        return player.map(ResponseEntity::ok)
+                .orElse(ResponseEntity.status(HttpStatus.BAD_REQUEST).build());
+
+    }
+
+/*@PostMapping("createUser")
 public ResponseEntity<User> createUser(@RequestBody User user) {
 
     try {
@@ -77,9 +82,9 @@ public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User 
             System.err.println(e.toString());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
-    }
+    }*/
 
-    @GetMapping("getUserByEmail/{email}")
+    /*@GetMapping("getUserByEmail/{email}")
     public ResponseEntity<User> getUserByEmail(@PathVariable String email) {
         try {
             return ResponseEntity.ok(userService.getUserByEmail(email));
@@ -87,5 +92,5 @@ public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User 
             System.err.println(e.toString());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
-    }
+    }*/
 }

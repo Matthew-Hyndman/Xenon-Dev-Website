@@ -4,7 +4,7 @@ import { Deck } from './game-objects/deck';
 import { Hand } from '../../common/hand';
 import { Router } from '@angular/router';
 import { BlackJackHelpService } from '../../services/black-jack-help.service';
-import { BlckJackGameService } from '../../services/blck-jack-game.service';
+import { BlackJackGameService } from '../../services/black-jack-game.service';
 import { Card } from '../../common/card';
 
 import Swal from 'sweetalert2';
@@ -39,7 +39,7 @@ export class BlackJackGameComponent implements OnInit {
   constructor(
     private router: Router,
     private blackJackHelpService: BlackJackHelpService,
-    private blackJackGameService: BlckJackGameService
+    private blackJackGameService: BlackJackGameService
   ) {}
 
   ngOnInit(): void {

@@ -7,12 +7,9 @@ import com.xenon_dev.backend_server_website.service.User_Service_Impl;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Supplier;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,30 +24,31 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/player")
 public class Player_Profile_Controller {
 
+    private User_Service_Impl user_Service_Impl;
+
     @Autowired
     private Player_Profile_Service_Impl playerService;
 
+    //private User_Service userService;
+
     @Autowired
-    private User_Service_Impl userService;
+    public void UserController(User_Service_Impl user_Service_Impl) {
+        this.user_Service_Impl = user_Service_Impl;
+    }
+
+    /*@Autowired
+    public void UserController (User_Service userService) {
+        this.userService = userService;
+    }*/
 
     @GetMapping("getAllPlayers")
     public ResponseEntity<List<Player_Profile>> getAllPlayers() {
         List<Player_Profile> players = playerService.getAllPlayerProfiles();
         return ResponseEntity.ok(players);
-    }
+    }    
 
-    @GetMapping("getPlayerDetails/{id}")
-    public ResponseEntity<Player_Profile> getPlayerDetailsWithId(@PathVariable Long id) {
-        Optional<Player_Profile> player = playerService.getPlayerProfileById(id);
-        return player.map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-
-    }
-
-    // why are am I creating a player profile with a request body? they all start
-    // the same lol
     @PostMapping("createPlayer/{user_id}")
-    public ResponseEntity<User> createPlayer(@PathVariable Long user_id) {
+    public ResponseEntity<User> createPlayer(@PathVariable String user_id) {
 
         // Create a new Player_Profile with default values
         Player_Profile player = new Player_Profile();
@@ -60,13 +58,13 @@ public class Player_Profile_Controller {
 
         try {
             // ensure user exists
-            User theUser = userService.getUserById(user_id)
+            User theUser = user_Service_Impl.getUserById(user_id)
                     .orElseThrow(() -> new RuntimeException("User not found with id: " + user_id));
 
             Player_Profile thePlayer = playerService.createPlayerProfile(player);
 
             theUser.setPlayer_profile(thePlayer);
-            userService.saveUser(theUser);
+            user_Service_Impl.saveUser(theUser);
             return ResponseEntity.ok(theUser);
 
         } catch (RuntimeException e) {
