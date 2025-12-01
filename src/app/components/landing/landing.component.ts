@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { BlackJackHelpService } from '../../services/black-jack-help.service';
-import { HttpClient, HttpClientModule, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 
 @Component({

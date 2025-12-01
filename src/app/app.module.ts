@@ -11,34 +11,27 @@ import { SiteInfoComponent } from './components/site-info/site-info.component';
 import { BlackJackHelpComponent } from './components/black-jack-help/black-jack-help.component';
 import { BlackJackGameComponent } from './components/black-jack-game/black-jack-game.component';
 import { NoDoubleClickDirective } from './directives/no-double-click.directive';
-import { HttpClientModule, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
 
 
 
 
-@NgModule({
-  declarations: [
-    AppComponent,
-    LandingComponent,
-    SiteInfoComponent,
-    BlackJackHelpComponent,
-    BlackJackGameComponent,
-    NoDoubleClickDirective
-  ],
-  imports: [
-    CommonModule,
-    BrowserModule,
-    FormsModule,
-    RouterModule.forRoot(routes),
-    HttpClientModule,
-    /*SweetAlert2Module.forRoot(),*/
-    ReactiveFormsModule
-  ],
-  providers:[
-    provideClientHydration(),
-    provideHttpClient(withInterceptorsFromDi())
-  ],
-  bootstrap: [AppComponent]
-})
+@NgModule({ declarations: [
+        AppComponent,
+        LandingComponent,
+        SiteInfoComponent,
+        BlackJackHelpComponent,
+        BlackJackGameComponent,
+        NoDoubleClickDirective
+    ],
+    bootstrap: [AppComponent], imports: [CommonModule,
+        BrowserModule,
+        FormsModule,
+        RouterModule.forRoot(routes),
+        /*SweetAlert2Module.forRoot(),*/
+        ReactiveFormsModule], providers: [
+        provideClientHydration(),
+        provideHttpClient(withInterceptorsFromDi())
+    ] })
 export class AppModule { }
