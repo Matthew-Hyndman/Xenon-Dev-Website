@@ -13,6 +13,7 @@ import { BlackJackGameComponent } from './components/black-jack-game/black-jack-
 import { NoDoubleClickDirective } from './directives/no-double-click.directive';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
+
 @NgModule({ declarations: [
         AppComponent,
         LandingComponent,
