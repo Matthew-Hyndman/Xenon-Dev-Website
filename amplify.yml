@@ -8,7 +8,7 @@ backend:
         - rm -rf .amplify
 
         # Clear node modules and reinstall
-        - rm -rf node_modules
+        #- rm -rf node_modules
         - rm package-lock.json
         - npm install
   build:
@@ -29,5 +29,5 @@ frontend:
       - '**/*'
   cache:
     paths:
-      - .npm/**/*
-      - node_modules/**/*
+      #- .npm/**/*
+      #- node_modules/**/*
