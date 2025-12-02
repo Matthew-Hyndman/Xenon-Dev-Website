@@ -1,24 +1,25 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { BlackJackHelpService } from '../../services/black-jack-help.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 
 @Component({
-  selector: 'app-landing',
-  //imports: [HttpClientModule],
-  templateUrl: './landing.component.html',
-  styleUrl: './landing.component.css'
+    selector: 'app-landing',
+    //imports: [HttpClientModule],
+    templateUrl: './landing.component.html',
+    styleUrl: './landing.component.css',
+    standalone: false
 })
 export class LandingComponent implements OnInit {
-
+  private httpClient = inject(HttpClient)
+  
   blckJackGameRoute: string = '';
   headers = new HttpHeaders({});
   catFact: any;
   showCatFact = false
 
   constructor(
-    private blackJackHelpService: BlackJackHelpService,
-    private httpClient: HttpClient
+    private blackJackHelpService: BlackJackHelpService,    
   ) {}
 
   ngOnInit(): void {
