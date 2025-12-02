@@ -2,7 +2,7 @@ import { Component, HostListener } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 //import { TodosComponent } from './todos/todos.component';
 import { Amplify } from 'aws-amplify';
-import outputs from '../../amplify_outputs.json';
+//import outputs from '../../amplify_outputs.json';
 import {
   AmplifyAuthenticatorModule,
   AuthenticatorService,
@@ -14,7 +14,7 @@ import { routes } from './app-routing.module';
 import { LandingComponent } from './components/landing/landing.component';
 import { a } from '@aws-amplify/backend';
 
-Amplify.configure(outputs);
+//Amplify.configure(outputs);
 
 @Component({
     selector: 'app-root',
