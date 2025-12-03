@@ -13,6 +13,7 @@ import { Subject, takeUntil } from 'rxjs';
   selector: 'app-account-profile',
   templateUrl: './account-profile.component.html',
   styleUrl: './account-profile.component.css',
+  standalone: false
 })
 export class AccountProfileComponent implements OnDestroy {
   protected user: KeycloakProfile | null = null;

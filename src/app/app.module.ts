@@ -48,7 +48,7 @@ export function initializeKeycloak(keycloak: KeycloakService) {
           pkceMethod: 'S256',
           flow: 'standard',
           enableLogging: true,
-          checkLoginIframe: false, // Add this to prevent iframe issues
+          checkLoginIframe: false,
           responseMode: 'fragment',
           redirectUri: window.location.origin + '/landing',
           useNonce: false,
@@ -56,7 +56,7 @@ export function initializeKeycloak(keycloak: KeycloakService) {
         loadUserProfileAtStartUp: false,
         bearerExcludedUrls: ['/assets', '/silent-check-sso.html'],
       })
-      .catch((error) => {
+      .catch((error: unknown) => {
         console.log('sessionStorage keys', Object.keys(sessionStorage));
         console.log('localStorage keys', Object.keys(localStorage));
         console.log(
@@ -84,7 +84,6 @@ export function initializeKeycloak(keycloak: KeycloakService) {
     CommonModule,
     BrowserModule,
     FormsModule,
-    RouterModule.forRoot(routes),
     HttpClientModule,
     /*SweetAlert2Module.forRoot(),*/
     ReactiveFormsModule,

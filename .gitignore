@@ -1,5 +1,14 @@
 # See http://help.github.com/ignore-files/ for more about ignoring files.
 
+#frontend
+keycloack-forms-theme
+/src/app/config
+/src/environments
+
+#backend
+/Backend/backend-server-website/SQL Script/
+.properties
+
 # Compiled output
 /dist
 /tmp
