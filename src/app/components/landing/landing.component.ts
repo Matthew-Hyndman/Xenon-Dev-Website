@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { BlackJackHelpService } from '../../services/black-jack-help.service';
 import {
   HttpClient,
@@ -8,13 +8,15 @@ import {
 import { AuthenticationService } from '../../services/authentication.service';
 
 @Component({
-  selector: 'app-landing',
-  //imports: [HttpClientModule],
-  templateUrl: './landing.component.html',
-  styleUrl: './landing.component.css',
+    selector: 'app-landing',
+    //imports: [HttpClientModule],
+    templateUrl: './landing.component.html',
+    styleUrl: './landing.component.css',
+    standalone: false
 })
 export class LandingComponent implements OnInit {
-  protected isLoggedInToSession: boolean = false;
+  private httpClient = inject(HttpClient)
+    protected isLoggedInToSession: boolean = false;
   protected userName: string = '';
 
   blckJackGameRoute: string = '';
@@ -24,7 +26,6 @@ export class LandingComponent implements OnInit {
 
   constructor(
     private blackJackHelpService: BlackJackHelpService,
-    private httpClient: HttpClient,
     private authService: AuthenticationService
   ) {}
 

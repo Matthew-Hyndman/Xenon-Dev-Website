@@ -1,15 +1,23 @@
 #increment version by 1 with every new deployment
 version: 2
 backend:
-  phases:
-    build:
-      commands:
-        - npm ci --cache .npm --prefer-offline
-        - npx ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
+  phases:       
+  build:
+    commands:
+      - npm ci --cache .npm --prefer-offline
+      - npx ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
 frontend:
   phases:
     preBuild:
       commands:
+       # Clear Amplify cache
+        - rm -rf .amplify
+
+        # Clear node modules and reinstall
+        #- rm -rf node_modules
+        - rm package-lock.json
+        - npm install
+        
         - npx ng version
     build:
       commands:

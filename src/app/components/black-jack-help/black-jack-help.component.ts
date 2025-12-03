@@ -10,9 +10,10 @@ import { HttpClient } from '@angular/common/http';
 import xenonDevConfig from '../../config/xenon-dev-config';
 
 @Component({
-  selector: 'app-black-jack-help',
-  templateUrl: './black-jack-help.component.html',
-  styleUrl: './black-jack-help.component.css'
+    selector: 'app-black-jack-help',
+    templateUrl: './black-jack-help.component.html',
+    styleUrl: './black-jack-help.component.css',
+    standalone: false
 })
 export class BlackJackHelpComponent implements OnInit, OnDestroy {
   showErrorMessage = false;

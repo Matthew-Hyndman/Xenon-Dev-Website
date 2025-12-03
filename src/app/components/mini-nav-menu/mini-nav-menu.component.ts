@@ -3,11 +3,10 @@ import { NavLinks } from '../../common/nav-links';
 import { LinkObj } from '../../common/link-obj';
 
 @Component({
-  selector: 'app-mini-nav-menu',
-  standalone: true,
-  imports: [],
-  templateUrl: './mini-nav-menu.component.html',
-  styleUrl: './mini-nav-menu.component.css'
+    selector: 'app-mini-nav-menu',
+    imports: [],
+    templateUrl: './mini-nav-menu.component.html',
+    styleUrl: './mini-nav-menu.component.css'
 })
 export class MiniNavMenuComponent {
   sidebarActive = true;

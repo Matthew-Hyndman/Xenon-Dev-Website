@@ -8,7 +8,7 @@ import {
 import { RouterOutlet } from '@angular/router';
 //import { TodosComponent } from './todos/todos.component';
 import { Amplify } from 'aws-amplify';
-import outputs from '../../amplify_outputs.json';
+//import outputs from '../../amplify_outputs.json';
 import {
   AmplifyAuthenticatorModule,
   AuthenticatorService,
@@ -26,12 +26,14 @@ import { KeycloakProfile } from 'keycloak-js';
 import { AppModule } from './app.module';
 import xenonDevConfig from './config/xenon-dev-config';
 
-Amplify.configure(outputs);
+//Amplify.configure(outputs);
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
+  standalone: false
+  //imports: [RouterOutlet, /*TodosComponent, AmplifyAuthenticatorModule,*/ MiniNavMenuComponent],
 })
 export class AppComponent {
   title = 'Xenon-Dev';
