@@ -6,7 +6,7 @@ src/app/config
 src/environments
 
 #backend
-Backend/backend-server-website/SQL Script
+Backend/backend-server-website/SQL_Script
 Backend/backend-server-website/src/main/resources/application.properties
 
 # Compiled output
