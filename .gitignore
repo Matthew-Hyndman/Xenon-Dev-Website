@@ -2,12 +2,12 @@
 
 #frontend
 keycloack-forms-theme
-/src/app/config
-/src/environments
+src/app/config
+src/environments
 
 #backend
-/Backend/backend-server-website/SQL Script/
-.properties
+Backend/backend-server-website/SQL Script
+Backend/backend-server-website/src/main/resources/application.properties
 
 # Compiled output
 /dist
