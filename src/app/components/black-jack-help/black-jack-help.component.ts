@@ -8,6 +8,7 @@ import { KeycloakProfile } from 'keycloak-js';
 import { Observable, Subject, takeUntil } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import xenonDevConfig from '../../config/xenon-dev-config';
+import { PlayerProfileService } from '../../services/player-profile.service';
 
 @Component({
     selector: 'app-black-jack-help',
@@ -30,6 +31,7 @@ export class BlackJackHelpComponent implements OnInit, OnDestroy {
     private formBuilder: FormBuilder,
     private authService: AuthenticationService,
     private blackJackGameService: BlackJackGameService,
+    private playerProfileService: PlayerProfileService,
     private httpClient: HttpClient
   ) {}
 
@@ -98,7 +100,12 @@ export class BlackJackHelpComponent implements OnInit, OnDestroy {
       this.blackJackHelpService.isHasUserAgreedToDisclaimerTrue() &&
       this.disclaimer?.value
     ) {
-      if (this.createPlayerProfile()) {
+      if (this.userProfile !== null /*check if the user has a player profile*/) {
+        if ((await this.playerProfileService
+          .checkPlayerProfileExists(this.userProfile.id!))
+          .valueOf() === false) {
+            this.playerProfileService.createPlayerProfile(this.userProfile.id!).subscribe();
+        }
         this.router.navigate(['black-jack-game']);
       } else {
         alert('There was an error creating your player profile. Please try again later.');

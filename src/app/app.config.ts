@@ -3,24 +3,32 @@ import { provideRouter } from '@angular/router';
 
 import { routes } from './app-routing.module';
 
-import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { AuthInterceptorService } from './services/auth-interceptor.service';
-import { KeycloakService, KeycloakBearerInterceptor } from 'keycloak-angular';
-import { initializeKeycloak } from './app.module';
+import {
+  customBearerTokenInterceptor,
+  CUSTOM_BEARER_TOKEN_INTERCEPTOR_CONFIG,
+} from 'keycloak-angular';
+//import { initializeKeycloak } from './app.module';
+import { KeycloakConfig } from 'keycloak-js';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
+    provideHttpClient(withInterceptors([customBearerTokenInterceptor])),
     {
-      provide: APP_INITIALIZER,
-      useFactory: initializeKeycloak,
-      multi: true,
-      deps: [KeycloakService],
-    },
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: KeycloakBearerInterceptor,
-      multi: true,
-    },
+      provide: CUSTOM_BEARER_TOKEN_INTERCEPTOR_CONFIG,
+      useValue: [
+        {
+          shouldAddToken: async (req : Request, next : any, keycloak : KeycloakConfig) => {
+            const url = req.url ?? '';
+            if (url.includes('/assets') || url.includes('silent-check-sso.html')) {
+              return false;
+            }
+            return true;
+          },
+        },
+      ],
+    },    
   ],
 };

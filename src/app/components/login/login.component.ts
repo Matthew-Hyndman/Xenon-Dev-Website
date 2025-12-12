@@ -1,10 +1,11 @@
-import { APP_INITIALIZER, Component, inject, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 import { AuthenticationService } from '../../services/authentication.service';
 import { Router } from '@angular/router';
-import { KeycloakService } from 'keycloak-angular';
 import xenonDevConfig from '../../config/xenon-dev-config';
 import { KeycloakProfile } from 'keycloak-js';
+import { ProvideKeycloakOptions, provideKeycloak } from 'keycloak-angular';
+
 
 @Component({
   selector: 'app-login',
@@ -13,7 +14,7 @@ import { KeycloakProfile } from 'keycloak-js';
 })
 export class LoginComponent implements OnInit {
 
-  private readonly keycloak = inject(KeycloakService);
+  //private readonly app = inject(AppModule);
 
   public isLoggedIn = false;
 
@@ -21,23 +22,17 @@ export class LoginComponent implements OnInit {
   public userProfile: KeycloakProfile | null = null;
 
 
-  constructor(private authService: AuthenticationService, private router: Router) { 
-    //initializeKeycloak(this.keycloak);
+  constructor(private authService: AuthenticationService, 
+              private router: Router,
+            ) { 
     
-    //if (!this.authService.isLoggedIn()) {      
-      //this.authService.init();
-    //}
-    //this.router.navigate(['landing']);
   }
 
   public async ngOnInit() {
-    await this.keycloak.login();
-    /*this.isLoggedIn = await this.keycloak.isLoggedIn();
-
-    if (this.isLoggedIn) {
-      this.userProfile = await this.keycloak.loadUserProfile();
-    }*/
+    
   }
+
+  
 
 }
 

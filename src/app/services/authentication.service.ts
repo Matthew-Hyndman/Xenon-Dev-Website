@@ -1,26 +1,26 @@
-import { inject, Injectable } from '@angular/core';
-import { KeycloakProfile } from 'keycloak-js';
-import { KeycloakService } from 'keycloak-angular';
+import { Injectable } from '@angular/core';
+import Keycloak, { KeycloakProfile } from 'keycloak-js';
 import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthenticationService {
-  // prefer constructor injection for testability, but inject() is OK
-  private readonly _keycloak = inject(KeycloakService);
+  // Keycloak instance (provided by `provideKeycloak` in AppModule)
+  constructor(private readonly keycloak: Keycloak) {
+    void this.init();
+  }
 
   // null = not yet checked, true/false = known state
   private readonly _isLoggedIn$ = new BehaviorSubject<boolean | null>(null);
   public readonly isLoggedIn$ = this._isLoggedIn$.asObservable();
 
-  private readonly _userProfile$ = new BehaviorSubject<KeycloakProfile | null>(null);
+  private readonly _userProfile$ = new BehaviorSubject<KeycloakProfile | null>(
+    null,
+  );
   public readonly userProfile$ = this._userProfile$.asObservable();
 
-  constructor() {
-    // avoid heavy work in ctor; kick off init but handle errors
-    void this.init();
-  }
+  // constructor is defined above to inject Keycloak instance
 
   // explicit initializer — can be called from APP_INITIALIZER if needed
   public async init(): Promise<void> {
@@ -39,10 +39,10 @@ export class AuthenticationService {
 
   public async login(): Promise<void> {
     try {
-      await this._keycloak.login();
+      await this.keycloak.login();
       await this._isLoggedInCheck();
       if (this._isLoggedIn$.value) {
-        this.refreshUserProfile();
+        await this.refreshUserProfile();
       }
     } catch (err) {
       console.error('Login failed', err);
@@ -53,7 +53,7 @@ export class AuthenticationService {
 
   public async logout(): Promise<void> {
     try {
-      await this._keycloak.logout();
+      await this.keycloak.logout();
     } catch (err) {
       console.error('Logout failed', err);
     } finally {
@@ -64,7 +64,7 @@ export class AuthenticationService {
 
   private async _isLoggedInCheck(): Promise<void> {
     try {
-      const isLogged = await this._keycloak.isLoggedIn();
+      const isLogged = !!this.keycloak.authenticated;
       this._isLoggedIn$.next(isLogged);
     } catch (err) {
       console.error('isLoggedIn check failed', err);
@@ -74,19 +74,24 @@ export class AuthenticationService {
 
   async refreshUserProfile(): Promise<void> {
     // Refresh the user profile after update
-    const profile = await this._keycloak.loadUserProfile();
-    this._userProfile$.next(profile);
+    try {
+      const profile = await this.keycloak.loadUserProfile();
+      this._userProfile$.next(profile);
+    } catch (err) {
+      console.error('Failed to refresh user profile', err);
+      this._userProfile$.next(null);
+    }
   }
 
   public async updateUserProfile(
-    updatedData: UserRepresentation
-  ):  Promise<number | void> {
+    updatedData: UserRepresentation,
+  ): Promise<number | void> {
     try {
-      const token = await this._keycloak.getToken();
+      const token = this.keycloak.token;
+      const kc: any = this.keycloak as any;
+      const userId = (kc.tokenParsed && kc.tokenParsed.sub) || (kc.subject ?? '');
       const response = await fetch(
-        `${this._keycloak.getKeycloakInstance().authServerUrl}/admin/realms/${
-          this._keycloak.getKeycloakInstance().realm
-        }/users/${this._keycloak.getKeycloakInstance().subject}`,
+        `${kc.authServerUrl}/admin/realms/${kc.realm}/users/${userId}`,
         {
           method: 'PUT',
           headers: {
@@ -94,31 +99,23 @@ export class AuthenticationService {
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(updatedData),
-        }
+        },
       );
       switch (response.status) {
         case 200:
-          console.log(
-            `User Profile ${
-              this._keycloak.getKeycloakInstance().subject
-            } updated successfully.`
-          );
-          this.refreshUserProfile();
+          console.log(`User Profile ${userId} updated successfully.`);
+          await this.refreshUserProfile();
           break;
         case 204:
-          console.log(
-            `request empty - no changes made to User Profile ${
-              this._keycloak.getKeycloakInstance().subject
-            }.`
-          );
-          this.refreshUserProfile();
+          console.log(`request empty - no changes made to User Profile ${userId}.`);
+          await this.refreshUserProfile();
           break;
         case 400:
           console.error('Invalid user profile data');
           break;
         case 403:
           console.error(
-            'Access denied - you do not have permission to update user profile'
+            'Access denied - you do not have permission to update user profile',
           );
           break;
         case 404:
@@ -133,7 +130,7 @@ export class AuthenticationService {
         default:
           console.error(
             'Failed to update user profile with status:',
-            response.status
+            response.status,
           );
       }
       return response.status;
@@ -144,8 +141,8 @@ export class AuthenticationService {
 }
 
 interface UserRepresentation {
-    username?: string;
-    email?: string;
-    firstName?: string;
-    lastName?: string;
+  username?: string;
+  email?: string;
+  firstName?: string;
+  lastName?: string;
 }
