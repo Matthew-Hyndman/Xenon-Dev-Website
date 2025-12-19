@@ -42,13 +42,31 @@ export class AppComponent {
   protected shouldShowMobileNav: boolean = false;
   protected isLoggedInToSession: boolean = false;
 
+  private loggedInNavLinksEnabled: boolean = false;
+
   constructor(
     private navLinks: NavLinks,
     private authService: AuthenticationService
   ) {
     this.links = this.navLinks.links;
     this.isLoggedInCheck();
-  }
+
+    // Enable profile and logout links if logged in
+    if (this.isLoggedInToSession) {
+     this.toggleLoggedInLinks(); 
+    }
+}
+
+  toggleLoggedInLinks() {
+    this.navLinks.links.filter((link) => {
+        if (link.name === 'profile' || link.name === 'logout') {
+          link.enable = !this.loggedInNavLinksEnabled;
+        } else if (link.name === 'login') {
+          link.enable = this.loggedInNavLinksEnabled;
+        }
+  });
+    this.loggedInNavLinksEnabled = !this.loggedInNavLinksEnabled;
+}
 
   toggleMobileNav() {
     this.shouldShowMobileNav = !this.shouldShowMobileNav;

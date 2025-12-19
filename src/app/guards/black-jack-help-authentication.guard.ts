@@ -1,12 +1,10 @@
-import { CanActivateFn } from '@angular/router';
 import { inject } from '@angular/core';
+import { CanActivateFn } from '@angular/router';
+import { firstValueFrom, take, skipWhile } from 'rxjs';
 import { AuthenticationService } from '../services/authentication.service';
 import { PlayerProfileService } from '../services/player-profile.service';
-import { firstValueFrom } from 'rxjs';
-import { skipWhile, take } from 'rxjs/operators';
 
-export const blackJackHelpGuard: CanActivateFn = async (route, state) => {
-    
+export const blackJackHelpAuthenticationGuard: CanActivateFn = async (route, state) => {
   const authService = inject(AuthenticationService);
   const playerProfileService = inject(PlayerProfileService);
 

@@ -100,7 +100,7 @@ export class BlackJackHelpComponent implements OnInit, OnDestroy {
       this.blackJackHelpService.isHasUserAgreedToDisclaimerTrue() &&
       this.disclaimer?.value
     ) {
-      if (this.userProfile !== null /*check if the user has a player profile*/) {
+      if (this.userProfile !== null) {
         if ((await this.playerProfileService
           .checkPlayerProfileExists(this.userProfile.id!))
           .valueOf() === false) {

@@ -1,11 +1,11 @@
 import { TestBed } from '@angular/core/testing';
 import { CanActivateFn } from '@angular/router';
 
-import { blackJackHelpGuard } from './black-jack-help.guard';
+import { blackJackHelpAuthenticationGuard } from './black-jack-help-authentication.guard';
 
-describe('blackJackHelpGuard', () => {
+describe('blackJackHelpAuthenticationGuard', () => {
   const executeGuard: CanActivateFn = (...guardParameters) => 
-      TestBed.runInInjectionContext(() => blackJackHelpGuard(...guardParameters));
+      TestBed.runInInjectionContext(() => blackJackHelpAuthenticationGuard(...guardParameters));
 
   beforeEach(() => {
     TestBed.configureTestingModule({});

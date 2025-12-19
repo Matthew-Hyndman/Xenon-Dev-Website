@@ -44,16 +44,16 @@ export class BlackJackGameComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    let theDataIsTrue =
-      this.blackJackHelpService.isHasUserAgreedToDisclaimerTrue();
+    //why not move this to a gaurd?
+    //let theDataIsTrue = this.blackJackHelpService.isHasUserAgreedToDisclaimerTrue();
 
       this.useDealerCardRevealDelay = this.blackJackGameService.getDealerTimerToggle();
 
-    if (theDataIsTrue) {
+    //if (theDataIsTrue) {
       this.startNewGame();
-    } else {
+    /*} else {
       this.router.navigate(['black-jack-help']);
-    }
+    }*/
   }
 
   async startNewGame() {

@@ -4,12 +4,11 @@ import { LinkObj } from "./link-obj";
 @Injectable({providedIn: 'any'})
 export class NavLinks {
     public links = [
-        new LinkObj('Welcome', '/landing'),
-        new LinkObj('About', '/site-info'),
-        new LinkObj('BlackJack', '/black-jack-help'),
-    ];
-
-    public excludeLinksWhenLoggedOut = [
-        new LinkObj('Profile', '/profile')
-    ];
+        new LinkObj('Welcome', '/landing', true),
+        new LinkObj('About', '/site-info', true),
+        new LinkObj('BlackJack', '/black-jack-help', true),
+        new LinkObj('Profile', '/user-profile', false),
+        new LinkObj('Login', '/login', true),
+        new LinkObj('Logout', '', false)
+    ];    
 }
