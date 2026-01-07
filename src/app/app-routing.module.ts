@@ -13,10 +13,9 @@ import { blackJackHelpDisclaimerCheckedGuard } from './guards/black-jack-help-di
 
 export const routes: Routes = [
   //{ path: 'login', component: LoginComponent, canActivate: [keycloakGuard] },
-  { path: 'black-jack-game', component: BlackJackGameComponent },
+  { path: 'black-jack-game', component: BlackJackGameComponent, canActivate: [blackJackHelpDisclaimerCheckedGuard] },
   { path: 'black-jack-help', component: BlackJackHelpComponent, canActivate: [
-    blackJackHelpAuthenticationGuard, 
-    blackJackHelpDisclaimerCheckedGuard
+    blackJackHelpAuthenticationGuard    
   ] },
   { path: 'site-info', component: SiteInfoComponent },
   { path: 'landing', component: LandingComponent },

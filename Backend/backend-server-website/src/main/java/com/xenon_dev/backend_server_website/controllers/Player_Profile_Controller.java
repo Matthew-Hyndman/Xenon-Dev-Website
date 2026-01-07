@@ -48,7 +48,7 @@ public class Player_Profile_Controller {
     }    
 
     @PostMapping("createPlayer/{user_id}")
-    public ResponseEntity<User> createPlayer(@PathVariable String user_id) {
+    public ResponseEntity<Player_Profile> createPlayer(@PathVariable String user_id) {
 
         // Create a new Player_Profile with default values
         Player_Profile player = new Player_Profile();
@@ -65,7 +65,8 @@ public class Player_Profile_Controller {
 
             theUser.setPlayer_profile(thePlayer);
             user_Service_Impl.saveUser(theUser);
-            return ResponseEntity.ok(theUser);
+            
+            return ResponseEntity.ok(player);
 
         } catch (RuntimeException e) {
             System.err.println(e.toString());
