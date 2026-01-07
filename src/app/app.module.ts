@@ -15,7 +15,6 @@ import { BlackJackHelpComponent } from './components/black-jack-help/black-jack-
 import { BlackJackGameComponent } from './components/black-jack-game/black-jack-game.component';
 import { NoDoubleClickDirective } from './directives/no-double-click.directive';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { AuthInterceptorService } from './services/auth-interceptor.service';
 import {  
   customBearerTokenInterceptor,
   CUSTOM_BEARER_TOKEN_INTERCEPTOR_CONFIG,

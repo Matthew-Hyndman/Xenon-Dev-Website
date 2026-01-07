@@ -1,10 +1,9 @@
-import { APP_INITIALIZER, ApplicationConfig } from '@angular/core';
+import { ApplicationConfig } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app-routing.module';
 
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { AuthInterceptorService } from './services/auth-interceptor.service';
 import {
   customBearerTokenInterceptor,
   CUSTOM_BEARER_TOKEN_INTERCEPTOR_CONFIG,

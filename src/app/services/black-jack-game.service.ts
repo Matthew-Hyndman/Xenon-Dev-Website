@@ -13,6 +13,8 @@ export class BlackJackGameService {
   protected player_losses: number = 0;
   protected player_pot: number = 0;
 
+  constructor(private httpClient: HttpClient) { }
+
   setDealerTimerToggle(value: boolean){
     localStorage.setItem('dealerTimerToggle', String(value));
   }
@@ -48,10 +50,6 @@ export class BlackJackGameService {
       }
     });
   }
-
-
-
-  constructor(private httpClient: HttpClient) { }
 }
 
 interface PlayerProfileResponse {
