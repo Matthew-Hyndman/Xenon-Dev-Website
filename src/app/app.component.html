@@ -38,12 +38,28 @@
                   @for (link of links; track link) {
                   <li class="nav-item">
                     @if (link.enable) {
+                      @if (link.name === "Login") {
+                      <a
+                        class="nav-link"
+                        (click)="login()"
+                        style="color: white"
+                        >{{ link.name }}</a>
+                      }
+                      @else if(link.name === "Logout") {
+                      <a
+                        class="nav-link"
+                        (click)="logout()"
+                        style="color: white"
+                        >{{ link.name }}</a>
+                      } 
+                      @else {
                     <a
                       class="nav-link"
                       href="{{ link.path }}"
                       style="color: white"
                       >{{ link.name }}</a
                     >
+                      }
                   }
                   </li>
                   }

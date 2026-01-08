@@ -80,10 +80,12 @@ export class BlackJackHelpComponent implements OnInit, OnDestroy {
   // how to check if user profile was created successfully?
   createPlayerProfile(): Boolean {
     let ok = false
+    this.playerProfileService.createPlayerProfile(this.userProfile!.id! )
+    /*
     this.httpClient.post<PlayerProfileResponse>(
       `${xenonDevConfig.SpringAPIServer.local.url}/api/player/createPlayer/${this.userProfile?.id}`, 
       null
-    ).subscribe((response) => {
+    )*/.subscribe((response) => {
       if (response) {
         console.log('Player profile created successfully');
         ok = true;

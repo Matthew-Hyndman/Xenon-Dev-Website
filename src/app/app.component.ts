@@ -59,9 +59,9 @@ export class AppComponent {
 
   toggleLoggedInLinks() {
     this.navLinks.links.filter((link) => {
-        if (link.name === 'profile' || link.name === 'logout') {
+        if (link.name === 'Profile' || link.name === 'Logout') {
           link.enable = !this.loggedInNavLinksEnabled;
-        } else if (link.name === 'login') {
+        } else if (link.name === 'Login') {
           link.enable = this.loggedInNavLinksEnabled;
         }
   });

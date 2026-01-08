@@ -19,3 +19,4 @@ This component provides help and information about the Black Jack game, includin
     - already have an account creation endpoint in the backend (`/api/player/createPlayer/{user_id}`)
     - already implemented the frontend method to call this endpoint and handle the response.
     - involke this method.
+    - error handling needs work, getting a 400 when there is no profile found, should be a 404 (ideally another message).
