@@ -8,6 +8,7 @@ src/environments
 #backend
 Backend/backend-server-website/SQL_Script
 Backend/backend-server-website/src/main/resources/application.properties
+Backend/backend-server-website/target/classes/application.properties
 
 # Compiled output
 /dist
