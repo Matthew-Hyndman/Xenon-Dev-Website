@@ -17,4 +17,5 @@ This component provides help and information about the Black Jack game, includin
 ## Todo
  - implement a createPlayerProfile() method to create a new player profile for users who do not have one yet:
     - already have an account creation endpoint in the backend (`/api/player/createPlayer/{user_id}`)
-    - need to implement the frontend method to call this endpoint and handle the response.
+    - already implemented the frontend method to call this endpoint and handle the response.
+    - involke this method.
