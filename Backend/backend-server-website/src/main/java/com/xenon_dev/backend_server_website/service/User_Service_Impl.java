@@ -14,7 +14,6 @@ import com.xenon_dev.backend_server_website.entity.User;
 public class User_Service_Impl implements User_Service {
 
 
-    //User Crud Operations
 
     @Autowired
     private UserRepo userRepo;
@@ -31,32 +30,10 @@ public class User_Service_Impl implements User_Service {
         ));
     }
 
-    /*@Override
-    public User updateUser(Long id, User user) {
-        User theUser = userRepo.findById(id).orElseThrow(() -> 
-            new RuntimeException("User not found with id: " + id)
-        );
-        theUser.setName(user.getName());
-        theUser.setEmail(user.getEmail());
-        theUser.setPlayer_profile(user.getPlayer_profile());
-        // Update other fields as necessary
-        return saveUser(theUser);
-    }*/
-    
-
-    /*@Override
-    public void deleteUser(Long id) {
-        userRepo.deleteById(id);
-    }*/
-
     @Override
     public List<User> getAllUsers() {
         return userRepo.findAll();
     }
-
-    /*public User getUserByEmail(String theEmail){
-        return userRepo.findByEmail(theEmail);
-    }*/
 
     public User saveUser(User user) {
         return userRepo.save(user);

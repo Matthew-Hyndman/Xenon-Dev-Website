@@ -27,11 +27,11 @@ export class BlackJackGameService {
     return localStorage.getItem('dealerTimerToggle');
   }
 
-  getPlayerProfile(theUser: KeycloakProfile): Hand | void {
+  getPlayerProfileAndPopulateGameData(theUser: KeycloakProfile): Hand | void {
     const url = `${xenonDevConfig.SpringAPIServer.local.url}/api/user/getPlayerDetails/${theUser.id}`;
     this.httpClient.get<PlayerProfileResponse>(url).subscribe({
       next: (response) => {
-        
+        if (response !== null) {
         this.player_id = response.playerId;
         this.player_losses = response.losses;
         this.player_pot = response.pot;
@@ -43,8 +43,12 @@ export class BlackJackGameService {
           response.wins
         );
         return playerHand;
+      } else {
+        console.info('Player profile does not exist for user:', theUser.username);
+        return null;
+      }
       },
-      error: (error) => {
+      error: (error) => {        
         alert('Error fetching player profile: ' + error);
         return null;
       }

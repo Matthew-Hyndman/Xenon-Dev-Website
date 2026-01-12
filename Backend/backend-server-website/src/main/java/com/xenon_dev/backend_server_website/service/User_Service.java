@@ -7,18 +7,10 @@ import com.xenon_dev.backend_server_website.entity.Player_Profile;
 import com.xenon_dev.backend_server_website.entity.User;
 
 public interface User_Service {
-   
-    //User Crud Operations
-
-    //User createUser(User user);
 
     Optional<User> getUserById(String id);
 
     Optional<Player_Profile> getPlayerProfileByUserId(String id);
-
-    //User updateUser(Long id, User user);
-
-    //void deleteUser(Long id);
 
     List<User> getAllUsers();
 

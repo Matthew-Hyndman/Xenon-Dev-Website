@@ -47,10 +47,10 @@ export class BlackJackHelpComponent implements OnInit, OnDestroy {
       }),
     });
 
-    this.getUserProfile().then(() => {
-      if (this.userProfile) {
-        this.blackJackGameService.getPlayerProfile(this.userProfile!);
-      } 
+    this.getUserProfile().then(() => {    
+      this.blackJackGameService.getPlayerProfileAndPopulateGameData(this.userProfile!);      
+    }).catch((error) => {
+      console.error('Error retrieving user profile:', error);
     });
 
   }

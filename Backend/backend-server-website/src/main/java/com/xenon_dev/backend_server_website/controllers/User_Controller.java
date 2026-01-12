@@ -27,70 +27,17 @@ public class User_Controller  {
     @Autowired
     private User_Service_Impl userService;
 
-    /*/
-@GetMapping("getAllUsers")
-public ResponseEntity<List<User>> getAllUsers() {
-    List<User> users = userService.getAllUsers();
-    return ResponseEntity.ok(users);
-}
-
-@GetMapping("getUserDetails/{id}")
-public ResponseEntity<User> getUserDetailsWithId(@PathVariable String id) {
-    Optional<User> user = userService.getUserById(id);
-    return  user.map(ResponseEntity::ok)
-            .orElse(ResponseEntity.notFound().build());
-
-}
-*/
+    
 
 @GetMapping("getPlayerDetails/{id}")
     public ResponseEntity<Player_Profile> getPlayerDetailsWithId(@PathVariable String id) {
         Optional<Player_Profile> player = userService.getPlayerProfileByUserId(id);
         return player.map(ResponseEntity::ok)
-                .orElse(ResponseEntity.status(HttpStatus.BAD_REQUEST).build());
+                .orElse(
+                    (player.isPresent()) ? 
+                ResponseEntity.status(HttpStatus.BAD_REQUEST).build() : 
+                ResponseEntity.status(HttpStatus.NO_CONTENT).build()
+            );
 
     }
-
-/*@PostMapping("createUser")
-public ResponseEntity<User> createUser(@RequestBody User user) {
-
-    try {
-        User theUser = userService.createUser(user);
-        return ResponseEntity.ok(theUser);
-    } catch (RuntimeException e) {
-        System.err.println(e.toString());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-    }
-}
-
-@PutMapping("updateUser/{id}")
-public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User user) {
-    try {
-        return ResponseEntity.ok(userService.updateUser(id , user));
-    } catch (RuntimeException e) {
-        System.err.println(e.toString());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-    }
-}
-
-@DeleteMapping("deleteUser/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        try {
-            userService.deleteUser(id);
-            return ResponseEntity.noContent().build();
-        } catch (RuntimeException e) {
-            System.err.println(e.toString());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-    }*/
-
-    /*@GetMapping("getUserByEmail/{email}")
-    public ResponseEntity<User> getUserByEmail(@PathVariable String email) {
-        try {
-            return ResponseEntity.ok(userService.getUserByEmail(email));
-        } catch (RuntimeException e){
-            System.err.println(e.toString());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-    }*/
 }

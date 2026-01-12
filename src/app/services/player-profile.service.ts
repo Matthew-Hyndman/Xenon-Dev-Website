@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, catchError, of } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 import xenonDevConfig from '../config/xenon-dev-config';
 
 export interface PlayerProfile {
@@ -38,9 +38,11 @@ export class PlayerProfileService {
       const profile = await this.getPlayerProfile(userId);
       const exists = !!profile;
       
-      // Update cache
-      cache.set(userId, exists);
-      this.profileChecked$.next(cache);
+      if (exists) {
+        // Update cache
+        cache.set(userId, exists);
+        this.profileChecked$.next(cache);
+      }
       
       return exists;
     } catch (error) {
@@ -68,16 +70,19 @@ export class PlayerProfileService {
         `${xenonDevConfig.SpringAPIServer.local.url}/api/player/getPlayerDetails/${userId}`
       )
       .pipe(
+        tap(profile => {
+          console.log('Fetched player profile:', profile);
+        }),
         map(profile => {
           // Cache the result
           this.playerProfileCache.set(userId, profile);
           return profile;
         }),
-        catchError(error => {
+        catchError(error => {          
           console.error('Error fetching player profile:', error);
           return of(null as any);
         })
-      );
+      );    
   }
 
   /**
