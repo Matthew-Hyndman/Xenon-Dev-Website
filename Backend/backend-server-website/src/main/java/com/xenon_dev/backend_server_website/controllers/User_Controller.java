@@ -33,11 +33,7 @@ public class User_Controller  {
     public ResponseEntity<Player_Profile> getPlayerDetailsWithId(@PathVariable String id) {
         Optional<Player_Profile> player = userService.getPlayerProfileByUserId(id);
         return player.map(ResponseEntity::ok)
-                .orElse(
-                    (player.isPresent()) ? 
-                ResponseEntity.status(HttpStatus.BAD_REQUEST).build() : 
-                ResponseEntity.status(HttpStatus.NO_CONTENT).build()
-            );
+                .orElse(ResponseEntity.status(HttpStatus.NO_CONTENT).build());
 
     }
 }
