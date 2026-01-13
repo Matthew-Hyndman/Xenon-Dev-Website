@@ -48,29 +48,29 @@ public class Player_Profile_Controller {
     }    
 
     @PostMapping("createPlayer/{user_id}")
-    public ResponseEntity<Player_Profile> createPlayer(@PathVariable String user_id) {
+    public void createPlayer(@PathVariable String user_id, @RequestBody Player_Profile thePlayerProfile) {
 
         // Create a new Player_Profile with default values
-        Player_Profile player = new Player_Profile();
+        /*Player_Profile player = new Player_Profile();
         player.setPot(3000);
         player.setWins(0);
-        player.setLosses(0);
+        player.setLosses(0);*/
 
         try {
             // ensure user exists
             User theUser = user_Service_Impl.getUserById(user_id)
                     .orElseThrow(() -> new RuntimeException("User not found with id: " + user_id));
 
-            Player_Profile thePlayer = playerService.createPlayerProfile(player);
+            Player_Profile thePlayer = playerService.createPlayerProfile(thePlayerProfile);
 
             theUser.setPlayer_profile(thePlayer);
             user_Service_Impl.saveUser(theUser);
             
-            return ResponseEntity.ok(player);
+            //return ResponseEntity.ok(thePlayerProfile);
 
         } catch (RuntimeException e) {
             System.err.println(e.toString());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            //return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
 

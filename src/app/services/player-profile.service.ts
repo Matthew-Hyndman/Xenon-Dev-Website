@@ -6,7 +6,7 @@ import xenonDevConfig from '../config/xenon-dev-config';
 
 export interface PlayerProfile {
   _embedded: {
-    player_id: number;
+    player_id?: number;
     losses: number;
     pot: number;
     wins: number;
@@ -88,26 +88,38 @@ export class PlayerProfileService {
   /**
    * Create a new player profile
    */
-  createPlayerProfile(userId: string): Observable<PlayerProfile> {
-    return this.httpClient
+  async createPlayerProfile(userId: string) {
+
+    const playerProfile: PlayerProfile = {
+      _embedded: {
+        pot: 3000,
+        wins: 0,
+        losses: 0        
+      }
+    };
+
+    await this.httpClient
       .post<PlayerProfile>(
         `${xenonDevConfig.SpringAPIServer.local.url}/api/player/createPlayer/${userId}`,
-        null
+        playerProfile
+        /*
+        might have to send spesified method, headers, and body here
+        like in authentication service        
+        */        
       )
-      .pipe(
-        map(profile => {
-          // Invalidate cache after creation
-          this.playerProfileCache.delete(userId);
-          const cache = this.profileChecked$.value;
-          cache.delete(userId);
-          this.profileChecked$.next(cache);
-          return profile;
-        }),
+      .pipe(        
         catchError(error => {
           console.error('Error creating player profile:', error);
           throw error;
         })
       );
+
+      // Invalidate cache after creation
+          this.playerProfileCache.delete(userId);
+          const cache = this.profileChecked$.value;
+          cache.delete(userId);
+          this.profileChecked$.next(cache); 
+          this.playerProfileCache.set(userId, playerProfile);
   }
 
   /**

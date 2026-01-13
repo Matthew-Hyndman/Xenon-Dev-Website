@@ -78,14 +78,14 @@ export class BlackJackHelpComponent implements OnInit, OnDestroy {
 
   // how are we going to handle user profile creation here? 
   // how to check if user profile was created successfully?
-  createPlayerProfile(): Boolean {
+  /*createPlayerProfile(): Boolean {
     let ok = false
     this.playerProfileService.createPlayerProfile(this.userProfile!.id! )
     /*
     this.httpClient.post<PlayerProfileResponse>(
       `${xenonDevConfig.SpringAPIServer.local.url}/api/player/createPlayer/${this.userProfile?.id}`, 
       null
-    )*/.subscribe((response) => {
+    ).subscribe((response) => {
       if (response) {
         console.log('Player profile created successfully');
         ok = true;
@@ -95,7 +95,7 @@ export class BlackJackHelpComponent implements OnInit, OnDestroy {
     });    
         
     return ok;
-  }
+  }*/
 
   async onContinue() {
     if (
@@ -103,10 +103,9 @@ export class BlackJackHelpComponent implements OnInit, OnDestroy {
       this.disclaimer?.value
     ) {
       if (this.userProfile !== null) {
-        if ((await this.playerProfileService
-          .checkPlayerProfileExists(this.userProfile.id!))
-          .valueOf() === false) {
-            this.playerProfileService.createPlayerProfile(this.userProfile.id!).subscribe();
+        if ((await !!this.playerProfileService
+          .getPlayerProfile(this.userProfile.id!))) {
+            await this.playerProfileService.createPlayerProfile(this.userProfile.id!);
         }
         this.router.navigate(['black-jack-game']);
       } else {
