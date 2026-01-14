@@ -3,14 +3,13 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, catchError, of } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import xenonDevConfig from '../config/xenon-dev-config';
+import Keycloak from 'keycloak-js';
 
 export interface PlayerProfile {
-  _embedded: {
-    player_id?: number;
-    losses: number;
-    pot: number;
-    wins: number;
-  };
+  player_id?: number;
+  losses?: number;
+  pot?: number;
+  wins?: number;
 }
 
 @Injectable({
@@ -18,9 +17,10 @@ export interface PlayerProfile {
 })
 export class PlayerProfileService {
   private readonly httpClient = inject(HttpClient);
+  private readonly keycloak = inject(Keycloak);
   private readonly playerProfileCache = new Map<string, PlayerProfile>();
   private readonly profileChecked$ = new BehaviorSubject<Map<string, boolean>>(
-    new Map()
+    new Map(),
   );
 
   /**
@@ -37,13 +37,13 @@ export class PlayerProfileService {
     try {
       const profile = await this.getPlayerProfile(userId);
       const exists = !!profile;
-      
+
       if (exists) {
         // Update cache
         cache.set(userId, exists);
         this.profileChecked$.next(cache);
       }
-      
+
       return exists;
     } catch (error) {
       // Profile doesn't exist
@@ -59,7 +59,7 @@ export class PlayerProfileService {
   getPlayerProfile(userId: string): Observable<PlayerProfile> {
     // Check in-memory cache first
     if (this.playerProfileCache.has(userId)) {
-      return new Observable(observer => {
+      return new Observable((observer) => {
         observer.next(this.playerProfileCache.get(userId)!);
         observer.complete();
       });
@@ -67,59 +67,66 @@ export class PlayerProfileService {
 
     return this.httpClient
       .get<PlayerProfile>(
-        `${xenonDevConfig.SpringAPIServer.local.url}/api/player/getPlayerDetails/${userId}`
+        `${xenonDevConfig.SpringAPIServer.local.url}/api/player/getPlayerDetails/${userId}`,
       )
       .pipe(
-        tap(profile => {
+        tap((profile) => {
           console.log('Fetched player profile:', profile);
         }),
-        map(profile => {
+        map((profile) => {
           // Cache the result
           this.playerProfileCache.set(userId, profile);
           return profile;
         }),
-        catchError(error => {          
+        catchError((error) => {
           console.error('Error fetching player profile:', error);
           return of(null as any);
-        })
-      );    
+        }),
+      );
   }
 
   /**
    * Create a new player profile
    */
   async createPlayerProfile(userId: string) {
-
     const playerProfile: PlayerProfile = {
-      _embedded: {
-        pot: 3000,
-        wins: 0,
-        losses: 0        
-      }
+      pot: 3000,
+      wins: 0,
+      losses: 0,
     };
 
-    await this.httpClient
+    const token = this.keycloak.token;
+
+    return this.httpClient
       .post<PlayerProfile>(
         `${xenonDevConfig.SpringAPIServer.local.url}/api/player/createPlayer/${userId}`,
-        playerProfile
+        playerProfile,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        },
         /*
         might have to send spesified method, headers, and body here
         like in authentication service        
-        */        
+        */
       )
-      .pipe(        
-        catchError(error => {
-          console.error('Error creating player profile:', error);
-          throw error;
-        })
-      );
-
-      // Invalidate cache after creation
+      .pipe(
+        tap((response) => {
+          // Invalidate cache after creation
           this.playerProfileCache.delete(userId);
           const cache = this.profileChecked$.value;
           cache.delete(userId);
-          this.profileChecked$.next(cache); 
-          this.playerProfileCache.set(userId, playerProfile);
+          this.profileChecked$.next(cache);
+          this.playerProfileCache.set(userId, response);
+        }),
+        catchError((error) => {
+          console.error('Error creating player profile:', error);
+          throw error;
+        }),
+      )
+      .subscribe();
   }
 
   /**
