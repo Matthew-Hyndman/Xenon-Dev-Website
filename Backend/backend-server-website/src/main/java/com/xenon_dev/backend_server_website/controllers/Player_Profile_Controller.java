@@ -2,10 +2,12 @@ package com.xenon_dev.backend_server_website.controllers;
 
 import com.xenon_dev.backend_server_website.entity.Player_Profile;
 import com.xenon_dev.backend_server_website.entity.User;
+import com.xenon_dev.backend_server_website.service.Keycloak_Service_Impl;
 import com.xenon_dev.backend_server_website.service.Player_Profile_Service_Impl;
 import com.xenon_dev.backend_server_website.service.User_Service_Impl;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -28,6 +31,9 @@ public class Player_Profile_Controller {
 
     @Autowired
     private Player_Profile_Service_Impl playerService;
+
+    @Autowired
+    private Keycloak_Service_Impl keycloakService;
 
     //private User_Service userService;
 
@@ -48,7 +54,14 @@ public class Player_Profile_Controller {
     }    
 
     @PostMapping("createPlayer/{user_id}")
-    public ResponseEntity<Player_Profile> createPlayer(@PathVariable String user_id, @RequestBody Player_Profile thePlayerProfile) {
+    public ResponseEntity<Player_Profile> createPlayer(@PathVariable String user_id, @RequestHeader("Authorization") String token, @RequestBody Player_Profile thePlayerProfile) {
+        if(token == null || !token.startsWith("Bearer ")) {
+            return ResponseEntity
+            .status(HttpStatus.UNAUTHORIZED)
+            .header("A message for you", "Naughty, naughty, you’re trying to access an endpoint via illegitimate means :P")
+            .build();
+        }
+        else if(keycloakService.validateToken(token)){
         try {
             // ensure user exists
             User theUser = user_Service_Impl.getUserById(user_id)
@@ -65,6 +78,9 @@ public class Player_Profile_Controller {
             System.err.println(e.toString());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
+    } else {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
     }
 
     @PatchMapping("updatePlayer/{id}")

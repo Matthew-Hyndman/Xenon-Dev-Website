@@ -13,6 +13,8 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtGra
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 
+import com.xenon_dev.backend_server_website.config.custom_filters.checkKeycloakTokenFilter;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(securedEnabled = true)
@@ -26,13 +28,15 @@ public class SecurityConfiguration {
         http.authorizeHttpRequests(requests ->
                 requests
                         .anyRequest().authenticated()
-        );
-
+        );                
+        
         CorsConfiguration corsConfig = new CorsConfiguration();
         corsConfig.setAllowedOrigins(Arrays.asList(theAllowedOrigins)); 
         corsConfig.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH"));
         corsConfig.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
         corsConfig.setAllowCredentials(true);
+        
+        http.addFilter(new checkKeycloakTokenFilter());
 
         http.cors(cors -> cors.configurationSource(request -> corsConfig));
         http.csrf(AbstractHttpConfigurer::disable);
@@ -53,6 +57,7 @@ public class SecurityConfiguration {
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(authoritiesConverter);
         return jwtAuthenticationConverter;
-    }
-
+    }   
 }
+
+
