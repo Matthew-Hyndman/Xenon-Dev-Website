@@ -10,10 +10,11 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 
-import com.xenon_dev.backend_server_website.config.custom_filters.checkKeycloakTokenFilter;
+import com.xenon_dev.backend_server_website.config.custom_filters.CheckKeycloakTokenFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -24,7 +25,7 @@ public class SecurityConfiguration {
     private String[] theAllowedOrigins;
 
     @Bean
-    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    SecurityFilterChain filterChain(HttpSecurity http, CheckKeycloakTokenFilter checkKeycloakTokenFilter) throws Exception {
         http.authorizeHttpRequests(requests ->
                 requests
                         .anyRequest().authenticated()
@@ -36,7 +37,7 @@ public class SecurityConfiguration {
         corsConfig.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
         corsConfig.setAllowCredentials(true);
         
-        http.addFilter(new checkKeycloakTokenFilter());
+        http.addFilterBefore(checkKeycloakTokenFilter, BearerTokenAuthenticationFilter.class);
 
         http.cors(cors -> cors.configurationSource(request -> corsConfig));
         http.csrf(AbstractHttpConfigurer::disable);
