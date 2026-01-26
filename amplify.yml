@@ -17,6 +17,8 @@ frontend:
         #- rm -rf node_modules
         - rm package-lock.json
         - npm install
+
+        -  npm install typescript@5.8.3
         
         - npx ng version
     build:
