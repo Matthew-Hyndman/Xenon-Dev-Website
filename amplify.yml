@@ -5,13 +5,16 @@ applications:
       phases:
         build:
           commands:
-            - npm install
+            - npm ci --cache .npm --prefer-offline
             - npx ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
     frontend:
       phases:
         preBuild:
           commands:
-            - npm install
+            # Install from lockfile (this will install TypeScript 5.8.3 from devDependencies)
+            - npm ci
+
+            # Optional sanity check
             - npx ng version
         build:
           commands:
@@ -22,4 +25,5 @@ applications:
           - '**/*'
       cache:
         paths:
+          - .npm/**/*
           - node_modules/**/*
