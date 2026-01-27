@@ -10,17 +10,15 @@ frontend:
   phases:
     preBuild:
       commands:
-       # Clear Amplify cache
-        #- rm -rf .amplify
+        # Optional: clear previous installs if you suspect cache issues
+            # - rm -rf node_modules
+            # - rm package-lock.json
 
-        # Clear node modules and reinstall
-        - rm -rf node_modules
-        - rm package-lock.json
-        - npm install
+            # Install dependencies
+            - npm ci
 
-        -  npm install typescript@5.8.3
-        - npm ci
-        - npx ng version
+            # Sanity check Angular + TS versions
+            - npx ng version
     build:
       commands:
         - npx ng build --configuration=production
