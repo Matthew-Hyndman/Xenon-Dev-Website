@@ -14,12 +14,12 @@ frontend:
         #- rm -rf .amplify
 
         # Clear node modules and reinstall
-        #- rm -rf node_modules
-        #- rm package-lock.json
-        #- npm install
+        - rm -rf node_modules
+        - rm package-lock.json
+        - npm install
 
-        #-  npm install typescript@5.8.3
-        #- npm ci
+        -  npm install typescript@5.8.3
+        - npm ci
         - npx ng version
     build:
       commands:
