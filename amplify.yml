@@ -1,20 +1,36 @@
 version: 2
 applications:
   - appRoot: .
+    env:
+      variables:
+        # Pin Node to an LTS version that has @parcel/watcher prebuilds
+        NODE_VERSION: "20"
     backend:
       phases:
+        preBuild:
+          commands:
+            # Ensure we are on the right Node version
+            - nvm install $NODE_VERSION
+            - nvm use $NODE_VERSION
         build:
           commands:
+            - node -v
+            # Use lockfile; this will install TypeScript 5.8.3 from devDependencies
             - npm ci --cache .npm --prefer-offline
             - npx ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
     frontend:
       phases:
         preBuild:
           commands:
-            # Install from lockfile (this will install TypeScript 5.8.3 from devDependencies)
+            # Match Node version with backend
+            - nvm install $NODE_VERSION
+            - nvm use $NODE_VERSION
+            - node -v
+
+            # Install dependencies from lockfile
             - npm ci
 
-            # Optional sanity check
+            # Optional Angular/TS sanity check
             - npx ng version
         build:
           commands:
