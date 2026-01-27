@@ -11,12 +11,12 @@ frontend:
     preBuild:
       commands:
        # Clear Amplify cache
-        - rm -rf .amplify
+        #- rm -rf .amplify
 
         # Clear node modules and reinstall
         #- rm -rf node_modules
-        - rm package-lock.json
-        - npm install
+        #- rm package-lock.json
+        #- npm install
 
         -  npm install typescript@5.8.3
         
