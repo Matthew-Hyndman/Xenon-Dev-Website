@@ -18,8 +18,8 @@ frontend:
         #- rm package-lock.json
         #- npm install
 
-        -  npm install typescript@5.8.3
-        - npm ci
+        #-  npm install typescript@5.8.3
+        #- npm ci
         - npx ng version
     build:
       commands:
