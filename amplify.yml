@@ -25,5 +25,5 @@ applications:
           - '**/*'
       cache:
         paths:
-          - .npm/**/*
-          - node_modules/**/*
+          #- .npm/**/*
+          #- node_modules/**/*
