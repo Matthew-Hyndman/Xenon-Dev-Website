@@ -1,28 +1,33 @@
+#increment version by 1 with every new deployment
 version: 2
-applications:
-  - appRoot: .
-    backend:
-      phases:
-        build:
-          commands:
-            - echo "Skipping backend deployment"
-            # If you want ZERO backend work, you can leave this empty or just echo
-            # (do NOT run `npm ci` or `npx ampx pipeline-deploy` here)
-    frontend:
-      phases:
-        preBuild:
-          commands:
-            - node -v
-            # Use npm install instead of npm ci to avoid lockfile sync errors
-            - npm install
-            - npx ng version
-        build:
-          commands:
-            - npx ng build --configuration=production
-      artifacts:
-        baseDirectory: dist/amplify-angular-template/browser
-        files:
-          - '**/*'
-      cache:
-        paths:
-          - node_modules/**/*
+backend:
+  phases:
+    build:
+      commands:
+        - echo "Skipping backend deployment for now"
+frontend:
+  phases:
+    preBuild:
+      commands:
+        # Clear Amplify cache
+        - rm -rf .amplify
+
+        # Clear lockfile so npm install is free to resolve deps
+        - rm -f package-lock.json
+
+        # Install dependencies
+        - npm install
+        
+        - npx ng version
+    build:
+      commands:
+        # Use the lighter dev configuration to reduce memory usage
+        - npx ng build --configuration=development
+  artifacts:
+    # Angular 19 puts browser output under dist/<name>/browser
+    baseDirectory: dist/amplify-angular-template/browser
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - node_modules/**/*
