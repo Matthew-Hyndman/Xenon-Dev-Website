@@ -14,7 +14,7 @@ applications:
         preBuild:
           commands:
             - node -v
-            - npm ci
+            - npm install
             - npx ng version
         build:
           commands:
