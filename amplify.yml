@@ -1,33 +1,36 @@
 #increment version by 1 with every new deployment
 version: 2
+
 backend:
   phases:
     build:
       commands:
         - echo "Skipping backend deployment for now"
+
 frontend:
   phases:
     preBuild:
       commands:
-        # Clear Amplify cache
+        # Optional: clear any previous Amplify metadata
         - rm -rf .amplify
 
-        # Clear lockfile so npm install is free to resolve deps
-        - rm -f package-lock.json
-
-        # Install dependencies
+        # Use npm install (NOT npm ci) to avoid lockfile sync issues
+        # If package-lock.json causes trouble, you can also remove it:
+        # - rm -f package-lock.json
         - npm install
-        
-        - npm install typescript@5.8.3  
-        
+
         - npx ng version
     build:
       commands:
-        # Use the lighter dev configuration to reduce memory usage
-        #- npx ng build --configuration=production
-         - npx ng build --configuration=development --source-map=false
+        # Print Node memory limits (for debugging)
+        - node -e "console.log('Node heap limit (MB):', v8.getHeapStatistics().heap_size_limit / 1024 / 1024)" || true
+
+        # Run Angular build via node with an explicit heap cap and reduced parallelism.
+        # --max-old-space-size=2048 : limit JS heap to 2 GB instead of letting it spike
+        # --maxWorkers=2            : fewer worker processes → less RAM
+        # --source-map=false        : reduce extra memory for map generation
+        - node --max-old-space-size=2048 ./node_modules/.bin/ng build --configuration=development --maxWorkers=2 --source-map=false
   artifacts:
-    # Angular 19 puts browser output under dist/<name>/browser
     baseDirectory: dist/amplify-angular-template/browser
     files:
       - '**/*'
