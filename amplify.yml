@@ -18,6 +18,8 @@ frontend:
         # Install dependencies
         - npm install
         
+        - npm install typescript@5.8.3  
+        
         - npx ng version
     build:
       commands:
