@@ -14,7 +14,7 @@ applications:
         preBuild:
           commands:
             - node -v
-            - npm install
+            - npm ci
             - npx ng version
         build:
           commands:
@@ -25,5 +25,5 @@ applications:
           - '**/*'
       cache:
         paths:
-          #- .npm/**/*
-          #- node_modules/**/*
+          - .npm/**/*
+          - node_modules/**/*
