@@ -29,7 +29,7 @@ frontend:
         # --max-old-space-size=2048 : limit JS heap to 2 GB instead of letting it spike
         # --maxWorkers=2            : fewer worker processes → less RAM
         # --source-map=false        : reduce extra memory for map generation
-        - node --max-old-space-size=2048 ./node_modules/.bin/ng build --configuration=development --maxWorkers=2 --source-map=false
+        - node --max-old-space-size=2048 ./node_modules/.bin/ng build --configuration=development --source-map=false
   artifacts:
     baseDirectory: dist/amplify-angular-template/browser
     files:
