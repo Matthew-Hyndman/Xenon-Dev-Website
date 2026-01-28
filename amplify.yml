@@ -5,16 +5,16 @@ applications:
       phases:
         build:
           commands:
-            - node -v
-            - npm ci --cache .npm --prefer-offline
-            #- npm install --no-save @parcel/watcher-linux-x64-glibc
-            #- npx ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
+            - echo "Skipping backend deployment"
+            # If you want ZERO backend work, you can leave this empty or just echo
+            # (do NOT run `npm ci` or `npx ampx pipeline-deploy` here)
     frontend:
       phases:
         preBuild:
           commands:
             - node -v
-            - npm ci
+            # Use npm install instead of npm ci to avoid lockfile sync errors
+            - npm install
             - npx ng version
         build:
           commands:
@@ -25,5 +25,4 @@ applications:
           - '**/*'
       cache:
         paths:
-          - .npm/**/*
           - node_modules/**/*
