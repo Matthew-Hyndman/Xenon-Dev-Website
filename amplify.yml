@@ -24,7 +24,8 @@ frontend:
     build:
       commands:
         # Use the lighter dev configuration to reduce memory usage
-        - npx ng build --configuration=production
+        #- npx ng build --configuration=production
+         - npx ng build --configuration=development --source-map=false
   artifacts:
     # Angular 19 puts browser output under dist/<name>/browser
     baseDirectory: dist/amplify-angular-template/browser
