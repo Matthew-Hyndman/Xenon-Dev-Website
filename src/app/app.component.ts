@@ -12,7 +12,7 @@ import { NavLinks } from './common/nav-links';
 import { LinkObj } from './common/link-obj';
 import { routes } from './app-routing.module';
 import { LandingComponent } from './components/landing/landing.component';
-import { a } from '@aws-amplify/backend';
+//import { a } from '@aws-amplify/backend';
 
 //Amplify.configure(outputs);
 

@@ -18,11 +18,10 @@ frontend:
         - npx ng version
     build:
       commands:
-        # Use the lighter dev configuration to reduce memory usage
-        - export NODE_OPTIONS=--max_old_space_size=6144
-        - export NG_BUILD_MAX_WORKERS=2
-        - npx ng build --configuration=production --source-map=false
-        # - npx ng build --configuration=development --source-map=false
+        # Aggressive memory limits for large build
+        - export NODE_OPTIONS="--max_old_space_size=4096 --max-semi-space-size=1024"
+        - export NG_BUILD_MAX_WORKERS=1
+        - npx ng build --configuration=production --source-map=false --poll=2000
   artifacts:
     # Angular 19 puts browser output under dist/<name>/browser
     baseDirectory: dist/amplify-angular-template/browser
