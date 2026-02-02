@@ -18,7 +18,7 @@ import { NavLinks } from './common/nav-links';
 import { LinkObj } from './common/link-obj';
 import { routes } from './app-routing.module';
 import { LandingComponent } from './components/landing/landing.component';
-import { a } from '@aws-amplify/backend';
+//import { a } from '@aws-amplify/backend';
 import { auth } from '../../amplify/auth/resource';
 import { AuthenticationService } from './services/authentication.service';
 import { KeycloakAngularModule, KeycloakService } from 'keycloak-angular';
