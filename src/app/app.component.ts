@@ -1,30 +1,13 @@
 import {
-  APP_INITIALIZER,
   Component,
   HostListener,
-  inject,
-  OnInit,
 } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
 //import { TodosComponent } from './todos/todos.component';
-import { Amplify } from 'aws-amplify';
 //import outputs from '../../amplify_outputs.json';
-import {
-  AmplifyAuthenticatorModule,
-  AuthenticatorService,
-} from '@aws-amplify/ui-angular';
-import { MiniNavMenuComponent } from './components/mini-nav-menu/mini-nav-menu.component';
 import { NavLinks } from './common/nav-links';
 import { LinkObj } from './common/link-obj';
-import { routes } from './app-routing.module';
-import { LandingComponent } from './components/landing/landing.component';
-import { a } from '@aws-amplify/backend';
-import { auth } from '../../amplify/auth/resource';
+//import { a } from '@aws-amplify/backend';
 import { AuthenticationService } from './services/authentication.service';
-import { KeycloakAngularModule, KeycloakService } from 'keycloak-angular';
-import { KeycloakProfile } from 'keycloak-js';
-import { AppModule } from './app.module';
-import xenonDevConfig from './config/xenon-dev-config';
 
 //Amplify.configure(outputs);
 

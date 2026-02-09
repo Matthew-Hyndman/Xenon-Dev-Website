@@ -6,7 +6,6 @@ import com.xenon_dev.backend_server_website.service.Player_Profile_Service_Impl;
 import com.xenon_dev.backend_server_website.service.User_Service_Impl;
 
 import java.util.List;
-import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -48,30 +47,24 @@ public class Player_Profile_Controller {
     }    
 
     @PostMapping("createPlayer/{user_id}")
-    public ResponseEntity<Player_Profile> createPlayer(@PathVariable String user_id) {
-
-        // Create a new Player_Profile with default values
-        Player_Profile player = new Player_Profile();
-        player.setPot(3000);
-        player.setWins(0);
-        player.setLosses(0);
-
+    public ResponseEntity<Player_Profile> createPlayer(@PathVariable String user_id, @RequestBody Player_Profile thePlayerProfile) {        
         try {
             // ensure user exists
             User theUser = user_Service_Impl.getUserById(user_id)
                     .orElseThrow(() -> new RuntimeException("User not found with id: " + user_id));
 
-            Player_Profile thePlayer = playerService.createPlayerProfile(player);
+            Player_Profile thePlayer = playerService.createPlayerProfile(thePlayerProfile);
 
             theUser.setPlayer_profile(thePlayer);
             user_Service_Impl.saveUser(theUser);
             
-            return ResponseEntity.ok(player);
+            return ResponseEntity.ok(thePlayer);
 
         } catch (RuntimeException e) {
             System.err.println(e.toString());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
+
     }
 
     @PatchMapping("updatePlayer/{id}")
