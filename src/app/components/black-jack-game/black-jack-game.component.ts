@@ -1,4 +1,4 @@
-import { Component, OnInit} from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 
 import { Deck } from './game-objects/deck';
 import { Hand } from '../../common/hand';
@@ -8,16 +8,24 @@ import { BlackJackGameService } from '../../services/black-jack-game.service';
 import { Card } from '../../common/card';
 
 import Swal from 'sweetalert2';
+import { AuthenticationService } from '../../services/authentication.service';
+import { Subject } from 'rxjs';
+import {
+  PlayerProfile,
+  PlayerProfileService,
+} from '../../services/player-profile.service';
+import { HttpClient } from '@angular/common/http';
+import xenonDevConfig from '../../config/xenon-dev-config';
 
 const MAX_HAND_VALUE = 21;
 
 @Component({
-    selector: 'app-black-jack-game',
-    templateUrl: './black-jack-game.component.html',
-    styleUrl: './black-jack-game.component.css',
-    standalone: false
+  selector: 'app-black-jack-game',
+  templateUrl: './black-jack-game.component.html',
+  styleUrl: './black-jack-game.component.css',
+  standalone: false,
 })
-export class BlackJackGameComponent implements OnInit {
+export class BlackJackGameComponent implements OnInit, OnDestroy {
   deck!: Deck;
   dealerHand!: Hand;
   playerHand!: Hand;
@@ -37,23 +45,31 @@ export class BlackJackGameComponent implements OnInit {
   pot: number = 0;
   bet: number = 0;
 
+  private playerProfile: PlayerProfile | null = null;
+
+  private readonly destroy$ = new Subject<void>();
+
+  isLoggedIn: boolean | null = false;
+
   constructor(
-    private router: Router,
-    private blackJackHelpService: BlackJackHelpService,
-    private blackJackGameService: BlackJackGameService
+    private authenticationService: AuthenticationService,
+    private blackJackGameService: BlackJackGameService,
+    private playerProfileService: PlayerProfileService,
+    private http: HttpClient,
   ) {}
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   ngOnInit(): void {
-    //why not move this to a gaurd?
-    //let theDataIsTrue = this.blackJackHelpService.isHasUserAgreedToDisclaimerTrue();
+    this.populatePlayerProfileIfExists();
 
-      this.useDealerCardRevealDelay = this.blackJackGameService.getDealerTimerToggle();
+    this.useDealerCardRevealDelay =
+      this.blackJackGameService.getDealerTimerToggle();
 
-    //if (theDataIsTrue) {
-      this.startNewGame();
-    /*} else {
-      this.router.navigate(['black-jack-help']);
-    }*/
+    this.startNewGame();
   }
 
   async startNewGame() {
@@ -66,9 +82,12 @@ export class BlackJackGameComponent implements OnInit {
 
     if (this.isFirstGame) {
       this.dealerHand = new Hand('Dealer');
-      this.playerHand = new Hand('Player');
+      if (!this.isLoggedIn) {
+        this.playerHand = new Hand('Player');
+      }
       this.isFirstGame = false;
     } else {
+      this.updatePlayerProfile();
       this.dealerHand.emptyHand();
       this.playerHand.emptyHand();
     }
@@ -97,7 +116,7 @@ export class BlackJackGameComponent implements OnInit {
         didOpen: () => {
           const inputRange = Swal.getInput()!;
           const inputNumber = Swal.getPopup()!.querySelector(
-            '#range-value'
+            '#range-value',
           ) as HTMLInputElement;
 
           Swal.getPopup()!.querySelector('output')!.style.display = 'none';
@@ -135,7 +154,6 @@ export class BlackJackGameComponent implements OnInit {
 
     //pick on card for the player
     this.addToHand(this.playerHand);
-
   }
 
   addToHand(theHand: Hand) {
@@ -143,13 +161,13 @@ export class BlackJackGameComponent implements OnInit {
     try {
       theHand.addCard(newCard);
       console.log(
-        `${theHand.handName} picked: [${newCard.suit}][${newCard.value}][${newCard.imageUrl}]`
+        `${theHand.handName} picked: [${newCard.suit}][${newCard.value}][${newCard.imageUrl}]`,
       );
     } catch (error) {
       const errorFound = `${theHand.handName} Data:\nthe new Card [${String(
-        newCard.toString()
+        newCard.toString(),
       )}], \nHand Data:\n ${String(
-        theHand.toString()
+        theHand.toString(),
       )}\nerror message:\n${error}`;
       console.log(errorFound);
       Swal.fire({
@@ -187,7 +205,7 @@ export class BlackJackGameComponent implements OnInit {
     do {
       this.addToHand(this.dealerHand);
       dealerScore = this.dealerHand.handValue;
-      if(this.useDealerCardRevealDelay){
+      if (this.useDealerCardRevealDelay) {
         await this.sleep(1250);
       }
       if (this.hasScoreExceededMaxValue(dealerScore)) {
@@ -288,7 +306,7 @@ export class BlackJackGameComponent implements OnInit {
     this.startNewGame();
   }
 
-  isDealerCardDelayEnabled(event: any){
+  isDealerCardDelayEnabled(event: any) {
     this.useDealerCardRevealDelay = event.target.checked;
     this.blackJackGameService.setDealerTimerToggle(event.target.checked);
   }
@@ -309,5 +327,40 @@ export class BlackJackGameComponent implements OnInit {
 
     return value;
   }
-  
+
+  populatePlayerProfileIfExists() {
+    this.authenticationService.isLoggedIn$.subscribe((isLoggedIn) => {
+      if (isLoggedIn) {
+        this.isLoggedIn = isLoggedIn;
+
+        this.authenticationService.userProfile$.subscribe((userProfile) => {
+          this.playerHand.handName = userProfile?.firstName ?? 'Player';
+        });
+
+        // get the player profile from the service
+        this.playerProfileService.playerProfile$.subscribe((profile) => {
+          this.playerProfile = profile;
+          this.pot = profile?.pot ?? 3000;
+          this.playerHand.wins = profile?.wins ?? 0;
+          this.dealerHand.wins = profile?.losses ?? 0;
+        });
+      }
+    });
+  }
+
+  updatePlayerProfile() {
+    this.http
+      .post(
+        `${xenonDevConfig.SpringAPIServer.local.url}/api/player/updatePlayer/${this.playerProfile?.player_id}`,
+        this.playerProfile,
+      )
+      .subscribe({
+        next: (response) => {
+          console.log('Player profile updated successfully:', response);
+        },
+        error: (error) => {
+          console.error('Error updating player profile:', error);
+        },
+      });
+  }
 }

@@ -23,6 +23,9 @@ export class PlayerProfileService {
     new Map(),
   );
 
+  private readonly _playerProfile$ = new BehaviorSubject<PlayerProfile | null>(null);
+  public readonly playerProfile$ = this._playerProfile$.asObservable();
+
   /**
    * Check if a player profile exists for a given user ID
    * Uses caching to avoid repeated API calls
@@ -35,13 +38,17 @@ export class PlayerProfileService {
     }
 
     try {
-      const profile = await this.getPlayerProfile(userId);
-      const exists = !!profile;
+      const profileObvervable = await this.getPlayerProfile(userId);
+      const exists = !!profileObvervable;
 
       if (exists) {
         // Update cache
         cache.set(userId, exists);
         this.profileChecked$.next(cache);
+        // Update player profile observable
+        profileObvervable.subscribe((profile) => {
+          this._playerProfile$.next(profile);
+        });
       }
 
       return exists;
