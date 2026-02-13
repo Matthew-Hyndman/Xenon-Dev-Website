@@ -63,7 +63,7 @@ export class PlayerProfileService {
   /**
    * Retrieve player profile by user ID
    */
-  getPlayerProfile(userId: string): Observable<PlayerProfile> {
+  async getPlayerProfile(userId: string): Promise<Observable<PlayerProfile>> {
     // Check in-memory cache first
     if (this.playerProfileCache.has(userId)) {
       return new Observable((observer) => {
@@ -72,9 +72,17 @@ export class PlayerProfileService {
       });
     }
 
+    await this.keycloak.updateToken(30); // Ensure token is fresh
+    const token = this.keycloak.token;
+
     return this.httpClient
       .get<PlayerProfile>(
         `${xenonDevConfig.SpringAPIServer.local.url}/api/player/getPlayerDetails/${userId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
       )
       .pipe(
         tap((profile) => {
@@ -150,6 +158,29 @@ export class PlayerProfileService {
       this.profileChecked$.next(new Map());
     }
   }
+
+    async updatePlayerProfile(profile_id: number, thePlayerProfile: PlayerProfile) {
+      await this.keycloak.updateToken(30); // Ensure token is fresh
+      const token = this.keycloak.token;
+      this.httpClient
+        .patch(
+          `${xenonDevConfig.SpringAPIServer.local.url}/api/player/updatePlayer/${profile_id}`,
+          thePlayerProfile,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        )
+        .subscribe({
+          next: (response) => {
+            console.log('Player profile updated successfully:', response);
+          },
+          error: (error) => {
+            console.error('Error updating player profile:', error);
+          },
+        });
+    }
 
   /**
    * Get cache status observable

@@ -9,6 +9,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/player")
+@PreAuthorize("hasRole('ROLE_User') or hasRole('ROLE_Admin')")
 public class Player_Profile_Controller {
 
     private User_Service_Impl user_Service_Impl;
@@ -45,6 +47,13 @@ public class Player_Profile_Controller {
     public ResponseEntity<List<Player_Profile>> getAllPlayers() {
         List<Player_Profile> players = playerService.getAllPlayerProfiles();
         return ResponseEntity.ok(players);
+    }
+
+    @GetMapping("getPlayerDetails/{userId}")
+    public ResponseEntity<Player_Profile> getPlayerDetails(@PathVariable String userId) {
+        return user_Service_Impl.getPlayerProfileByUserId(userId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @PostMapping("createPlayer/{user_id}")

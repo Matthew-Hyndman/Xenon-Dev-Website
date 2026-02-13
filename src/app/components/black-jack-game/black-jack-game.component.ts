@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 
 import { Deck } from './game-objects/deck';
 import { Hand } from '../../common/hand';
@@ -16,6 +16,7 @@ import {
 } from '../../services/player-profile.service';
 import { HttpClient } from '@angular/common/http';
 import xenonDevConfig from '../../config/xenon-dev-config';
+import Keycloak from 'keycloak-js';
 
 const MAX_HAND_VALUE = 21;
 
@@ -49,6 +50,8 @@ export class BlackJackGameComponent implements OnInit, OnDestroy {
 
   private readonly destroy$ = new Subject<void>();
 
+  private readonly keycloak = inject(Keycloak);
+
   isLoggedIn: boolean | null = false;
 
   constructor(
@@ -81,13 +84,17 @@ export class BlackJackGameComponent implements OnInit, OnDestroy {
     }
 
     if (this.isFirstGame) {
-      this.dealerHand = new Hand('Dealer');
+      
       if (!this.isLoggedIn) {
         this.playerHand = new Hand('Player');
+        this.dealerHand = new Hand('Dealer');
       }
       this.isFirstGame = false;
     } else {
-      this.updatePlayerProfile();
+      this.playerProfileService.updatePlayerProfile(
+        this.playerProfile!.player_id!, 
+        this.playerProfile!
+      );
       this.dealerHand.emptyHand();
       this.playerHand.emptyHand();
     }
@@ -247,7 +254,9 @@ export class BlackJackGameComponent implements OnInit, OnDestroy {
   async Bust(theHand: Hand) {
     if (theHand.handName === 'Dealer') {
       this.playerHand.wins += 1;
-
+      if (this.isLoggedIn){
+        this.playerProfile!.wins! += 1;
+      }
       let winType = '';
 
       if (this.isHandBlackJack(this.playerHand)) {
@@ -277,6 +286,9 @@ export class BlackJackGameComponent implements OnInit, OnDestroy {
         this.pot += payout;
       }
     } else {
+      if (this.isLoggedIn){
+        this.playerProfile!.losses! += 1;
+      }
       this.dealerHand.wins += 1;
       let lossType = '';
 
@@ -298,6 +310,9 @@ export class BlackJackGameComponent implements OnInit, OnDestroy {
       }
     }
     this.handThatWentBust = theHand;
+    if (this.isLoggedIn){
+      this.playerProfile!.pot! = this.pot;
+    }
     this.startNewGame();
   }
 
@@ -332,9 +347,10 @@ export class BlackJackGameComponent implements OnInit, OnDestroy {
     this.authenticationService.isLoggedIn$.subscribe((isLoggedIn) => {
       if (isLoggedIn) {
         this.isLoggedIn = isLoggedIn;
-
+        
         this.authenticationService.userProfile$.subscribe((userProfile) => {
-          this.playerHand.handName = userProfile?.firstName ?? 'Player';
+          this.playerHand = new Hand(userProfile?.username ?? 'Player');
+          this.dealerHand = new Hand('Dealer');
         });
 
         // get the player profile from the service
@@ -346,21 +362,5 @@ export class BlackJackGameComponent implements OnInit, OnDestroy {
         });
       }
     });
-  }
-
-  updatePlayerProfile() {
-    this.http
-      .post(
-        `${xenonDevConfig.SpringAPIServer.local.url}/api/player/updatePlayer/${this.playerProfile?.player_id}`,
-        this.playerProfile,
-      )
-      .subscribe({
-        next: (response) => {
-          console.log('Player profile updated successfully:', response);
-        },
-        error: (error) => {
-          console.error('Error updating player profile:', error);
-        },
-      });
   }
 }

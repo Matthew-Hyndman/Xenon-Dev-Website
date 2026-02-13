@@ -5,9 +5,7 @@ import { BlackJackHelpService } from '../../services/black-jack-help.service';
 import { BlackJackGameService } from '../../services/black-jack-game.service';
 import { AuthenticationService } from '../../services/authentication.service';
 import { KeycloakProfile } from 'keycloak-js';
-import { Observable, Subject, takeUntil } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
-import xenonDevConfig from '../../config/xenon-dev-config';
+import { Subject, takeUntil } from 'rxjs';
 import { PlayerProfileService } from '../../services/player-profile.service';
 
 @Component({
@@ -25,6 +23,8 @@ export class BlackJackHelpComponent implements OnInit, OnDestroy {
 
   userProfile: KeycloakProfile | null = null;
 
+  private isLoggedIn: boolean = false;
+
   constructor(
     private router: Router,
     private blackJackHelpService: BlackJackHelpService,
@@ -32,7 +32,6 @@ export class BlackJackHelpComponent implements OnInit, OnDestroy {
     private authService: AuthenticationService,
     private blackJackGameService: BlackJackGameService,
     private playerProfileService: PlayerProfileService,
-    private httpClient: HttpClient
   ) {}
 
   ngOnDestroy(): void {
@@ -47,10 +46,12 @@ export class BlackJackHelpComponent implements OnInit, OnDestroy {
       }),
     });
 
-    this.getUserProfile().then(() => {    
-      this.blackJackGameService.getPlayerProfileAndPopulateGameData(this.userProfile!);      
+    this.getUserProfile().then(() => {
+      if (this.isLoggedIn) {    
+        this.blackJackGameService.getPlayerProfileAndPopulateGameData(this.userProfile!);      
+      }
     }).catch((error) => {
-      console.error('Error retrieving user profile:', error);
+      console.error('Error fetching user profile:', error);
     });
 
   }
@@ -61,7 +62,8 @@ export class BlackJackHelpComponent implements OnInit, OnDestroy {
     .pipe(takeUntil(this.destroy$))
     .subscribe(profile => {
       if(profile) {
-        this.userProfile = profile
+        this.userProfile = profile;
+        this.isLoggedIn = true;
       } 
     });
   }
@@ -102,14 +104,15 @@ export class BlackJackHelpComponent implements OnInit, OnDestroy {
       this.blackJackHelpService.isHasUserAgreedToDisclaimerTrue() &&
       this.disclaimer?.value
     ) {
-      if (this.userProfile !== null) {
-        if ((await !!this.playerProfileService
-          .getPlayerProfile(this.userProfile.id!))) {
+
+      if (this.userProfile === null) {
+        this.router.navigate(['black-jack-game']);
+        return;
+      } else {        
+        if (!(await this.playerProfileService.getPlayerProfile(this.userProfile.id!))) {
             await this.playerProfileService.createPlayerProfile(this.userProfile.id!);
         }
         this.router.navigate(['black-jack-game']);
-      } else {
-        alert('There was an error creating your player profile. Please try again later.');
       }
 
     } else {
