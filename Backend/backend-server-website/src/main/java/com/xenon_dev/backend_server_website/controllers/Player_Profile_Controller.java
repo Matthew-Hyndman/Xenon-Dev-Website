@@ -9,6 +9,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,9 +19,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-
 @RestController
 @RequestMapping("/api/player")
+@PreAuthorize("hasRole('ROLE_User') or hasRole('ROLE_Admin')")
 public class Player_Profile_Controller {
 
     private User_Service_Impl user_Service_Impl;
@@ -28,26 +29,36 @@ public class Player_Profile_Controller {
     @Autowired
     private Player_Profile_Service_Impl playerService;
 
-    //private User_Service userService;
+    // private User_Service userService;
 
     @Autowired
     public void UserController(User_Service_Impl user_Service_Impl) {
         this.user_Service_Impl = user_Service_Impl;
     }
 
-    /*@Autowired
-    public void UserController (User_Service userService) {
-        this.userService = userService;
-    }*/
+    /*
+     * @Autowired
+     * public void UserController (User_Service userService) {
+     * this.userService = userService;
+     * }
+     */
 
     @GetMapping("getAllPlayers")
     public ResponseEntity<List<Player_Profile>> getAllPlayers() {
         List<Player_Profile> players = playerService.getAllPlayerProfiles();
         return ResponseEntity.ok(players);
-    }    
+    }
+
+    @GetMapping("getPlayerDetails/{userId}")
+    public ResponseEntity<Player_Profile> getPlayerDetails(@PathVariable String userId) {
+        return user_Service_Impl.getPlayerProfileByUserId(userId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    }
 
     @PostMapping("createPlayer/{user_id}")
-    public ResponseEntity<Player_Profile> createPlayer(@PathVariable String user_id, @RequestBody Player_Profile thePlayerProfile) {        
+    public ResponseEntity<Player_Profile> createPlayer(@PathVariable String user_id,
+            @RequestBody Player_Profile thePlayerProfile) {
         try {
             // ensure user exists
             User theUser = user_Service_Impl.getUserById(user_id)
@@ -57,7 +68,7 @@ public class Player_Profile_Controller {
 
             theUser.setPlayer_profile(thePlayer);
             user_Service_Impl.saveUser(theUser);
-            
+
             return ResponseEntity.ok(thePlayer);
 
         } catch (RuntimeException e) {
@@ -68,7 +79,8 @@ public class Player_Profile_Controller {
     }
 
     @PatchMapping("updatePlayer/{id}")
-    public ResponseEntity<Player_Profile> updatePlayer_Profile(@PathVariable Long id,
+    public ResponseEntity<Player_Profile> updatePlayer_Profile(
+            @PathVariable Long id,
             @RequestBody Player_Profile player) {
         try {
             return ResponseEntity.ok(playerService.updatePlayerProfile(id, player));

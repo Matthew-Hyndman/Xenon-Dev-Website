@@ -26,39 +26,5 @@ export class BlackJackGameService {
   getDealerTimerToggleDirect(): string | null{
     return localStorage.getItem('dealerTimerToggle');
   }
-
-  getPlayerProfileAndPopulateGameData(theUser: KeycloakProfile): Hand | void {
-    const url = `${xenonDevConfig.SpringAPIServer.local.url}/api/user/getPlayerDetails/${theUser.id}`;
-    this.httpClient.get<PlayerProfileResponse>(url).subscribe({
-      next: (response) => {
-        if (response !== null) {
-        this.player_id = response.playerId;
-        this.player_losses = response.losses;
-        this.player_pot = response.pot;
-
-        const playerHand: Hand = new Hand(
-          theUser.username || '',
-          0,
-          [],
-          response.wins
-        );
-        return playerHand;
-      } else {
-        console.info('Player profile does not exist for user:', theUser.username);
-        return null;
-      }
-      },
-      error: (error) => {        
-        alert('Error fetching player profile: ' + error);
-        return null;
-      }
-    });
-  }
-}
-
-interface PlayerProfileResponse {
-    playerId: number,
-    losses: number,
-    pot: number,
-    wins: number;
+  
 }

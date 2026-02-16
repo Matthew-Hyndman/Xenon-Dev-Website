@@ -5,9 +5,7 @@ import { BlackJackHelpService } from '../../services/black-jack-help.service';
 import { BlackJackGameService } from '../../services/black-jack-game.service';
 import { AuthenticationService } from '../../services/authentication.service';
 import { KeycloakProfile } from 'keycloak-js';
-import { Observable, Subject, takeUntil } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
-import xenonDevConfig from '../../config/xenon-dev-config';
+import { Subject, takeUntil } from 'rxjs';
 import { PlayerProfileService } from '../../services/player-profile.service';
 
 @Component({
@@ -25,14 +23,14 @@ export class BlackJackHelpComponent implements OnInit, OnDestroy {
 
   userProfile: KeycloakProfile | null = null;
 
+  private isLoggedIn: boolean = false;
+
   constructor(
     private router: Router,
     private blackJackHelpService: BlackJackHelpService,
     private formBuilder: FormBuilder,
     private authService: AuthenticationService,
-    private blackJackGameService: BlackJackGameService,
     private playerProfileService: PlayerProfileService,
-    private httpClient: HttpClient
   ) {}
 
   ngOnDestroy(): void {
@@ -47,11 +45,7 @@ export class BlackJackHelpComponent implements OnInit, OnDestroy {
       }),
     });
 
-    this.getUserProfile().then(() => {    
-      this.blackJackGameService.getPlayerProfileAndPopulateGameData(this.userProfile!);      
-    }).catch((error) => {
-      console.error('Error retrieving user profile:', error);
-    });
+    this.getUserProfile();
 
   }
 
@@ -61,7 +55,8 @@ export class BlackJackHelpComponent implements OnInit, OnDestroy {
     .pipe(takeUntil(this.destroy$))
     .subscribe(profile => {
       if(profile) {
-        this.userProfile = profile
+        this.userProfile = profile;
+        this.isLoggedIn = true;
       } 
     });
   }
@@ -76,53 +71,25 @@ export class BlackJackHelpComponent implements OnInit, OnDestroy {
     this.blackJackHelpService.setHasUserAgreedToDisclamer(accepted);
   }
 
-  // how are we going to handle user profile creation here? 
-  // how to check if user profile was created successfully?
-  /*createPlayerProfile(): Boolean {
-    let ok = false
-    this.playerProfileService.createPlayerProfile(this.userProfile!.id! )
-    /*
-    this.httpClient.post<PlayerProfileResponse>(
-      `${xenonDevConfig.SpringAPIServer.local.url}/api/player/createPlayer/${this.userProfile?.id}`, 
-      null
-    ).subscribe((response) => {
-      if (response) {
-        console.log('Player profile created successfully');
-        ok = true;
-      } else {
-        console.error('Failed to create player profile', response);
-      }
-    });    
-        
-    return ok;
-  }*/
-
   async onContinue() {
     if (
       this.blackJackHelpService.isHasUserAgreedToDisclaimerTrue() &&
       this.disclaimer?.value
     ) {
-      if (this.userProfile !== null) {
-        if ((await !!this.playerProfileService
-          .getPlayerProfile(this.userProfile.id!))) {
-            await this.playerProfileService.createPlayerProfile(this.userProfile.id!);
+
+      if (!this.isLoggedIn) {
+        this.router.navigate(['black-jack-game']);
+        return;
+      } else {        
+        if (!(await this.playerProfileService.checkPlayerProfileExists(this.userProfile!.id!))) {
+            await this.playerProfileService.createPlayerProfile(this.userProfile!.id!);
         }
         this.router.navigate(['black-jack-game']);
-      } else {
-        alert('There was an error creating your player profile. Please try again later.');
+        return;
       }
 
     } else {
       this.showErrorMessage = true;
     }
   }
-}
-
-interface PlayerProfileResponse {
-  _embedded: {
-    player_id: number,
-    losses: number,
-    pot: number,
-    wins: number
-  };
 }
