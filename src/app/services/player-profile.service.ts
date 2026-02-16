@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, catchError, of } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { BehaviorSubject, Observable, catchError, of, firstValueFrom } from 'rxjs';
+import { map, tap, throwIfEmpty } from 'rxjs/operators';
 import xenonDevConfig from '../config/xenon-dev-config';
 import Keycloak from 'keycloak-js';
 
@@ -38,17 +38,16 @@ export class PlayerProfileService {
     }
 
     try {
-      const profileObvervable = await this.getPlayerProfile(userId);
-      const exists = !!profileObvervable;
+      const profile = await this.getPlayerProfile(userId);
+      const exists = profile !== null;
 
+      // Update cache
+      cache.set(userId, exists);
+      this.profileChecked$.next(cache);
+      
       if (exists) {
-        // Update cache
-        cache.set(userId, exists);
-        this.profileChecked$.next(cache);
         // Update player profile observable
-        profileObvervable.subscribe((profile) => {
-          this._playerProfile$.next(profile);
-        });
+        this._playerProfile$.next(profile);
       }
 
       return exists;
@@ -62,42 +61,49 @@ export class PlayerProfileService {
 
   /**
    * Retrieve player profile by user ID
+   * Returns null if profile doesn't exist (404 error)
    */
-  async getPlayerProfile(userId: string): Promise<Observable<PlayerProfile>> {
+  async getPlayerProfile(userId: string): Promise<PlayerProfile | null> {
     // Check in-memory cache first
     if (this.playerProfileCache.has(userId)) {
-      return new Observable((observer) => {
-        observer.next(this.playerProfileCache.get(userId)!);
-        observer.complete();
-      });
+      return this.playerProfileCache.get(userId)!;
     }
 
     await this.keycloak.updateToken(30); // Ensure token is fresh
     const token = this.keycloak.token;
 
-    return this.httpClient
-      .get<PlayerProfile>(
-        `${xenonDevConfig.SpringAPIServer.local.url}/api/player/getPlayerDetails/${userId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
+    const profile = await firstValueFrom(
+      this.httpClient
+        .get<PlayerProfile>(
+          `${xenonDevConfig.SpringAPIServer.local.url}/api/player/getPlayerDetails/${userId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           },
-        },
-      )
-      .pipe(
-        tap((profile) => {
-          console.log('Fetched player profile:', profile);
-        }),
-        map((profile) => {
-          // Cache the result
-          this.playerProfileCache.set(userId, profile);
-          return profile;
-        }),
-        catchError((error) => {
-          console.error('Error fetching player profile:', error);
-          return of(null as any);
-        }),
-      );
+        )
+        .pipe(
+          tap((result) => {
+            console.log('Fetched player profile:', result);
+          }),
+          catchError((error) => {
+            if (error.status === 404) {
+              console.info('Player profile not found for user');
+              return of(null);
+            } else {
+              console.error('Error fetching player profile:', error);
+              throw error;
+            }
+          }),
+        ),
+    );
+
+    if (profile) {
+      // Cache the result
+      this.playerProfileCache.set(userId, profile);
+    }
+
+    return profile;
   }
 
   /**
@@ -135,6 +141,7 @@ export class PlayerProfileService {
           cache.delete(userId);
           this.profileChecked$.next(cache);
           this.playerProfileCache.set(userId, response);
+          this._playerProfile$.next(response);
         }),
         catchError((error) => {
           console.error('Error creating player profile:', error);

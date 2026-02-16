@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @PreAuthorize("hasRole('User') or hasRole('Admin')")
 public class User_Controller  {
     
-    @Autowired
+/*    @Autowired
     private User_Service_Impl userService;
 
     
@@ -37,5 +37,5 @@ public class User_Controller  {
         return player.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
 
-    }
+    }*/
 }

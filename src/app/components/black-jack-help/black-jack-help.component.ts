@@ -30,7 +30,6 @@ export class BlackJackHelpComponent implements OnInit, OnDestroy {
     private blackJackHelpService: BlackJackHelpService,
     private formBuilder: FormBuilder,
     private authService: AuthenticationService,
-    private blackJackGameService: BlackJackGameService,
     private playerProfileService: PlayerProfileService,
   ) {}
 
@@ -46,13 +45,7 @@ export class BlackJackHelpComponent implements OnInit, OnDestroy {
       }),
     });
 
-    this.getUserProfile().then(() => {
-      if (this.isLoggedIn) {    
-        this.blackJackGameService.getPlayerProfileAndPopulateGameData(this.userProfile!);      
-      }
-    }).catch((error) => {
-      console.error('Error fetching user profile:', error);
-    });
+    this.getUserProfile();
 
   }
 
@@ -78,54 +71,25 @@ export class BlackJackHelpComponent implements OnInit, OnDestroy {
     this.blackJackHelpService.setHasUserAgreedToDisclamer(accepted);
   }
 
-  // how are we going to handle user profile creation here? 
-  // how to check if user profile was created successfully?
-  /*createPlayerProfile(): Boolean {
-    let ok = false
-    this.playerProfileService.createPlayerProfile(this.userProfile!.id! )
-    /*
-    this.httpClient.post<PlayerProfileResponse>(
-      `${xenonDevConfig.SpringAPIServer.local.url}/api/player/createPlayer/${this.userProfile?.id}`, 
-      null
-    ).subscribe((response) => {
-      if (response) {
-        console.log('Player profile created successfully');
-        ok = true;
-      } else {
-        console.error('Failed to create player profile', response);
-      }
-    });    
-        
-    return ok;
-  }*/
-
   async onContinue() {
     if (
       this.blackJackHelpService.isHasUserAgreedToDisclaimerTrue() &&
       this.disclaimer?.value
     ) {
 
-      if (this.userProfile === null) {
+      if (!this.isLoggedIn) {
         this.router.navigate(['black-jack-game']);
         return;
       } else {        
-        if (!(await this.playerProfileService.getPlayerProfile(this.userProfile.id!))) {
-            await this.playerProfileService.createPlayerProfile(this.userProfile.id!);
+        if (!(await this.playerProfileService.checkPlayerProfileExists(this.userProfile!.id!))) {
+            await this.playerProfileService.createPlayerProfile(this.userProfile!.id!);
         }
         this.router.navigate(['black-jack-game']);
+        return;
       }
 
     } else {
       this.showErrorMessage = true;
     }
   }
-}
-
-interface PlayerProfileResponse {
-  _embedded: {
-    player_id: number,
-    losses: number,
-    pot: number,
-    wins: number
-  };
 }

@@ -1,9 +1,7 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 
 import { Deck } from './game-objects/deck';
 import { Hand } from '../../common/hand';
-import { Router } from '@angular/router';
-import { BlackJackHelpService } from '../../services/black-jack-help.service';
 import { BlackJackGameService } from '../../services/black-jack-game.service';
 import { Card } from '../../common/card';
 
@@ -14,9 +12,6 @@ import {
   PlayerProfile,
   PlayerProfileService,
 } from '../../services/player-profile.service';
-import { HttpClient } from '@angular/common/http';
-import xenonDevConfig from '../../config/xenon-dev-config';
-import Keycloak from 'keycloak-js';
 
 const MAX_HAND_VALUE = 21;
 
@@ -50,15 +45,12 @@ export class BlackJackGameComponent implements OnInit, OnDestroy {
 
   private readonly destroy$ = new Subject<void>();
 
-  private readonly keycloak = inject(Keycloak);
-
   isLoggedIn: boolean | null = false;
 
   constructor(
     private authenticationService: AuthenticationService,
     private blackJackGameService: BlackJackGameService,
     private playerProfileService: PlayerProfileService,
-    private http: HttpClient,
   ) {}
 
   ngOnDestroy(): void {
@@ -84,17 +76,18 @@ export class BlackJackGameComponent implements OnInit, OnDestroy {
     }
 
     if (this.isFirstGame) {
-      
       if (!this.isLoggedIn) {
         this.playerHand = new Hand('Player');
         this.dealerHand = new Hand('Dealer');
       }
       this.isFirstGame = false;
     } else {
-      this.playerProfileService.updatePlayerProfile(
-        this.playerProfile!.player_id!, 
-        this.playerProfile!
-      );
+      if (this.isLoggedIn) {
+        this.playerProfileService.updatePlayerProfile(
+          this.playerProfile!.player_id!,
+          this.playerProfile!,
+        );
+      }
       this.dealerHand.emptyHand();
       this.playerHand.emptyHand();
     }
@@ -254,7 +247,7 @@ export class BlackJackGameComponent implements OnInit, OnDestroy {
   async Bust(theHand: Hand) {
     if (theHand.handName === 'Dealer') {
       this.playerHand.wins += 1;
-      if (this.isLoggedIn){
+      if (this.isLoggedIn) {
         this.playerProfile!.wins! += 1;
       }
       let winType = '';
@@ -286,7 +279,7 @@ export class BlackJackGameComponent implements OnInit, OnDestroy {
         this.pot += payout;
       }
     } else {
-      if (this.isLoggedIn){
+      if (this.isLoggedIn) {
         this.playerProfile!.losses! += 1;
       }
       this.dealerHand.wins += 1;
@@ -310,7 +303,7 @@ export class BlackJackGameComponent implements OnInit, OnDestroy {
       }
     }
     this.handThatWentBust = theHand;
-    if (this.isLoggedIn){
+    if (this.isLoggedIn) {
       this.playerProfile!.pot! = this.pot;
     }
     this.startNewGame();
@@ -347,7 +340,7 @@ export class BlackJackGameComponent implements OnInit, OnDestroy {
     this.authenticationService.isLoggedIn$.subscribe((isLoggedIn) => {
       if (isLoggedIn) {
         this.isLoggedIn = isLoggedIn;
-        
+
         this.authenticationService.userProfile$.subscribe((userProfile) => {
           this.playerHand = new Hand(userProfile?.username ?? 'Player');
           this.dealerHand = new Hand('Dealer');
