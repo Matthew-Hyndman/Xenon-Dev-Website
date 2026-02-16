@@ -28,14 +28,5 @@ public class User_Controller  {
     
 /*    @Autowired
     private User_Service_Impl userService;
-
-    
-
-@GetMapping("getPlayerDetails/{id}")
-    public ResponseEntity<Player_Profile> getPlayerDetailsWithId(@PathVariable String id) {
-        Optional<Player_Profile> player = userService.getPlayerProfileByUserId(id);
-        return player.map(ResponseEntity::ok)
-                .orElse(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
-
-    }*/
+*/
 }
