@@ -1,11 +1,14 @@
 package com.xenon_dev.backend_server_website.controllers;
 
+import com.xenon_dev.backend_server_website.DTO.Player_ProfileDTO;
 import com.xenon_dev.backend_server_website.entity.Player_Profile;
 import com.xenon_dev.backend_server_website.entity.User;
 import com.xenon_dev.backend_server_website.service.Player_Profile_Service_Impl;
 import com.xenon_dev.backend_server_website.service.User_Service_Impl;
 
 import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,10 +21,12 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @RestController
 @RequestMapping("/api/player")
-@PreAuthorize("hasRole('ROLE_User') or hasRole('ROLE_Admin')")
+//@PreAuthorize("hasRole('ROLE_User') or hasRole('ROLE_Admin')")
 public class Player_Profile_Controller {
 
     private User_Service_Impl user_Service_Impl;
@@ -36,12 +41,13 @@ public class Player_Profile_Controller {
         this.user_Service_Impl = user_Service_Impl;
     }
 
-    /*
-     * @Autowired
-     * public void UserController (User_Service userService) {
-     * this.userService = userService;
-     * }
-     */
+    @GetMapping("leaderboard")
+    public ResponseEntity<List<Player_ProfileDTO>> getleaderboard() {
+        return playerService.getAccountsWithPlayerProfiles_view()
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    }
+    
 
     @GetMapping("getAllPlayers")
     public ResponseEntity<List<Player_Profile>> getAllPlayers() {

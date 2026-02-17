@@ -35,9 +35,9 @@ public class SecurityConfiguration {
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(requests ->
                 requests
-                        .requestMatchers("/actuator/health", "/public/**").permitAll()
-                        .anyRequest().authenticated()
-                        //.anyRequest().permitAll()
+                        //.requestMatchers("/actuator/health", "/public/**").permitAll()
+                        //.anyRequest().authenticated()
+                        .anyRequest().permitAll()
         );                
         
         CorsConfiguration corsConfig = new CorsConfiguration();

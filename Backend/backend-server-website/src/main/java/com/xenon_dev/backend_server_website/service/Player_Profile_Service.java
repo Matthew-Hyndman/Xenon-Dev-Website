@@ -3,10 +3,14 @@ package com.xenon_dev.backend_server_website.service;
 import java.util.List;
 import java.util.Optional;
 
+import com.xenon_dev.backend_server_website.DTO.Player_ProfileDTO;
 import com.xenon_dev.backend_server_website.entity.Player_Profile;
 
 public interface Player_Profile_Service {
     
+    //Player Profile Views
+    Optional<List<Player_ProfileDTO>> getAccountsWithPlayerProfiles_view();
+
     //Player Profile Crud Operations
 
     Player_Profile createPlayerProfile(Player_Profile player_profile);

@@ -7,11 +7,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.xenon_dev.backend_server_website.DAO.Player_ProfileRepo;
+import com.xenon_dev.backend_server_website.DTO.Player_ProfileDTO;
 import com.xenon_dev.backend_server_website.entity.Player_Profile;
 
 @Service
 public class Player_Profile_Service_Impl  implements Player_Profile_Service {
     
+    //Player Profile Views
+    @Override
+    public Optional<List<Player_ProfileDTO>> getAccountsWithPlayerProfiles_view(){
+        return playerProfileRepo.getAccountsWithPlayerProfiles();
+    }
+
     //Player Profile Crud Operations
 
     @Autowired
