@@ -1,0 +1,27 @@
+<div class="main-content">
+  <div class="section-content section-content-p30">
+    <div class="container-fulid">
+<h1>Leaderboard</h1>
+<table>
+  <thead>
+    <tr>
+      <th>Username</th>
+      <th>Wins</th>
+      <th>Losses</th>
+      <th>Pot</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (playerRec of this.leaderboardData; track $index) {
+      <tr>
+        <td>{{ playerRec.username }}</td>
+        <td>{{ playerRec.wins }}</td>
+        <td>{{ playerRec.losses }}</td>
+        <td>{{ playerRec.pot }}</td>
+      </tr>
+    }
+  </tbody>
+</table>
+    </div>
+  </div>
+</div>

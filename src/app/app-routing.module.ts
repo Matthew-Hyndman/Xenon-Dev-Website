@@ -9,11 +9,14 @@ import { AccountProfileComponent } from './components/account-profile/account-pr
 import { keycloakGuard } from './guards/keycloak.guard';
 import {blackJackHelpAuthenticationGuard } from './guards/black-jack-help-authentication.guard';
 import { blackJackHelpDisclaimerCheckedGuard } from './guards/black-jack-help-disclaimer-checked.guard';
+import { LeaderboardComponent } from './components/leaderboard/leaderboard.component';
 
 export const routes: Routes = [
   { path: 'black-jack-game', component: BlackJackGameComponent, canActivate: [blackJackHelpDisclaimerCheckedGuard] },
-  { path: 'black-jack-help', component: BlackJackHelpComponent, canActivate: [
-    blackJackHelpAuthenticationGuard    
+  { path: 'black-jack-help', component: BlackJackHelpComponent, canActivate: [blackJackHelpAuthenticationGuard] },
+  { path: 'black-jack-leaderboard', component: LeaderboardComponent, canActivate: [
+    keycloakGuard, 
+    blackJackHelpAuthenticationGuard
   ] },
   { path: 'site-info', component: SiteInfoComponent },
   { path: 'landing', component: LandingComponent },

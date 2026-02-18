@@ -23,6 +23,7 @@ import {
 } from 'keycloak-angular';
 import xenonDevConfig from './config/xenon-dev-config';
 import { AccountProfileComponent } from './components/account-profile/account-profile.component';
+import { LeaderboardComponent } from './components/leaderboard/leaderboard.component';
 
 @NgModule({
   declarations: [
@@ -33,6 +34,7 @@ import { AccountProfileComponent } from './components/account-profile/account-pr
     BlackJackGameComponent,
     NoDoubleClickDirective,
     AccountProfileComponent,
+    LeaderboardComponent,
   ],
   imports: [
     CommonModule,
