@@ -9,8 +9,8 @@ import { LeaderboardResponse, LeaderboardService } from '../../services/leaderbo
 })
 export class LeaderboardComponent implements OnInit {
 
-  private pageNo: number = 0;
-  private pageSize: number = 20 
+  pageNo: number = 0;
+  pageSize: number = 20 
 
   pageSizeRange: number[] = [10, 20, 30, 50, 70, 100];
 

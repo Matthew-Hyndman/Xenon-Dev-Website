@@ -24,6 +24,7 @@ import {
 import xenonDevConfig from './config/xenon-dev-config';
 import { AccountProfileComponent } from './components/account-profile/account-profile.component';
 import { LeaderboardComponent } from './components/leaderboard/leaderboard.component';
+import { NgbModule, NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
 
 @NgModule({
   declarations: [
@@ -42,7 +43,9 @@ import { LeaderboardComponent } from './components/leaderboard/leaderboard.compo
     FormsModule,
     ReactiveFormsModule,
     //KeycloakAngularModule,
-    AppRoutingModule
+    AppRoutingModule,
+    NgbModule,
+    NgbPaginationModule
   ],
   providers: [    
     // Register the HttpClient and the new functional Keycloak interceptor
