@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.xenon_dev.backend_server_website.DAO.Player_ProfileRepo;
@@ -15,8 +17,8 @@ public class Player_Profile_Service_Impl  implements Player_Profile_Service {
     
     //Player Profile Views
     @Override
-    public Optional<List<Player_ProfileDTO>> getAccountsWithPlayerProfiles_view(){
-        return playerProfileRepo.getAccountsWithPlayerProfiles();
+    public Page<Player_ProfileDTO> getAccountsWithPlayerProfiles_view(Pageable pageable){
+        return playerProfileRepo.getAccountsWithPlayerProfiles(pageable);
     }
 
     //Player Profile Crud Operations

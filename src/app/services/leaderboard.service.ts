@@ -12,8 +12,8 @@ export class LeaderboardService {
   private readonly httpClient = inject(HttpClient);
   private readonly keycloak = inject(Keycloak);
 
-  getLeaderboard(): Observable<LeaderboardResponse[]> {
-    const url = `${xenonDevConfig.SpringAPIServer.local.url}/api/player/leaderboard`;
+  getLeaderboard(page: number, pageSize: number): Observable<LeaderboardResponse[]> {
+    const url = `${xenonDevConfig.SpringAPIServer.local.url}/api/player/leaderboard?page=${page}&size=${pageSize}`;
 
     this.ensureIsTokenValid();
     const token = this.keycloak.token;

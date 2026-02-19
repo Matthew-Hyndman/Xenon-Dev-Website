@@ -25,3 +25,8 @@
     </div>
   </div>
 </div>
+
+<select name="pageSizeSelection" id="pageSizeSelection">
+  @for (sizeOption of pageSizeRange; track $index) {}
+  <option value="{{pageSizeRange}}">{{pageSizeRange}}</option>
+</select>
