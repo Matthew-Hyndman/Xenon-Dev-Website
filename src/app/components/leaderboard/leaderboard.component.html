@@ -12,7 +12,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (playerRec of this.leaderboardData; track $index) {
+          @for (playerRec of this.leaderboardData?.content; track $index) {
             <tr>
               <td>{{ playerRec.username }}</td>
               <td>{{ playerRec.wins }}</td>
@@ -35,18 +35,19 @@
           <ngb-pagination
             [(page)]="pageNo"
             [pageSize]="pageSize"
-            [collectionSize]="leaderboardData.length"
+            [collectionSize]="leaderboardData?.totalElements!"
             [maxSize]="5"
             [boundaryLinks]="true"
-            
+            (pageChange)="loadLeaderboard()"            
           >
           </ngb-pagination>
         </div>
         <div class="col-md-3 mt-2" style="text-align: right">
           <span class="mr-2">Page Size</span>
-          <select name="pageSizeSelection" id="pageSizeSelection">
-            @for (sizeOption of pageSizeRange; track $index) {}
-            <option value="{{ pageSizeRange }}">{{ pageSizeRange }}</option>
+          <select name="pageSizeSelection" id="pageSizeSelection" [(ngModel)]="pageSize" (change)="loadLeaderboard()">
+            @for (sizeOption of pageSizeRange; track sizeOption) {
+              <option value="{{ sizeOption }}">{{ sizeOption }}</option>
+            }
           </select>
         </div>
       </div>

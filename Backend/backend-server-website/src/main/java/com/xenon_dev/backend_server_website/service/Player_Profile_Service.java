@@ -6,13 +6,13 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import com.xenon_dev.backend_server_website.DTO.Player_ProfileDTO;
+import com.xenon_dev.backend_server_website.DTO.Leader_Board_DTO;
 import com.xenon_dev.backend_server_website.entity.Player_Profile;
 
 public interface Player_Profile_Service {
     
     //Player Profile Views
-    Page<Player_ProfileDTO> getAccountsWithPlayerProfiles_view(Pageable pageable);
+    Page<Leader_Board_DTO> getAccountsWithPlayerProfiles_view(Pageable pageable);
 
     //Player Profile Crud Operations
 

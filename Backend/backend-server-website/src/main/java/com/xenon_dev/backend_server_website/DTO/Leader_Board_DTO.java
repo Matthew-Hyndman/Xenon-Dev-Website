@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class Player_ProfileDTO {
+public class Leader_Board_DTO {
     private String USERNAME;
     private int wins;
     private int losses;

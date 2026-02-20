@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.xenon_dev.backend_server_website.DTO.Player_ProfileDTO;
+import com.xenon_dev.backend_server_website.DTO.Leader_Board_DTO;
 import com.xenon_dev.backend_server_website.entity.Player_Profile;
 import com.xenon_dev.backend_server_website.entity.User;
 import com.xenon_dev.backend_server_website.service.Player_Profile_Service_Impl;
@@ -43,10 +43,10 @@ public class Player_Profile_Controller {
         this.user_Service_Impl = user_Service_Impl;
     }
 
-    @GetMapping("leaderboard?page={page}&size={size}")
-    public ResponseEntity<Page<Player_ProfileDTO>> getleaderboard(
+    @GetMapping("leaderboard")
+    public ResponseEntity<Page<Leader_Board_DTO>> getleaderboard(
         @RequestParam(defaultValue="0") int page, 
-        @RequestParam(defaultValue="20") int size
+        @RequestParam(defaultValue="10") int size
     ) {
         Pageable pageable = PageRequest.of(page, size);
         return ResponseEntity.ok(playerService.getAccountsWithPlayerProfiles_view(pageable));

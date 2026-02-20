@@ -12,13 +12,13 @@ export class LeaderboardService {
   private readonly httpClient = inject(HttpClient);
   private readonly keycloak = inject(Keycloak);
 
-  getLeaderboard(page: number, pageSize: number): Observable<LeaderboardResponse[]> {
-    const url = `${xenonDevConfig.SpringAPIServer.local.url}/api/player/leaderboard?page=${page}&size=${pageSize}`;
+  getLeaderboard(page: number, pageSize: number): Observable<LeaderboardResponse> {
+    const url = `${xenonDevConfig.SpringAPIServer.local.url}/api/player/leaderboard?page=${page - 1}&size=${pageSize}`;
 
     this.ensureIsTokenValid();
     const token = this.keycloak.token;
 
-    return this.httpClient.get<LeaderboardResponse[]>(url, {
+    return this.httpClient.get<LeaderboardResponse>(url, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -32,9 +32,12 @@ export class LeaderboardService {
 }
 
 export interface LeaderboardResponse {
-  wins: number;
-  losses: number;
-  pot: number;
-  username: string;
+  content: {
+    wins: number;
+    losses: number;
+    pot: number;
+    username: string;
+  }[];
+  totalElements: number;
 }
 
