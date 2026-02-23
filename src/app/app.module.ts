@@ -45,7 +45,8 @@ import { NgbModule, NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
     //KeycloakAngularModule,
     AppRoutingModule,
     NgbModule,
-    NgbPaginationModule
+    NgbPaginationModule,
+    RouterModule.forRoot(routes, { anchorScrolling: 'enabled', scrollPositionRestoration: 'enabled'}),
   ],
   providers: [    
     // Register the HttpClient and the new functional Keycloak interceptor

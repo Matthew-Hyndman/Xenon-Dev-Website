@@ -1,0 +1,60 @@
+
+
+
+/*
+ * classes
+*/
+.main-content {
+    animation: none;
+}
+
+.page-size-selection {
+  background: linear-gradient(0deg, rgb(50 50 99) 20%, rgb(16 141 169) 80%) !important;
+  border: 2px solid #ffffff; 
+  color: #ffffff; 
+  font-weight: bold;
+  border-radius: 3px;
+  box-shadow: inset 0px 5px 8px 0px #ffffff;
+  margin-bottom: .5rem;
+  margin-right: 5mm;
+  display: flex;
+    justify-content: space-evenly;
+    flex-direction: column-reverse;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+
+
+.board-row{
+    animation-duration: 0.5s;
+    animation-fill-mode: backwards;
+}
+
+@keyframes from-left {
+  from {
+    transform: translateX(-100%); 
+    scale: 0;
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    scale: 1;
+    opacity: 1;
+  }
+}
+
+@keyframes from-right {
+  from {
+    transform: translateX(100%);
+    scale: 0;
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    scale: 1;
+    opacity: 1;
+  }
+}
