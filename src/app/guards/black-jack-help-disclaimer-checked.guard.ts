@@ -6,5 +6,9 @@ export const blackJackHelpDisclaimerCheckedGuard: CanActivateFn = (route, state)
   const blackJackHelpService = inject(BlackJackHelpService);
   const router = inject(Router);
   blackJackHelpService.checkSessionStorage();
-  return blackJackHelpService.isHasUserAgreedToDisclaimerTrue() ?? router.navigate(['black-jack-help']);
+  if (blackJackHelpService.isHasUserAgreedToDisclaimerNull()) {
+    return blackJackHelpService.isHasUserAgreedToDisclaimerTrue();
+  }
+  router.navigate(['black-jack-help']);
+  return false;
 };

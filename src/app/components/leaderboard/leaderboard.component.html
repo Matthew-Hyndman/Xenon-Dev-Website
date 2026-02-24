@@ -20,7 +20,7 @@
           </thead>
           <tbody>
             @for (
-              playerRec of this.leaderboardData?.content;
+              playerRec of this.leaderboardData!.content;
               track $index;
               let isOdd = $odd, index = $index
             ) {
@@ -60,7 +60,7 @@
       <ngb-pagination
         [(page)]="pageNo"
         [pageSize]="pageSize"
-        [collectionSize]="leaderboardData?.totalElements!"
+        [collectionSize]="leaderboardData!.totalElements"
         [maxSize]="5"
         [boundaryLinks]="true"
         (pageChange)="loadLeaderboard()"

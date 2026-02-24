@@ -16,7 +16,8 @@ export const routes: Routes = [
   { path: 'black-jack-help', component: BlackJackHelpComponent, canActivate: [blackJackHelpAuthenticationGuard] },
   { path: 'black-jack-leaderboard', component: LeaderboardComponent, canActivate: [
     keycloakGuard, 
-    blackJackHelpAuthenticationGuard
+    blackJackHelpAuthenticationGuard,
+    blackJackHelpDisclaimerCheckedGuard
   ] },
   { path: 'site-info', component: SiteInfoComponent },
   { path: 'landing', component: LandingComponent },
