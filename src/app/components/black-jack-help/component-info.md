@@ -1,22 +1,2 @@
 ### Component Information
 This component provides help and information about the Black Jack game, including rules, strategies, and a disclaimer that users must agree to before playing. It interacts with various services to manage user profiles and display relevant content.
-
-## Key Methods
-- `ngOnInit()`: Initializes the component, retrieves user profile information, and checks if the user has agreed to the disclaimer, previously.
-- `onDisclaimerChange()`: Handles changes to the disclaimer checkbox, updating the user's agreement status and saving it.
-- `getUserProfile()`: Fetches the current user's profile information from the authentication service.
-- `createPlayerProfile()`: Creates a new player profile for the user if one does not already exist.
-- `onContinue()`: Navigates the user to the Black Jack game page when they choose to continue after agreeing to the disclaimer. And If the user profile does not exist, it creates a new player profile.
-
-## Guards
-- `blackJackHelpAuthenticationGuard`: checks two main conditions:
-    1. if user has an account and is logged in
-    2. if user has a player profile for Black Jack
-    addtilionally, will report relevant errors in the logs.
-
-## Todo
- - implement a createPlayerProfile() method to create a new player profile for users who do not have one yet:
-    - already have an account creation endpoint in the backend (`/api/player/createPlayer/{user_id}`)
-    - already implemented the frontend method to call this endpoint and handle the response.
-    - involke this method.
-    - error handling needs work, getting a 400 when there is no profile found, should be a 404 (ideally another message).

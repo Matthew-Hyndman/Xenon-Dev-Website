@@ -4,14 +4,29 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.xenon_dev.backend_server_website.DAO.Player_ProfileRepo;
+import com.xenon_dev.backend_server_website.DTO.Leader_Board_DTO;
 import com.xenon_dev.backend_server_website.entity.Player_Profile;
 
 @Service
 public class Player_Profile_Service_Impl  implements Player_Profile_Service {
     
+    //Player Profile Views
+    @Override
+    public Page<Leader_Board_DTO> getAccountsWithPlayerProfiles_view(Pageable pageable){
+        Page<Object[]> results = playerProfileRepo.getAccountsWithPlayerProfiles(pageable);
+        return results.map(row -> new Leader_Board_DTO(
+            (String) row[0],  // USERNAME
+            (Integer) row[1], // wins
+            (Integer) row[2], // losses
+            (Integer) row[3]  // pot
+        ));
+    }
+
     //Player Profile Crud Operations
 
     @Autowired

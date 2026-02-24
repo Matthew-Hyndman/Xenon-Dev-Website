@@ -1,15 +1,14 @@
 package com.xenon_dev.backend_server_website.controllers;
 
-import com.xenon_dev.backend_server_website.entity.Player_Profile;
-import com.xenon_dev.backend_server_website.entity.User;
-import com.xenon_dev.backend_server_website.service.Player_Profile_Service_Impl;
-import com.xenon_dev.backend_server_website.service.User_Service_Impl;
 
 import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,11 +16,19 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.xenon_dev.backend_server_website.DTO.Leader_Board_DTO;
+import com.xenon_dev.backend_server_website.entity.Player_Profile;
+import com.xenon_dev.backend_server_website.entity.User;
+import com.xenon_dev.backend_server_website.service.Player_Profile_Service_Impl;
+import com.xenon_dev.backend_server_website.service.User_Service_Impl;
+
 
 @RestController
 @RequestMapping("/api/player")
-@PreAuthorize("hasRole('ROLE_User') or hasRole('ROLE_Admin')")
+//@PreAuthorize("hasRole('ROLE_User') or hasRole('ROLE_Admin')")
 public class Player_Profile_Controller {
 
     private User_Service_Impl user_Service_Impl;
@@ -36,12 +43,19 @@ public class Player_Profile_Controller {
         this.user_Service_Impl = user_Service_Impl;
     }
 
-    /*
-     * @Autowired
-     * public void UserController (User_Service userService) {
-     * this.userService = userService;
-     * }
-     */
+    @GetMapping("leaderboard")
+    public ResponseEntity<Page<Leader_Board_DTO>> getleaderboard(
+        @RequestParam(defaultValue="0") int page, 
+        @RequestParam(defaultValue="10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        return ResponseEntity.ok(playerService.getAccountsWithPlayerProfiles_view(pageable));
+        /*playerService.getAccountsWithPlayerProfiles_view(pageable)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());*/
+                
+    }
+    
 
     @GetMapping("getAllPlayers")
     public ResponseEntity<List<Player_Profile>> getAllPlayers() {

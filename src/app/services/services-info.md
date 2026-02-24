@@ -10,5 +10,8 @@ For managing and storing state of the dealerTimerToggle. `getPlayerProfile()` me
 ## BlackJackHelpService
 Checks session storage and manages `hasUserAgreedToDisclaimer` item.
 
+## LeaderboardService
+Handles retrieval of leaderboard data from the backend API, allowing the application to display player rankings and scores
+
 ## PlayerProfileService
 Handles retrieval and updating of player profile information. It communicates with the backend API to fetch user data and update profile settings.

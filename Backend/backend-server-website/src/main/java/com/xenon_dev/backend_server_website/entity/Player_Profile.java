@@ -1,7 +1,5 @@
 package com.xenon_dev.backend_server_website.entity;
 
-import org.hibernate.annotations.ColumnDefault;
-
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

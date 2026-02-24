@@ -7,7 +7,7 @@ import { inject, Injectable, OnInit, PLATFORM_ID } from '@angular/core';
 export class BlackJackHelpService implements OnInit {
   private readonly platformId = inject(PLATFORM_ID);
 
-  storage: Storage|null = null;
+  storage: Storage | null = null;
 
   constructor() {}
 
@@ -15,7 +15,7 @@ export class BlackJackHelpService implements OnInit {
     this.checkSessionStorage()
   }
 
-  private checkSessionStorage(){
+  public checkSessionStorage(){
     if(typeof sessionStorage !== null){
       this.storage = sessionStorage;
     }
@@ -35,7 +35,7 @@ export class BlackJackHelpService implements OnInit {
 
   isHasUserAgreedToDisclaimerTrue(): boolean {
     if (isPlatformBrowser(this.platformId)) {
-      return this.storage?.getItem('hasUserAgreedToDisclaimer') == 'true';
+      return this.storage?.getItem('hasUserAgreedToDisclaimer') === 'true';
     }
 
     return false;

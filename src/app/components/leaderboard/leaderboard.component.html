@@ -1,0 +1,91 @@
+<div class="main-content">
+  <div class="section-content section-content-p30">
+    <div class="container-fulid">
+      <h1>Leaderboard</h1>
+      <div id="LeaderboardTop"></div>
+      <div class="row mt-3">
+      <a [routerLink]="['/black-jack-game']" class="btn btn-info mb-3" style="max-width: 150px">
+        <i class="fa-solid fa-arrow-left fa-sm"></i> Back
+      </a>
+    </div>
+      <div class="row mt-4">
+        <table class="mb-3">
+          <thead>
+            <tr>
+              <th>Username</th>
+              <th>Wins</th>
+              <th>Losses</th>
+              <th>Pot</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (
+              playerRec of this.leaderboardData!.content;
+              track $index;
+              let isOdd = $odd, index = $index
+            ) {
+              @if (isOdd) {
+                <tr
+                  [style.animation-delay]="index * 0.05 + 's'"
+                  style="animation-name: from-left"
+                  class="board-row"
+                >
+                  <td>{{ playerRec.username }}</td>
+                  <td>{{ playerRec.wins }}</td>
+                  <td>{{ playerRec.losses }}</td>
+                  <td>{{ playerRec.pot }}</td>
+                </tr>
+              } @else {
+                <tr
+                  [style.animation-delay]="index * 0.05 + 's'"
+                  style="animation-name: from-right"
+                  class="board-row"
+                >
+                  <td>{{ playerRec.username }}</td>
+                  <td>{{ playerRec.wins }}</td>
+                  <td>{{ playerRec.losses }}</td>
+                  <td>{{ playerRec.pot }}</td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="footer-pagination">
+  <div class="row">
+    <div class="col simple-center-element">
+      <ngb-pagination
+        [(page)]="pageNo"
+        [pageSize]="pageSize"
+        [collectionSize]="leaderboardData!.totalElements"
+        [maxSize]="5"
+        [boundaryLinks]="true"
+        (pageChange)="loadLeaderboard()"
+      >
+      </ngb-pagination>
+    </div>
+    <div class="row" style="justify-content: right">
+      <div class="col-md-1 page-size-selection">
+        <span class="mr-2">Page Size</span>
+        <select
+          name="pageSizeSelection"
+          id="pageSizeSelection"
+          [(ngModel)]="pageSize"
+          (change)="loadLeaderboard()"
+        >
+          @for (sizeOption of pageSizeRange; track sizeOption) {
+            <option value="{{ sizeOption }}">{{ sizeOption }}</option>
+          }
+        </select>
+      </div>
+    </div>
+    <div class="row">
+      <a [routerLink]="['/black-jack-leaderboard']" fragment="LeaderboardTop" class="btn btn-info mb-3" style="max-width: 150px">
+        back to top
+      </a>
+    </div>
+  </div>
+</div>

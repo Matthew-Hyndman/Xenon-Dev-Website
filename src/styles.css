@@ -5,6 +5,10 @@
  * ----------------------------
  */
 
+html {
+  scroll-behavior: smooth;
+}   
+
 * {
   margin: 0;
   padding: 0;
@@ -119,6 +123,12 @@ a:hover {
 }
 
 /*Layout Css*/
+.simple-center-element {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .section-content-p35 {
   padding: 0 35px
 }

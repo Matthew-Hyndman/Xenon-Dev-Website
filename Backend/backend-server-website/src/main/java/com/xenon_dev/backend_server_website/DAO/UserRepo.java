@@ -14,11 +14,7 @@ import com.xenon_dev.backend_server_website.entity.User;
 
 @RepositoryRestResource
 public interface UserRepo extends JpaRepository<User, String> {
-    
-    //Optional<Player_Profile> findPlayerProfileById(String user_id);
 
-    //User findByEmail(String theEmail);
-    
     @Query("SELECT u.player_profile FROM User u WHERE u.id = :id")
     Optional<Player_Profile> findPlayerProfileByUserId(@Param("id") String id);
 
