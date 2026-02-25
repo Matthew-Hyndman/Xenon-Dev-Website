@@ -9,13 +9,16 @@ import {
 } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
 import Swal from 'sweetalert2';
-import { PlayerProfile, PlayerProfileService } from '../../services/player-profile.service';
+import {
+  PlayerProfile,
+  PlayerProfileService,
+} from '../../services/player-profile.service';
 
 @Component({
   selector: 'app-account-profile',
   templateUrl: './account-profile.component.html',
   styleUrl: './account-profile.component.css',
-  standalone: false
+  standalone: false,
 })
 export class AccountProfileComponent implements OnDestroy, OnInit {
   protected user: KeycloakProfile | null = null;
@@ -24,12 +27,12 @@ export class AccountProfileComponent implements OnDestroy, OnInit {
 
   private readonly destroy$ = new Subject<void>();
 
-  private playerProfile: PlayerProfile | null = null;
+  playerProfile: PlayerProfile | null = null;
 
   constructor(
     private authService: AuthenticationService,
     private playerProfileService: PlayerProfileService,
-    private formBuilder: FormBuilder
+    private formBuilder: FormBuilder,
   ) {
     // Initialize the form group with form controls and validators
     this.userForm = this.formBuilder.group({
@@ -41,37 +44,39 @@ export class AccountProfileComponent implements OnDestroy, OnInit {
       firstName: this.createFormControl('', [Validators.required]),
       lastName: this.createFormControl('', [Validators.required]),
     });
+  }
 
+  async ngOnInit(): Promise<void> {
     //get user details and patch form values
     this.getUserDetails();
   }
 
-  async ngOnInit(): Promise<void> {
-
-    // Subscribe to player profile updates
-    const profileExists = await this.playerProfileService.checkPlayerProfileExists(this.user!.id!);
-    if (profileExists) {
-    this.playerProfileService.playerProfile$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((profile) => {
-        this.playerProfile = profile;
-      });
-    }
-  }
-
-  setUserFormKeycloakProfile(userRep: {username?: string; email?: string; firstName?: string; lastName?: string}) {
+  setUserFormKeycloakProfile(userRep: {
+    username?: string;
+    email?: string;
+    firstName?: string;
+    lastName?: string;
+  }) {
     if (this.user) {
       this.user.username = userRep.username ?? '[username retrieval failed]';
-      this.userForm.get('username')?.setValue(userRep.username ?? '[username retrieval failed]');
+      this.userForm
+        .get('username')
+        ?.setValue(userRep.username ?? '[username retrieval failed]');
 
       this.user.email = userRep.email ?? '[email retrieval failed]';
-      this.userForm.get('email')?.setValue(userRep.email ?? '[email retrieval failed]');
+      this.userForm
+        .get('email')
+        ?.setValue(userRep.email ?? '[email retrieval failed]');
 
       this.user.firstName = userRep.firstName ?? '[firstName retrieval failed]';
-      this.userForm.get('firstName')?.setValue(userRep.firstName ?? '[firstName retrieval failed]');
+      this.userForm
+        .get('firstName')
+        ?.setValue(userRep.firstName ?? '[firstName retrieval failed]');
 
       this.user.lastName = userRep.lastName ?? '[lastName retrieval failed]';
-      this.userForm.get('lastName')?.setValue(userRep.lastName ?? '[lastName retrieval failed]');
+      this.userForm
+        .get('lastName')
+        ?.setValue(userRep.lastName ?? '[lastName retrieval failed]');
     }
   }
 
@@ -84,10 +89,10 @@ export class AccountProfileComponent implements OnDestroy, OnInit {
     this.userForm.markAsPristine();
   }
 
-  getUserDetails() {
+  async getUserDetails(): Promise<void> {
     this.authService.userProfile$
       .pipe(takeUntil(this.destroy$))
-      .subscribe((user) => {
+      .subscribe(async (user) => {
         this.user = user;
         // patch the form with incoming values
         this.userForm.patchValue({
@@ -96,6 +101,21 @@ export class AccountProfileComponent implements OnDestroy, OnInit {
           firstName: user?.firstName ?? '',
           lastName: user?.lastName ?? '',
         });
+
+        if (this.user) {
+          // Subscribe to player profile updates
+          const profileExists =
+            await this.playerProfileService.checkPlayerProfileExists(
+              this.user!.id!,
+            );
+          if (profileExists) {
+            this.playerProfileService.playerProfile$
+              .pipe(takeUntil(this.destroy$))
+              .subscribe((profile) => {
+                this.playerProfile = profile;
+              });
+          }
+        }
       });
   }
 
@@ -112,8 +132,8 @@ export class AccountProfileComponent implements OnDestroy, OnInit {
       };
       const updateResult = this.authService.updateUserProfile(userRep);
       updateResult.then((status) => {
-        if (status === 200 || status === 204) {        
-          this.setUserFormKeycloakProfile(userRep);          
+        if (status === 200 || status === 204) {
+          this.setUserFormKeycloakProfile(userRep);
           this.toggleEditMode();
         } else {
           if (typeof status !== undefined) {
@@ -171,15 +191,26 @@ export class AccountProfileComponent implements OnDestroy, OnInit {
       draggable: true,
       showCancelButton: true,
       confirmButtonText: 'Yes, reset it!',
-      cancelButtonText: 'No, keep it'
+      cancelButtonText: 'No, keep it',
     }).then((result) => {
       if (result.isConfirmed) {
         // Call the service to reset the player profile
-        this.playerProfileService.resetPlayerProfile(this.playerProfile!.player_id!).then(() => {
-          Swal.fire('Reset!', 'Your player profile has been reset.', 'success');
-        }).catch(() => {
-          Swal.fire('Error!', 'There was an error resetting your player profile.', 'error');
-        });
+        this.playerProfileService
+          .resetPlayerProfile(this.playerProfile!.player_id!)
+          .then(() => {
+            Swal.fire(
+              'Reset!',
+              'Your player profile has been reset.',
+              'success',
+            );
+          })
+          .catch(() => {
+            Swal.fire(
+              'Error!',
+              'There was an error resetting your player profile.',
+              'error',
+            );
+          });
       }
     });
   }
@@ -187,23 +218,36 @@ export class AccountProfileComponent implements OnDestroy, OnInit {
   deletePlayerProfile() {
     Swal.fire({
       title: 'Are you sure?',
-      text: 'This will delete your player profile (this action will ' +
-      'remove all records of your game activity and your account for ' +
-      'this website will remain active). This action cannot be undone.',
+      text:
+        'This will delete your player profile (this action will ' +
+        'remove all records of your game activity and your account for ' +
+        'this website will remain active). This action cannot be undone.',
       icon: 'warning',
       allowOutsideClick: false,
       draggable: true,
       showCancelButton: true,
       confirmButtonText: 'Yes, delete it!',
-      cancelButtonText: 'No, keep it'
+      cancelButtonText: 'No, keep it',
     }).then((result) => {
       if (result.isConfirmed) {
         // Call the service to delete the player profile
-        this.playerProfileService.deletePlayerProfile(this.playerProfile!.player_id!).then(() => {
-          Swal.fire('Deleted!', 'Your player profile has been deleted.', 'success');
-        }).catch(() => {
-          Swal.fire('Error!', 'There was an error deleting your player profile.', 'error');
-        });
+        this.playerProfileService
+          .deletePlayerProfile(this.playerProfile!.player_id!)
+          .then(() => {
+            Swal.fire(
+              'Deleted!',
+              'Your player profile has been deleted.',
+              'success',
+            );
+            this.playerProfile = null;
+          })
+          .catch(() => {
+            Swal.fire(
+              'Error!',
+              'There was an error deleting your player profile.',
+              'error',
+            );
+          });
       }
     });
   }
