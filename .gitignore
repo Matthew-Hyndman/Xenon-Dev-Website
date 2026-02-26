@@ -4,6 +4,7 @@
 keycloack-forms-theme
 src/app/config
 src/environments
+package-lock.json
 
 #backend
 Backend/backend-server-website/SQL_Script
