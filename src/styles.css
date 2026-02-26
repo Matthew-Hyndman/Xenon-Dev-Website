@@ -16,11 +16,12 @@
  *   8.  Footer
  *   9.  Landing Page
  *   10. BlackJack Game
- *   11. Site Info & Tables
- *   12. Tooltips
- *   13. Retro Speech Bubbles
- *   14. Keyframe Animations
- *   15. Media Queries
+ *   11. Account Profile
+ *   12. Site Info & Tables
+ *   13. Tooltips
+ *   14. Retro Speech Bubbles
+ *   15. Keyframe Animations
+ *   16. Media Queries
  *
  * Note: Unused / legacy classes have been moved to styles-legacy.css
  * =============================================================================
@@ -32,6 +33,10 @@
  * 1. CSS Reset & Base
  * -----------------------------------------------------------------------------
  */
+
+html {
+  scroll-behavior: smooth;
+}
 
 * {
   margin: 0;
@@ -201,6 +206,12 @@ a:hover {
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
+}
+
+.simple-center-element {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 
@@ -580,7 +591,31 @@ footer li a {
 
 /* 
  * -----------------------------------------------------------------------------
- * 11. Site Info & Tables
+ * 11. Account Profile
+ * -----------------------------------------------------------------------------
+ */
+
+/* Form input styling used in the profile edit table */
+.xenon-profile-form-input {
+  width: 100%;
+  border-radius: 3px;
+  box-shadow: -4px 4px 6px 0px rgba(0, 0, 0, 0.75) inset;
+}
+
+/* Revert button for individual profile fields */
+.xenon-profile-form-revert-button {
+  background: linear-gradient(0deg, rgb(50 50 99) 20%, rgb(16 141 169) 80%);
+  border: 2px solid #ffffff;
+  padding-left: 6px;
+  padding-right: 6px;
+  border-radius: 3px;
+  box-shadow: inset 0px 5px 8px 0px #ffffff;
+}
+
+
+/* 
+ * -----------------------------------------------------------------------------
+ * 12. Site Info & Tables
  * -----------------------------------------------------------------------------
  */
 
@@ -674,7 +709,7 @@ tbody {
 
 /* 
  * -----------------------------------------------------------------------------
- * 12. Tooltips
+ * 13. Tooltips
  * -----------------------------------------------------------------------------
  */
 
@@ -714,7 +749,7 @@ tbody {
 
 /*
  * -----------------------------------------------------------------------------
- * 13. Retro Speech Bubbles
+ * 14. Retro Speech Bubbles
  * -----------------------------------------------------------------------------
  */
 
@@ -804,7 +839,7 @@ tbody {
 
 /* 
  * -----------------------------------------------------------------------------
- * 14. Keyframe Animations
+ * 15. Keyframe Animations
  * -----------------------------------------------------------------------------
  */
 
@@ -916,7 +951,7 @@ tbody {
 
 /* 
  * -----------------------------------------------------------------------------
- * 15. Media Queries
+ * 16. Media Queries
  * -----------------------------------------------------------------------------
  */
 
@@ -1068,6 +1103,10 @@ tbody {
     position: relative;
     top: 66px;
     padding-left: 0
+  }
+
+  .footer-pagination {
+    text-align: center
   }
 }
 
