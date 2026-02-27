@@ -22,7 +22,7 @@
                     </td>
                     @if (!editMode) {
                       <td>
-                        {{ user.username }}
+                        {{ user!.username }}
                       </td>
                       <td></td>
                     } @else {
@@ -55,7 +55,7 @@
                       <strong>Email:</strong>
                     </td>
                     @if (!editMode) {
-                      <td>{{ user.email }}</td>
+                      <td>{{ user!.email }}</td>
                       <td></td>
                     } @else {
                       <td>
@@ -87,7 +87,7 @@
                       <td>
                         <strong>Name:</strong>
                       </td>
-                      <td>{{ user.firstName }} {{ user.lastName }}</td>
+                      <td>{{ user!.firstName }} {{ user!.lastName }}</td>
                       <td></td>
                     </tr>
                   } @else {

@@ -1,13 +1,18 @@
 import { Injectable } from '@angular/core';
 import Keycloak, { KeycloakProfile } from 'keycloak-js';
 import { BehaviorSubject } from 'rxjs';
+import xenonDevConfig from '../config/xenon-dev-config';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root',
 })
-export class AuthenticationService {
+export class AuthenticationService {  
   // Keycloak instance (provided by `provideKeycloak` in AppModule)
-  constructor(private readonly keycloak: Keycloak) {
+  constructor(
+    private readonly keycloak: Keycloak,
+    private httpClient: HttpClient,
+  ) {
     void this.init();
   }
 
@@ -136,6 +141,18 @@ export class AuthenticationService {
       console.error('Frontend failed to update user profile', err);
     }
   }
+
+  deleteAccount(userId: string): Promise<void> {
+    const url = `${xenonDevConfig.SpringAPIServer.local.url}/api/user/delete/${userId}`;
+    this.httpClient.delete(url, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${this.keycloak.token}`,
+      },
+    });
+    return Promise.resolve();
+  }
+
 }
 
 interface UserRepresentation {

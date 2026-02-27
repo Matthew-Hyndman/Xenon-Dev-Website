@@ -252,6 +252,43 @@ export class AccountProfileComponent implements OnDestroy, OnInit {
     });
   }
 
+  deleteAccount() {
+    // add input text to confirm deletion for extra safety
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'This will delete your account and all associated data,' + 
+      ' including your player profile. This action ' + 
+      'cannot be undone.',
+      icon: 'warning',
+      allowOutsideClick: false,
+      draggable: true,
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'No, keep it',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Call the service to delete the account
+        this.authService
+          .deleteAccount(this.user!.id!)
+          .then(() => {
+            Swal.fire(
+              'Deleted!',
+              'Your account has been deleted.',
+              'success',
+            );            
+            this.authService.logout();
+          })
+          .catch(() => {
+            Swal.fire(
+              'Error!',
+              'There was an error deleting your account.',
+              'error',
+            );
+          });
+      }
+    });
+  }
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
