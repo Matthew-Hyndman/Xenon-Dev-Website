@@ -37,14 +37,51 @@
                   <!--nav buttons here-->
                   @for (link of links; track link) {
                   <li class="nav-item">
+                    @if (link.enable) {
+                      @if (link.name === "Login") {
+                      <a
+                        class="nav-link"
+                        (click)="login()"
+                        style="color: white"
+                        >{{ link.name }}</a>
+                      }
+                      @else if(link.name === "Logout") {
+                      <a
+                        class="nav-link"
+                        (click)="logout()"
+                        style="color: white"
+                        >{{ link.name }}</a>
+                      } 
+                      @else {
                     <a
                       class="nav-link"
                       href="{{ link.path }}"
                       style="color: white"
                       >{{ link.name }}</a
                     >
+                      }
+                  }
                   </li>
                   }
+                  
+                    <!--@if(!this.isLoggedInToSession) {
+                    <li class="nav-item">
+                      <a class="nav-link" (click)="login()" style="color: white"
+                        >Login</a
+                      >
+                    </li>
+                    } @else {
+                    <li class="nav-item">
+                      <a class="nav-link" href="/user-profile" style="color: white"
+                        >Profile</a
+                      >
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" (click)="logout()" style="color: white"
+                        >Logout</a
+                      >
+                    </li>
+                  }-->
                 </ul>
               </div>
             </nav>
@@ -59,21 +96,20 @@
             >
               <!--links here-->
               @for (link of links; track link.name; let isOdd = $odd, index =
-              $index) { 
-                @if(isOdd) {
+              $index) { @if(isOdd && link.enable) {
               <a
                 class="mobile-navbar-link odd"
                 [style.animation-delay]="index * 0.2 + 's'"
-                style="animation-name: from-left;"
+                style="animation-name: from-left"
                 href="{{ link.path }}"
                 (click)="setShouldShowMobileNavToFalse()"
                 >{{ link.name }}</a
               >
-              } @else {
+              } @else if(!isOdd && link.enable) {
               <a
                 class="mobile-navbar-link even"
                 [style.animation-delay]="index * 0.2 + 's'"
-                style="animation-name: from-right;"
+                style="animation-name: from-right"
                 href="{{ link.path }}"
                 (click)="setShouldShowMobileNavToFalse()"
                 >{{ link.name }}</a

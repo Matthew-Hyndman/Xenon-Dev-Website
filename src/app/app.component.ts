@@ -1,55 +1,88 @@
-import { Component, HostListener } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-//import { TodosComponent } from './todos/todos.component';
-import { Amplify } from 'aws-amplify';
-//import outputs from '../../amplify_outputs.json';
 import {
-  AmplifyAuthenticatorModule,
-  AuthenticatorService,
-} from '@aws-amplify/ui-angular';
-import { MiniNavMenuComponent } from './components/mini-nav-menu/mini-nav-menu.component';
+  Component,
+  HostListener,
+} from '@angular/core';
+//import { TodosComponent } from './todos/todos.component';
+//import outputs from '../../amplify_outputs.json';
 import { NavLinks } from './common/nav-links';
 import { LinkObj } from './common/link-obj';
-import { routes } from './app-routing.module';
-import { LandingComponent } from './components/landing/landing.component';
 //import { a } from '@aws-amplify/backend';
+import { AuthenticationService } from './services/authentication.service';
 
 //Amplify.configure(outputs);
 
 @Component({
-    selector: 'app-root',
-    templateUrl: './app.component.html',
-    styleUrl: './app.component.css',
-    standalone: false
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrl: './app.component.css',
+  standalone: false
+  //imports: [RouterOutlet, /*TodosComponent, AmplifyAuthenticatorModule,*/ MiniNavMenuComponent],
 })
 export class AppComponent {
-  shouldShowMobileNav: boolean = false;
-
   title = 'Xenon-Dev';
   links!: LinkObj[];
 
-  constructor(private navLinks: NavLinks) {
+  protected shouldShowMobileNav: boolean = false;
+  protected isLoggedInToSession: boolean = false;
+
+  private loggedInNavLinksEnabled: boolean = false;
+
+  constructor(
+    private navLinks: NavLinks,
+    private authService: AuthenticationService
+  ) {
     this.links = this.navLinks.links;
-  }
+    this.isLoggedInCheck();
+
+    // Enable profile and logout links if logged in
+    if (this.isLoggedInToSession) {
+     this.toggleLoggedInLinks(); 
+    }
+}
+
+  toggleLoggedInLinks() {
+    this.navLinks.links.filter((link) => {
+        if (link.name === 'Profile' || link.name === 'Logout') {
+          link.enable = !this.loggedInNavLinksEnabled;
+        } else if (link.name === 'Login') {
+          link.enable = this.loggedInNavLinksEnabled;
+        }
+  });
+    this.loggedInNavLinksEnabled = !this.loggedInNavLinksEnabled;
+}
 
   toggleMobileNav() {
     this.shouldShowMobileNav = !this.shouldShowMobileNav;
   }
 
-  setShouldShowMobileNavToFalse(){
+  setShouldShowMobileNavToFalse() {
     this.shouldShowMobileNav = false;
   }
 
   @HostListener('document:scroll', ['$event'])
-    onDocumentMousewheelEvent(event: any){
-      if (this.shouldShowMobileNav) {
-        this.shouldShowMobileNav = false;
-      }
+  onDocumentMousewheelEvent(event: any) {
+    if (this.shouldShowMobileNav) {
+      this.shouldShowMobileNav = false;
     }
+  }
 
-  /*title = 'amplify-angular-template';
+  login() {
+    this.authService.login();
+  }
 
-  constructor(public authenticator: AuthenticatorService) {
-    Amplify.configure(outputs);
-  }*/
+  logout() {
+    this.authService.logout();
+  }
+
+  isLoggedInCheck() {
+    try{
+    this.authService.isLoggedIn$.subscribe((result) => {
+      this.isLoggedInToSession = result ?? false;
+    });
+  } catch(error){
+    console.error('Could not read if session is created: ', error)
+  }
+  
+    
+  }
 }

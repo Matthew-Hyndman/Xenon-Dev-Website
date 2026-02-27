@@ -1,0 +1,2 @@
+# Component Information
+This component manages the Black Jack game functionality, including dealing cards, handling player actions (hit, stand, double down), and determining game outcomes. It interacts with various services to manage game state and user profiles.

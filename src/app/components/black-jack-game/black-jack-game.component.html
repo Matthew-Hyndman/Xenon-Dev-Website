@@ -7,33 +7,6 @@
         <div class="row">
           <h3 style="color: black">Dealer</h3>
           @for (card of dealerHand.cards; track card) {
-          <div class="card-entity">
-            <div class="card-inner">
-              <img
-                class="card-front"
-                src="{{ card.imageUrl }}"
-                alt="value: {{ card.value }}"
-              />
-              <div class="card-back">
-                <img
-                  class="card-back-image"
-                  src="assets/images/card-tool-tip.png"
-                  alt="card-tool-tip"
-                />
-                <p>Value {{ card.value }}</p>
-              </div>
-            </div>
-          </div>
-          }
-          <h3 class="mt-2" style="color: black">
-            Score: {{ dealerHand.handValue }}
-          </h3>
-
-          <hr />
-
-          <h3 style="color: black">Player</h3>
-          <div class="row card-area">
-            @for (card of playerHand.cards; track card) {
             <div class="card-entity">
               <div class="card-inner">
                 <img
@@ -51,6 +24,33 @@
                 </div>
               </div>
             </div>
+          }
+          <h3 class="mt-2" style="color: black">
+            Score: {{ dealerHand.handValue }}
+          </h3>
+
+          <hr />
+
+          <h3 style="color: black">{{ playerHand.handName }}</h3>
+          <div class="row card-area">
+            @for (card of playerHand.cards; track card) {
+              <div class="card-entity">
+                <div class="card-inner">
+                  <img
+                    class="card-front"
+                    src="{{ card.imageUrl }}"
+                    alt="value: {{ card.value }}"
+                  />
+                  <div class="card-back">
+                    <img
+                      class="card-back-image"
+                      src="assets/images/card-tool-tip.png"
+                      alt="card-tool-tip"
+                    />
+                    <p>Value {{ card.value }}</p>
+                  </div>
+                </div>
+              </div>
             }
           </div>
           <h3 class="mt-2" style="color: black">
@@ -93,7 +93,11 @@
           >
             Hit
           </button>
-          <button class="game-button game-button-2" appNoDoubleClick (click)="stay()">
+          <button
+            class="game-button game-button-2"
+            appNoDoubleClick
+            (click)="stay()"
+          >
             Stand
           </button>
           <label class="game-info-box">Wins: {{ playerHand.wins }}</label>
@@ -107,15 +111,29 @@
           >
             Help
           </a>
+          @if (this.isLoggedIn) {
+            <a
+              type="button"
+              class="game-button game-button-2"
+              href="/black-jack-leaderboard"
+              style="text-align: center"
+            >
+              Leaderboard
+            </a>
+          }
         </div>
 
         <div class="row game-inputs-spaceing">
           @if (useBettingSystem) {
-          <button class="game-button game-button-2" appNoDoubleClick (click)="doubleDown()">
-            Double Down
-          </button>
-          <label class="game-info-box">Your Pot: {{ pot }}</label>
-          <label class="game-info-box">Your Bet: {{ bet }}</label>
+            <button
+              class="game-button game-button-2"
+              appNoDoubleClick
+              (click)="doubleDown()"
+            >
+              Double Down
+            </button>
+            <label class="game-info-box">Your Pot: {{ pot }}</label>
+            <label class="game-info-box">Your Bet: {{ bet }}</label>
           }
         </div>
         <!--</div>-->
