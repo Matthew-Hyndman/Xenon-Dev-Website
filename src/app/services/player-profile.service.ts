@@ -69,7 +69,7 @@ export class PlayerProfileService {
       return this.playerProfileCache.get(userId)!;
     }
 
-    await this.keycloak.updateToken(30); // Ensure token is fresh
+    await this.ensureIsTokenValid(); // Ensure token is fresh
     const token = this.keycloak.token;
 
     const profile = await firstValueFrom(
@@ -128,10 +128,6 @@ export class PlayerProfileService {
             Authorization: `Bearer ${token}`,
           },
         },
-        /*
-        might have to send spesified method, headers, and body here
-        like in authentication service        
-        */
       )
       .pipe(
         tap((response) => {
@@ -152,6 +148,68 @@ export class PlayerProfileService {
   }
 
   /**
+   * reset player profile to default values
+   */
+  async resetPlayerProfile(profile_id: number) {
+    await this.ensureIsTokenValid();
+    const token = this.keycloak.token;
+    this.httpClient
+      .get<PlayerProfile>(
+        `${xenonDevConfig.SpringAPIServer.local.url}/api/player/resetPlayer/${profile_id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      )
+      .subscribe({
+        next: (restPlayerProfile) => {
+          console.log('Player profile reset successfully:', restPlayerProfile);
+          // Invalidate cache after reset
+          this.playerProfileCache.delete(profile_id.toString());
+          const cache = this.profileChecked$.value;
+          cache.delete(profile_id.toString());
+          this.profileChecked$.next(cache);
+          this.playerProfileCache.set(profile_id.toString(), restPlayerProfile);
+          this._playerProfile$.next(restPlayerProfile);
+        },
+        error: (error) => {
+          console.error('Error resetting player profile:', error);
+        },
+      });
+  }
+
+  /**
+   * Delete player profile by Player ID
+   */
+  async deletePlayerProfile(profile_id: number) {
+    await this.ensureIsTokenValid();
+    const token = this.keycloak.token;
+    this.httpClient
+      .delete(
+        `${xenonDevConfig.SpringAPIServer.local.url}/api/player/deletePlayer/${profile_id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      )
+      .subscribe({
+        next: () => {
+          console.log('Player profile deleted successfully');
+          // Invalidate cache after deletion
+          this.playerProfileCache.delete(profile_id.toString());
+          const cache = this.profileChecked$.value;
+          cache.delete(profile_id.toString());
+          this.profileChecked$.next(cache);
+        },
+        error: (error) => {
+          console.error('Error deleting player profile:', error);
+        },
+      });
+  }
+
+  /**
    * Clear cache for a specific user or all users
    */
   clearCache(userId?: string): void {
@@ -167,7 +225,7 @@ export class PlayerProfileService {
   }
 
     async updatePlayerProfile(profile_id: number, thePlayerProfile: PlayerProfile) {
-      await this.keycloak.updateToken(30); // Ensure token is fresh
+      await this.ensureIsTokenValid();
       const token = this.keycloak.token;
       this.httpClient
         .patch(
@@ -194,5 +252,9 @@ export class PlayerProfileService {
    */
   getProfileCheckedStatus$(): Observable<Map<string, boolean>> {
     return this.profileChecked$.asObservable();
+  }
+
+  async ensureIsTokenValid(): Promise<void> {
+    await this.keycloak.updateToken(20);
   }
 }

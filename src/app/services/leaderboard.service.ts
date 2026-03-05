@@ -26,7 +26,7 @@ export class LeaderboardService {
   }
 
   async ensureIsTokenValid(): Promise<void> {
-    await this.keycloak.updateToken(30);
+    await this.keycloak.updateToken(20);
   }
 
 }
