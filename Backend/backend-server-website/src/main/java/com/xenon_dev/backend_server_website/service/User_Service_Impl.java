@@ -1,6 +1,8 @@
 package com.xenon_dev.backend_server_website.service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,10 +50,12 @@ public class User_Service_Impl implements User_Service {
     }
 
       @Override
-    public void deleteUserById(String id) {
+    public void deleteUserById(String id , String authorizationHeader) {
         String url = keycloakUri + "/admin/realms/" + keycloakRealm + "/users/" + id;
         // Implement the logic to send a DELETE request to the Keycloak server using the constructed URL
-        restTemplate.delete(url);
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Authorization", authorizationHeader);
+        restTemplate.delete(url, headers);
     }
 
 

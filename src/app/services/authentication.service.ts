@@ -142,14 +142,19 @@ export class AuthenticationService {
     }
   }
 
-  deleteAccount(userId: string): Promise<void> {
-    const url = `${xenonDevConfig.SpringAPIServer.local.url}/api/user/delete/${userId}`;
-    this.httpClient.delete(url, {
+  async deleteAccount(userId: string): Promise<void> {
+    const kc: any = this.keycloak as any;
+    const url = `${kc.authServerUrl}/admin/realms/${kc.realm}/users/${userId}`;
+    const response = await fetch(url, {
+      method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${this.keycloak.token}`,
       },
     });
+    if (!response.ok) {
+      return Promise.reject(new Error(`Failed to delete account with status: ${response.status}`));
+    }
     return Promise.resolve();
   }
 

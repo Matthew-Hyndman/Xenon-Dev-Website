@@ -1,0 +1,7 @@
+.danger-box{
+    background: #ff0000;
+    background: linear-gradient(90deg, rgba(255, 0, 0, 1) 0%, rgba(179, 116, 116, 1) 50%, rgba(237, 83, 83, 1) 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 5px;
+}

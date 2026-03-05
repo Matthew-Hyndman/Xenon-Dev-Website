@@ -35,6 +35,9 @@
         </a>
       </div>
       <div class="row mt-4">
+        @if (!leaderboardData) {
+          <ng-container *ngTemplateOutlet="loading"></ng-container>
+        } @else {
         <table class="mb-3">
           <thead>
             <tr>
@@ -76,10 +79,13 @@
             }
           </tbody>
         </table>
+      }
       </div>
     </div>
   </div>
 </div>
+
+@if (leaderboardData) {
 <div class="footer-pagination">
   <div class="row">
     <div class="col simple-center-element">
@@ -120,3 +126,4 @@
     </div>
   </div>
 </div>
+}

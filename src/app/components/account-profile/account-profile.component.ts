@@ -25,6 +25,8 @@ export class AccountProfileComponent implements OnDestroy, OnInit {
   protected editMode: boolean = false;
   protected userForm: FormGroup;
 
+  isUserEmailVerified = false;
+
   private readonly destroy$ = new Subject<void>();
 
   playerProfile: PlayerProfile | null = null;
@@ -94,6 +96,10 @@ export class AccountProfileComponent implements OnDestroy, OnInit {
       .pipe(takeUntil(this.destroy$))
       .subscribe(async (user) => {
         this.user = user;
+
+        // set email verification status
+        this.isUserEmailVerified = user?.emailVerified ?? false;
+
         // patch the form with incoming values
         this.userForm.patchValue({
           username: user?.username ?? '',
@@ -233,16 +239,16 @@ export class AccountProfileComponent implements OnDestroy, OnInit {
         // Call the service to delete the player profile
         this.playerProfileService
           .deletePlayerProfile(this.playerProfile!.player_id!)
-          .then(() => {
-            Swal.fire(
+          .then(async () => {
+             await Swal.fire(
               'Deleted!',
               'Your player profile has been deleted.',
               'success',
             );
             this.playerProfile = null;
           })
-          .catch(() => {
-            Swal.fire(
+          .catch(async () => {
+            await Swal.fire(
               'Error!',
               'There was an error deleting your player profile.',
               'error',
@@ -265,21 +271,22 @@ export class AccountProfileComponent implements OnDestroy, OnInit {
       showCancelButton: true,
       confirmButtonText: 'Yes, delete it!',
       cancelButtonText: 'No, keep it',
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
         // Call the service to delete the account
-        this.authService
+        this.authService.logout();
+        await this.authService
           .deleteAccount(this.user!.id!)
-          .then(() => {
-            Swal.fire(
+          .then(async () => {
+            await Swal.fire(
               'Deleted!',
               'Your account has been deleted.',
               'success',
             );            
-            this.authService.logout();
+            
           })
-          .catch(() => {
-            Swal.fire(
+          .catch(async () => {
+            await Swal.fire(
               'Error!',
               'There was an error deleting your account.',
               'error',

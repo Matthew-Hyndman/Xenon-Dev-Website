@@ -1,7 +1,10 @@
 <div class="main-content">
   <div class="section-content section-content-p30">
-    <div class="container-fulid">
+    <div class="container-fulid" *ngIf="user; else loading">
       <h1>Your Profile</h1>
+      @if (!isUserEmailVerified) {
+        <ngb-alert [dismissible]="false"> Your email is unverified. </ngb-alert>
+      }
       <div class="col responsive-col">
         <div class="row">
           <div class="table-format mb-3">
@@ -14,7 +17,7 @@
                     <th></th>
                   </tr>
                 </thead>
-                <tbody *ngIf="user; else loading">
+                <tbody>
                   <!-- Username -->
                   <tr>
                     <td>
@@ -159,16 +162,16 @@
             <!-- buttons -->
             @if (editMode) {
               <div class="mt-2">
-                <button class="btn btn-info" type="button" (click)="revert()">
+                <button class="btn btn-info mr-2" type="button" (click)="revert()">
                   Revert
                 </button>
-                <button class="btn btn-info" type="button" (click)="save()">
+                <button class="btn btn-info mr-2" type="button" (click)="save()">
                   Save
                 </button>
               </div>
             } @else {
               <button
-                class="btn btn-info"
+                class="btn btn-info mr-2"
                 type="button"
                 (click)="toggleEditMode()"
               >
@@ -178,7 +181,7 @@
 
             @if (playerProfile) {
               <button
-                class="btn btn-info"
+                class="btn btn-info mr-2"
                 type="button"
                 (click)="resetPlayerProfile()"
               >
@@ -186,7 +189,7 @@
               </button>
 
               <button
-                class="btn btn-info"
+                class="btn btn-info mr-2"
                 type="button"
                 (click)="deletePlayerProfile()"
               >
@@ -231,12 +234,17 @@
             </div>
           </div>
         }
-        <ng-template #loading>
-          <tr>
-            <td colspan="2"><p>Loading user details...</p></td>
-          </tr>
-        </ng-template>
+        <h3>Danger Zone</h3>
+        <div class="row danger-box mt-2">
+          <p>Warning: Deleting your player profile is irreversible. Please proceed with caution <button class="btn btn-info" (click)="deleteAccount()">Delete Account</button></p>
+          
+        </div>
       </div>
     </div>
+    <ng-template #loading>
+      <tr>
+        <td colspan="2"><p>Loading user details...</p></td>
+      </tr>
+    </ng-template>
   </div>
 </div>

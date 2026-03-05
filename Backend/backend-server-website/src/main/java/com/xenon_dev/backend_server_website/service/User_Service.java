@@ -14,6 +14,6 @@ public interface User_Service {
 
     List<User> getAllUsers();
 
-    void deleteUserById(String id);
+    void deleteUserById(String id, String authorizationHeader);
 
 }
