@@ -240,7 +240,7 @@ export class AccountProfileComponent implements OnDestroy, OnInit {
         this.playerProfileService
           .deletePlayerProfile(this.playerProfile!.player_id!)
           .then(async () => {
-             await Swal.fire(
+            await Swal.fire(
               'Deleted!',
               'Your player profile has been deleted.',
               'success',
@@ -262,36 +262,36 @@ export class AccountProfileComponent implements OnDestroy, OnInit {
     // add input text to confirm deletion for extra safety
     Swal.fire({
       title: 'Are you sure?',
-      text: 'This will delete your account and all associated data,' + 
-      ' including your player profile. This action ' + 
-      'cannot be undone.',
+      text:
+        'This will delete your account and all associated data,' +
+        ' including your player profile. This action ' +
+        'cannot be undone.',
       icon: 'warning',
       allowOutsideClick: false,
-      draggable: true,
+      draggable: true,      
       showCancelButton: true,
       confirmButtonText: 'Yes, delete it!',
-      cancelButtonText: 'No, keep it',
+      cancelButtonText: 'No, keep it',      
+      input: 'text',
+      inputPlaceholder: 'Type "DELETE" to confirm',      
+      inputValidator: (value) => {
+        if (value !== 'DELETE') {  
+          return 'You need to type "DELETE" to confirm';
+        } else {          
+          return null;
+        }                    
+      },
     }).then(async (result) => {
       if (result.isConfirmed) {
         // Call the service to delete the account
+        await this.authService.deleteAccount(this.user!.id!).catch(async () => {
+          await Swal.fire(
+            'Error!',
+            'There was an error deleting your account.',
+            'error',
+          );
+        });
         this.authService.logout();
-        await this.authService
-          .deleteAccount(this.user!.id!)
-          .then(async () => {
-            await Swal.fire(
-              'Deleted!',
-              'Your account has been deleted.',
-              'success',
-            );            
-            
-          })
-          .catch(async () => {
-            await Swal.fire(
-              'Error!',
-              'There was an error deleting your account.',
-              'error',
-            );
-          });
       }
     });
   }

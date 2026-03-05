@@ -162,10 +162,18 @@
             <!-- buttons -->
             @if (editMode) {
               <div class="mt-2">
-                <button class="btn btn-info mr-2" type="button" (click)="revert()">
+                <button
+                  class="btn btn-info mr-2"
+                  type="button"
+                  (click)="revert()"
+                >
                   Revert
                 </button>
-                <button class="btn btn-info mr-2" type="button" (click)="save()">
+                <button
+                  class="btn btn-info mr-2"
+                  type="button"
+                  (click)="save()"
+                >
                   Save
                 </button>
               </div>
@@ -236,8 +244,13 @@
         }
         <h3>Danger Zone</h3>
         <div class="row danger-box mt-2">
-          <p>Warning: Deleting your player profile is irreversible. Please proceed with caution <button class="btn btn-info" (click)="deleteAccount()">Delete Account</button></p>
-          
+          <p>
+            Warning: Deleting your Account is irreversible. Please proceed with
+            caution
+            <button class="btn btn-info" (click)="deleteAccount()">
+              Delete Account
+            </button>
+          </p>
         </div>
       </div>
     </div>
