@@ -1,6 +1,10 @@
 CREATE DATABASE `xenondevdb` /*!40100 DEFAULT CHARACTER SET utf8mb4 */;
 USE `xenondevdb`;
 
+/*///////////////////
+      Tables
+/////////////////// */
+
 CREATE TABLE `admin_event_entity` (
   `ID` varchar(36) NOT NULL,
   `ADMIN_EVENT_TIME` bigint(20) DEFAULT NULL,
@@ -573,7 +577,7 @@ CREATE TABLE `player_profile` (
   `pot` int(11) DEFAULT NULL,
   `wins` int(11) DEFAULT NULL,
   PRIMARY KEY (`player_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=10000 DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `policy_config` (
   `POLICY_ID` varchar(36) NOT NULL,
@@ -963,7 +967,7 @@ CREATE TABLE `user_entity` (
   `USERNAME` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `CREATED_TIMESTAMP` bigint(20) DEFAULT NULL,
   `SERVICE_ACCOUNT_CLIENT_LINK` varchar(255) DEFAULT NULL,
-  `NOT_BEFORE` int(11) NOT NULL DEFAULT 0,
+  `not_before` bigint(20) DEFAULT NULL,
   `PLAYER_PROFILE_ID` bigint(20) DEFAULT NULL,
   PRIMARY KEY (`ID`),
   UNIQUE KEY `UK_DYKN684SL8UP1CRFEI6ECKHD7` (`REALM_ID`,`EMAIL_CONSTRAINT`),
@@ -1050,59 +1054,27 @@ CREATE TABLE `web_origins` (
   CONSTRAINT `FK_LOJPHO213XCX4WNKOG82SSRFY` FOREIGN KEY (`CLIENT_ID`) REFERENCES `client` (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+/*//////////////////////
+        Triggers
+////////////////////// */
+CREATE DEFINER=`xenondev`@`localhost` TRIGGER `xenondevdb`.`user_entity_BEFORE_DELETE` BEFORE DELETE ON `user_entity` FOR EACH ROW
+BEGIN
+DELETE FROM `xenondevdb`.`player_profile` WHERE OLD.PLAYER_PROFILE_ID = `player_profile`.`player_id`;
+END
 
-
-/*OLD CODE - JUST HOLDING ON TO IT, JUST IN CASE I NEED IT AGAIN*/
-/*CREATE DATABASE `xenondevdb` /*!40100 DEFAULT CHARACTER SET utf8mb4 */;
-
-/*USE `xenondevdb`;
-
-CREATE USER 'xenondev'@'localhost' IDENTIFIED BY 'Xenon-Dev64!';
-GRANT ALL PRIVILEGES ON `xenondevdb`.* TO 'xenondev'@'localhost';
-
-CREATE TABLE `player_profile` (
-    `player_id` BIGINT(20) NOT NULL AUTO_INCREMENT,
-    `pot` INT(11) NOT NULL,
-    `wins` INT(11) NOT NULL,
-    `losses` INT(11) NOT NULL,
-    PRIMARY KEY (`player_id`)
-)  ENGINE=INNODB AUTO_INCREMENT=100 DEFAULT CHARSET=UTF8MB4;
-
-CREATE TABLE `user` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) DEFAULT NULL,
-  `email` varchar(255) DEFAULT NULL,
-  `FK_player_id` bigint(20) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `FK_player_id` (`FK_player_id`),
-  CONSTRAINT `FK_player_id` FOREIGN KEY (`FK_player_id`) REFERENCES `player_profile` (`player_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=10000 DEFAULT CHARSET=utf8mb4;
-
-TRUNCATE TABLE `xenondevdb`.`user`;
-INSERT INTO `xenondevdb`.`user`
-(`id`, `name`, `email`)
-VALUES
-( 10000, 'Matthew-admin', 'matthew@xenon-dev.com'),
-( 10001, 'Matthew-tester', 'mhyndman6464@gmail.com');
-SELECT * FROM `xenondevdb`.`user`;
-
-/*RELEVANT QUERIES*/
-/*SELECT u.id, u.name, p.player_id, p.pot, p.wins, p.losses FROM `xenondevdb`.`user` AS u
-JOIN `xenondevdb`.`player_profile` AS p ON u.FK_player_id = p.player_id
-ORDER BY u.name ASC;*/
-
-/*CREATE VIEW LeaderboardDisplay AS
-SELECT u.name, p.player_id, p.pot, p.wins, p.losses FROM `xenondevdb`.`user` AS u
-JOIN `xenondevdb`.`player_profile` AS p ON u.FK_player_id = p.player_id
-ORDER BY u.name ASC;
-
-ALTER TABLE `xenondevdb`.`user_entity` 
-ADD COLUMN `PLAYER_PROFILE_ID` BIGINT(20) NULL AFTER `NOT_BEFORE`;
-/*ADD UNIQUE INDEX `IDX_PLAYER_PROFILE_ID` (`PLAYER_PROFILE_ID` ASC) INVISIBLE;*/
-/*ALTER TABLE `xenondevdb`.`user_entity` ALTER INDEX `IDX_USER_SERVICE_ACCOUNT` INVISIBLE;*/
-/*ALTER TABLE `xenondevdb`.`user_entity` 
-ADD CONSTRAINT `FK_PLAYER_PROFILE_ID`
-  FOREIGN KEY (`PLAYER_PROFILE_ID`)
-  REFERENCES `xenondevdb`.`player_profile` (`player_id`)
-  ON DELETE CASCADE
-  ON UPDATE CASCADE;*/
+/*//////////////////////
+        Views
+////////////////////// */
+CREATE 
+    ALGORITHM = UNDEFINED 
+    DEFINER = `xenondev`@`localhost` 
+    SQL SECURITY DEFINER
+VIEW `accounts_with_player_profiles_view` AS
+    SELECT 
+        `ue`.`USERNAME` AS `USERNAME`,
+        `pp`.`wins` AS `wins`,
+        `pp`.`losses` AS `losses`,
+        `pp`.`pot` AS `pot`
+    FROM
+        (`user_entity` `ue`
+        JOIN `player_profile` `pp` ON (`ue`.`PLAYER_PROFILE_ID` = `pp`.`player_id`))
