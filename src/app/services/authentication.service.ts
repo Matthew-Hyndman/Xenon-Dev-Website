@@ -3,11 +3,12 @@ import Keycloak, { KeycloakProfile } from 'keycloak-js';
 import { BehaviorSubject } from 'rxjs';
 import xenonDevConfig from '../config/xenon-dev-config';
 import { HttpClient } from '@angular/common/http';
+import Swal from 'sweetalert2';
 
 @Injectable({
   providedIn: 'root',
 })
-export class AuthenticationService {  
+export class AuthenticationService {
   // Keycloak instance (provided by `provideKeycloak` in AppModule)
   constructor(
     private readonly keycloak: Keycloak,
@@ -20,7 +21,9 @@ export class AuthenticationService {
   private readonly _isLoggedIn$ = new BehaviorSubject<boolean | null>(null);
   public readonly isLoggedIn$ = this._isLoggedIn$.asObservable();
 
-  private readonly _userProfile$ = new BehaviorSubject<KeycloakProfile | null>(null);
+  private readonly _userProfile$ = new BehaviorSubject<KeycloakProfile | null>(
+    null,
+  );
   public readonly userProfile$ = this._userProfile$.asObservable();
 
   // constructor is defined above to inject Keycloak instance
@@ -92,7 +95,8 @@ export class AuthenticationService {
     try {
       const token = this.keycloak.token;
       const kc: any = this.keycloak as any;
-      const userId = (kc.tokenParsed && kc.tokenParsed.sub) || (kc.subject ?? '');
+      const userId =
+        (kc.tokenParsed && kc.tokenParsed.sub) || (kc.subject ?? '');
       const response = await fetch(
         `${kc.authServerUrl}/admin/realms/${kc.realm}/users/${userId}`,
         {
@@ -110,7 +114,9 @@ export class AuthenticationService {
           await this.refreshUserProfile();
           break;
         case 204:
-          console.log(`request empty - no changes made to User Profile ${userId}.`);
+          console.log(
+            `request empty - no changes made to User Profile ${userId}.`,
+          );
           await this.refreshUserProfile();
           break;
         case 400:
@@ -153,11 +159,44 @@ export class AuthenticationService {
       },
     });
     if (!response.ok) {
-      return Promise.reject(new Error(`Failed to delete account with status: ${response.status}`));
+      return Promise.reject(
+        new Error(`Failed to delete account with status: ${response.status}`),
+      );
     }
     return Promise.resolve();
   }
 
+  /**
+   * This only for when you want to send another verification email
+   * @param userID - the ID of the user to send the verification email to.   
+   */
+  async reverifiyEmail(userID: string): Promise<void> {
+    const kc: any = this.keycloak as any;
+    const url = `${kc.authServerUrl}/admin/realms/${kc.realm}/users/${userID}/execute-actions-email`;
+    await fetch(url, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${this.keycloak.token}`,
+      },
+      body: JSON.stringify(['VERIFY_EMAIL']),
+    }).then(async (response) => {
+      if (response.ok) {
+        await Swal.fire({
+          icon: 'success',
+          title: 'Verification Email Sent',
+          text: 'A new verification email has been sent to your email address.',
+        });
+      }
+    }).catch(async (err) => {
+      console.error('Failed to send verification email', err);
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to send verification email. Please try again later.',
+      });
+    });
+  }
 }
 
 interface UserRepresentation {
@@ -165,4 +204,5 @@ interface UserRepresentation {
   email?: string;
   firstName?: string;
   lastName?: string;
+  emailVerified?: boolean | undefined;
 }

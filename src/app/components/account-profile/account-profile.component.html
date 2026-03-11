@@ -3,7 +3,7 @@
     <div class="container-fulid" *ngIf="user; else loading">
       <h1>Your Profile</h1>
       @if (!isUserEmailVerified) {
-        <ngb-alert [dismissible]="false"> Your email is unverified. </ngb-alert>
+        <ngb-alert [dismissible]="false"> Your email is unverified. To resend verification email <button (click)="reverivifyEmail()">click here</button></ngb-alert>
       }
       <div class="col responsive-col">
         <div class="row">

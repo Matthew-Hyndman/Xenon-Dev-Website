@@ -125,19 +125,49 @@ export class AccountProfileComponent implements OnDestroy, OnInit {
       });
   }
 
-  save() {
+  async save() {
     if (this.userForm.invalid) {
       this.userForm.markAllAsTouched();
       return;
     } else {
+      const hasEmailChanged =
+        this.userForm.get('email')?.value !== this.user?.email;
+      /**
+       * only for telling if and when the verification email should be sent.
+       */
+      let shouldSendVerificationEmail = false;
       const userRep = {
         username: this.userForm.get('username')?.value,
         email: this.userForm.get('email')?.value,
         firstName: this.userForm.get('firstName')?.value,
         lastName: this.userForm.get('lastName')?.value,
+        emailVerified: !hasEmailChanged,
       };
-      const updateResult = this.authService.updateUserProfile(userRep);
-      updateResult.then((status) => {
+
+      // check if email is changed
+      if (hasEmailChanged) {
+        await Swal.fire({
+          title: 'Email Change Detected',
+          text:
+            'Changing your email will require you to verify the ' +
+            'new email address. Do you want to proceed?',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Yes, proceed',
+          cancelButtonText: 'No, keep current email',
+        }).then(async (result) => {
+          if (result.isConfirmed) {
+            shouldSendVerificationEmail = true;
+            this.isUserEmailVerified = false;
+          } else {
+            // Revert email change in form
+            this.revertEmail();
+            userRep.email = this.user?.email;
+          }
+        });
+      }
+
+      await this.authService.updateUserProfile(userRep).then((status) => {
         if (status === 200 || status === 204) {
           this.setUserFormKeycloakProfile(userRep);
           this.toggleEditMode();
@@ -149,6 +179,10 @@ export class AccountProfileComponent implements OnDestroy, OnInit {
           }
         }
       });
+
+      if (shouldSendVerificationEmail) {
+        await this.authService.reverifiyEmail(this.user?.id!);
+      }
     }
   }
 
@@ -268,18 +302,18 @@ export class AccountProfileComponent implements OnDestroy, OnInit {
         'cannot be undone.',
       icon: 'warning',
       allowOutsideClick: false,
-      draggable: true,      
+      draggable: true,
       showCancelButton: true,
       confirmButtonText: 'Yes, delete it!',
-      cancelButtonText: 'No, keep it',      
+      cancelButtonText: 'No, keep it',
       input: 'text',
-      inputPlaceholder: 'Type "DELETE" to confirm',      
+      inputPlaceholder: 'Type "DELETE" to confirm',
       inputValidator: (value) => {
-        if (value !== 'DELETE') {  
+        if (value !== 'DELETE') {
           return 'You need to type "DELETE" to confirm';
-        } else {          
+        } else {
           return null;
-        }                    
+        }
       },
     }).then(async (result) => {
       if (result.isConfirmed) {
@@ -294,6 +328,15 @@ export class AccountProfileComponent implements OnDestroy, OnInit {
         this.authService.logout();
       }
     });
+  }
+
+  /**
+   * This only for when you want to send another verification email without
+   * changing the email in the form. If the email is changed, the `save()`
+   * function will handle re-verification.
+   */
+  reverivifyEmail() {
+    this.authService.reverifiyEmail(this.user?.id!);
   }
 
   ngOnDestroy(): void {
