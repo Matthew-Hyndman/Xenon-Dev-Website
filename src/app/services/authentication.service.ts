@@ -170,7 +170,7 @@ export class AuthenticationService {
    * This only for when you want to send another verification email
    * @param userID - the ID of the user to send the verification email to.   
    */
-  async reverifiyEmail(userID: string): Promise<void> {
+  async sendReverificationEmail(userID: string): Promise<void> {
     const kc: any = this.keycloak as any;
     const url = `${kc.authServerUrl}/admin/realms/${kc.realm}/users/${userID}/execute-actions-email`;
     await fetch(url, {
@@ -187,13 +187,20 @@ export class AuthenticationService {
           title: 'Verification Email Sent',
           text: 'A new verification email has been sent to your email address.',
         });
+      } else {
+        console.error('Failed to send verification email with status:', response.status);
+        await Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to send verification email. Please try again later.\nStatus: ' + response.status,
+        });
       }
     }).catch(async (err) => {
       console.error('Failed to send verification email', err);
       await Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'Failed to send verification email. Please try again later.',
+        text: 'Failed to send verification email. Please try again later.\nError: ' + err.message,
       });
     });
   }

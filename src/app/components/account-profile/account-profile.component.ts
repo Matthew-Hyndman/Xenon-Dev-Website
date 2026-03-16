@@ -163,26 +163,26 @@ export class AccountProfileComponent implements OnDestroy, OnInit {
             // Revert email change in form
             this.revertEmail();
             userRep.email = this.user?.email;
+            userRep.emailVerified = this.user?.emailVerified ?? false;
           }
         });
       }
 
-      await this.authService.updateUserProfile(userRep).then((status) => {
+      await this.authService.updateUserProfile(userRep).then(async (status) => {
         if (status === 200 || status === 204) {
           this.setUserFormKeycloakProfile(userRep);
           this.toggleEditMode();
+          if (shouldSendVerificationEmail) {
+            await this.authService.sendReverificationEmail(this.user?.id!);
+          }
         } else {
-          if (typeof status !== undefined) {
+          if (typeof status !== 'undefined') {
             alert(`Failed to update profile. response status: ${status}`);
           } else {
             alert('Failed to update profile due to unknown error.');
           }
         }
       });
-
-      if (shouldSendVerificationEmail) {
-        await this.authService.reverifiyEmail(this.user?.id!);
-      }
     }
   }
 
@@ -335,8 +335,8 @@ export class AccountProfileComponent implements OnDestroy, OnInit {
    * changing the email in the form. If the email is changed, the `save()`
    * function will handle re-verification.
    */
-  reverivifyEmail() {
-    this.authService.reverifiyEmail(this.user?.id!);
+  reverifyEmail() {
+    this.authService.sendReverificationEmail(this.user?.id!);
   }
 
   ngOnDestroy(): void {

@@ -1,3 +1,17 @@
+<#assign supportEmail = properties.supportEmail>
+
+<#macro supportEmailLink>
+<a href="mailto:${supportEmail}" style="color: #ffffff;">${supportEmail}</a>
+</#macro>
+
+<#macro supportContactHtml>
+<p>If this was not you, please contact <@supportEmailLink />.</p>
+</#macro>
+
+<#macro supportContactIfNeededHtml>
+<p>Please contact <@supportEmailLink /> if needed.</p>
+</#macro>
+
 <#macro emailLayout>
 <html lang="${locale.language}" dir="${(ltr)?then('ltr','rtl')}">
 <head>
@@ -46,6 +60,15 @@
         font-size: 13px
         }
 
+        .center-container {
+            display: flex; 
+            justify-content: center; 
+        }
+
+        img {
+            border-bottom: 1px solid #ffffff;
+        }
+
         p {
         color: #fff;
         font-size: 120%;
@@ -71,11 +94,11 @@
     text-align: center;
     ">
     <#nested>
-    <hr>
-    <div style="font-size: 12px; text-align: left;">
-    <p>This email was sent to you by an AWS STMP.</p>
-    <p>If you have any questions, please contact <a href="mailto:matthew@xenon-dev.com" style="color: #ffffff;">matthew@xenon-dev.com</a>.</p>
-    <p>Sincerely, <br>Xenon Dev Team (A.K.A. Matthew Hyndman)</p>
+    <div style="border-top: 1px solid #ffffff; margin: 24px 20% 0 20%;"></div>
+    <div style="font-size: 12px; text-align: left; margin: 0 20%;">
+    <p style="color: #ffffff; font-size: 12px; margin: 10px 0; padding: 0;">This email was sent to you by an AWS SMTP.</p>
+    <p style="color: #ffffff; font-size: 12px; margin: 10px 0; padding: 0;">If you have any questions, please contact <@supportEmailLink/>.</p>
+    <p style="color: #ffffff; font-size: 12px; margin: 10px 0; padding: 0;">Sincerely, <br>Xenon Dev Team (A.K.A. Matthew Hyndman)</p>
     </div>
 </body>
 </html>
