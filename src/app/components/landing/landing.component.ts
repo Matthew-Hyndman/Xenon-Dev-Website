@@ -36,7 +36,7 @@ export class LandingComponent implements OnInit {
       this.getUserFullName();
     }
 
-    if (this.blackJackHelpService.isHasUserAgreedToDisclaimerNull()) {
+    if (this.blackJackHelpService.isHasUserAgreedToDisclaimerNotNull()) {
       if (this.blackJackHelpService.isHasUserAgreedToDisclaimerTrue()) {
         this.blckJackGameRoute = '/black-jack-game';
       }
