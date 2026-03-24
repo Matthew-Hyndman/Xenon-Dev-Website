@@ -22,6 +22,7 @@
  *   14. Retro Speech Bubbles
  *   15. Keyframe Animations
  *   16. Media Queries
+ *   17. Loader
  *
  * Note: Unused / legacy classes have been moved to styles-legacy.css
  * =============================================================================
@@ -1120,5 +1121,48 @@ tbody {
   .footer-image {
     height: 15%;
     width: 36%;
+  }
+}
+
+/* 
+ * -----------------------------------------------------------------------------
+ * 17. Loader
+ * -----------------------------------------------------------------------------
+ */
+
+ /* From Uiverse.io by dovatgabriel */ 
+.spinner {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+}
+
+.spinner::before,
+.spinner::after {
+  content: "";
+  position: absolute;
+  border-radius: inherit;
+}
+
+.spinner::before {
+  width: 100%;
+  height: 100%;
+  background-image: linear-gradient(0deg, #0011ff 0%, #212121 50%);
+  animation: spin .5s infinite linear;
+}
+
+.spinner::after {
+  width: 85%;
+  height: 85%;
+  background-color: #212121;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
   }
 }
