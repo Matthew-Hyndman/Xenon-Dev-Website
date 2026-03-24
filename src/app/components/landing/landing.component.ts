@@ -6,6 +6,7 @@ import {
   HttpHeaders,
 } from '@angular/common/http';
 import { AuthenticationService } from '../../services/authentication.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
     selector: 'app-landing',
@@ -45,16 +46,18 @@ export class LandingComponent implements OnInit {
     }
   }
 
-  getCatFact() {
-    this.httpClient
+  async getCatFact() {    
+    await firstValueFrom(this.httpClient
       .get<any>(`https://catfact.ninja/fact`, {
         headers: this.headers,
-      })
-      .subscribe((data) => {
-        this.catFact = data;
+      })).then((response) => {
+        this.catFact = response;
+        this.showCatFact = true;
+      }).catch((error) => {
+        console.error('Error fetching cat fact: ', error);
       });
 
-    this.showCatFact = true;
+    
   }
 
   isLoggedInCheck() {

@@ -23,7 +23,7 @@ export class BlackJackHelpComponent implements OnInit, OnDestroy {
 
   userProfile: KeycloakProfile | null = null;
 
-  private isLoggedIn: boolean = false;
+  isLoggedIn: boolean | null = null;
 
   constructor(
     private router: Router,
@@ -57,7 +57,9 @@ export class BlackJackHelpComponent implements OnInit, OnDestroy {
       if(profile) {
         this.userProfile = profile;
         this.isLoggedIn = true;
-      } 
+      } else {
+        this.isLoggedIn = false;
+      }
     });
   }
 
