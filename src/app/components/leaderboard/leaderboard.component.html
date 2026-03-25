@@ -1,29 +1,7 @@
 <div class="main-content">
   <div class="section-content section-content-p30">
-    <div class="container-fulid">
+    <div class="container-fulid" *ngIf="leaderboardData; else loading">
       <h1>Leaderboard</h1>
-      <ng-template #loading>
-        <!-- From Uiverse.io by anand_4957 -->
-        <div class="clouds">
-          <div class="cloud cloud1"></div>
-          <div class="cloud cloud2"></div>
-          <div class="cloud cloud3"></div>
-          <div class="cloud cloud4"></div>
-          <div class="cloud cloud5"></div>
-        </div>
-
-        <div class="loader">
-          <span><span></span><span></span><span></span><span></span></span>
-          <div class="base">
-            <span></span>
-            <div class="face"></div>
-          </div>
-        </div>
-
-        <div class="longfazers">
-          <span></span><span></span><span></span><span></span>
-        </div>
-      </ng-template>
       <div id="LeaderboardTop"></div>
       <div class="row mt-3">
         <a
@@ -35,9 +13,6 @@
         </a>
       </div>
       <div class="row mt-4">
-        @if (!leaderboardData) {
-          <ng-container *ngTemplateOutlet="loading"></ng-container>
-        } @else {
         <table class="mb-3">
           <thead>
             <tr>
@@ -79,51 +54,56 @@
             }
           </tbody>
         </table>
-      }
       </div>
     </div>
+    <ng-template #loading>
+      <!-- From Uiverse.io by dovatgabriel -->
+      <div style="display: flex; justify-content: center; align-items: center">
+        <div class="spinner"></div>
+      </div>
+    </ng-template>
   </div>
 </div>
 
 @if (leaderboardData) {
-<div class="footer-pagination">
-  <div class="row">
-    <div class="col simple-center-element">
-      <ngb-pagination
-        [(page)]="pageNo"
-        [pageSize]="pageSize"
-        [collectionSize]="leaderboardData!.totalElements"
-        [maxSize]="5"
-        [boundaryLinks]="true"
-        (pageChange)="loadLeaderboard()"
-      >
-      </ngb-pagination>
-    </div>
-    <div class="row" style="justify-content: right">
-      <div class="col-md-1 page-size-selection">
-        <span class="mr-2">Page Size</span>
-        <select
-          name="pageSizeSelection"
-          id="pageSizeSelection"
-          [(ngModel)]="pageSize"
-          (change)="loadLeaderboard()"
+  <div class="footer-pagination">
+    <div class="row">
+      <div class="col simple-center-element">
+        <ngb-pagination
+          [(page)]="pageNo"
+          [pageSize]="pageSize"
+          [collectionSize]="leaderboardData!.totalElements"
+          [maxSize]="5"
+          [boundaryLinks]="true"
+          (pageChange)="loadLeaderboard()"
         >
-          @for (sizeOption of pageSizeRange; track sizeOption) {
-            <option value="{{ sizeOption }}">{{ sizeOption }}</option>
-          }
-        </select>
+        </ngb-pagination>
+      </div>
+      <div class="row" style="justify-content: right">
+        <div class="col-md-1 page-size-selection">
+          <span class="mr-2">Page Size</span>
+          <select
+            name="pageSizeSelection"
+            id="pageSizeSelection"
+            [(ngModel)]="pageSize"
+            (change)="loadLeaderboard()"
+          >
+            @for (sizeOption of pageSizeRange; track sizeOption) {
+              <option value="{{ sizeOption }}">{{ sizeOption }}</option>
+            }
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <a
+          [routerLink]="['/black-jack-leaderboard']"
+          fragment="LeaderboardTop"
+          class="btn btn-info mb-3"
+          style="max-width: 150px"
+        >
+          back to top
+        </a>
       </div>
     </div>
-    <div class="row">
-      <a
-        [routerLink]="['/black-jack-leaderboard']"
-        fragment="LeaderboardTop"
-        class="btn btn-info mb-3"
-        style="max-width: 150px"
-      >
-        back to top
-      </a>
-    </div>
   </div>
-</div>
 }
