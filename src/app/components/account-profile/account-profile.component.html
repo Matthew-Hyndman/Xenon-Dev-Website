@@ -35,6 +35,10 @@
                           type="text"
                           formControlName="username"
                         />
+                        <!-- Error message -->
+                        <div *ngIf="userForm.get('username')?.invalid && userForm.get('username')?.touched" class="form-error-message">
+                          <small *ngIf="userForm.get('username')?.errors?.['required']">Username is required.</small>
+                        </div>
                       </td>
                       <td>
                         <button
@@ -67,6 +71,11 @@
                           type="email"
                           formControlName="email"
                         />
+                        <!-- Error message -->
+                        <div *ngIf="userForm.get('email')?.invalid && userForm.get('email')?.touched" class="form-error-message">
+                          <small *ngIf="userForm.get('email')?.errors?.['required']">Email is required.</small>
+                          <small *ngIf="userForm.get('email')?.errors?.['email']">Invalid email format.</small>
+                        </div>
                       </td>
                       <td>
                         <button
@@ -104,6 +113,10 @@
                           type="text"
                           formControlName="firstName"
                         />
+                        <!-- Error message -->
+                        <div *ngIf="userForm.get('firstName')?.invalid && userForm.get('firstName')?.touched" class="form-error-message">
+                          <small *ngIf="userForm.get('firstName')?.errors?.['required']">First Name is required.</small>
+                        </div>
                       </td>
                       <td>
                         <button
@@ -130,6 +143,10 @@
                           type="text"
                           formControlName="lastName"
                         />
+                        <!-- Error message -->
+                        <div *ngIf="userForm.get('lastName')?.invalid && userForm.get('lastName')?.touched" class="form-error-message">
+                          <small *ngIf="userForm.get('lastName')?.errors?.['required']">Last Name is required.</small>
+                        </div>
                       </td>
                       <td>
                         <button
