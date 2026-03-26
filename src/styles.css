@@ -655,7 +655,7 @@ footer li a {
 }
 
 table {
-  width: 900px;
+  width: auto;
   border-collapse: collapse;
   border-top: 1px solid #000;
   border-radius: 10px;
@@ -970,6 +970,7 @@ tbody {
 }
 
 @media (max-width:991px) {
+
   .section-content-p30 {
     padding: 0
   }
@@ -1092,6 +1093,23 @@ tbody {
   .table-fromat {
     visibility: hidden;
     height: 0px;
+    padding-left: 0 !important;    
+  }
+
+  table{
+    text-align: left !important;
+    font-size: small;
+    display: flexbox;
+    justify-items: left;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    overflow: auto;
+    width: 100%;
+  }
+
+  th {
+    text-align: left;
   }
 
   .updates-on-mobile {
@@ -1109,12 +1127,12 @@ tbody {
 
   .page-container {
     position: relative;
-    top: 66px;
+    top: 66px;    
     padding-left: 0
   }
 
   .footer-pagination {
-    text-align: center
+    text-align: center;
   }
 }
 

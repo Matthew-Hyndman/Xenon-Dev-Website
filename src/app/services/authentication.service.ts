@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import Keycloak, { KeycloakProfile } from 'keycloak-js';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subscription, fromEvent, merge } from 'rxjs';
 import xenonDevConfig from '../config/xenon-dev-config';
 import { HttpClient } from '@angular/common/http';
 import Swal from 'sweetalert2';
@@ -9,11 +9,22 @@ import Swal from 'sweetalert2';
   providedIn: 'root',
 })
 export class AuthenticationService {
+  private static readonly IDLE_WARNING_AFTER_MS = 3 * 60 * 1000;
+  private static readonly IDLE_LOGOUT_AFTER_MS = 5 * 60 * 1000;
+
   // Keycloak instance (provided by `provideKeycloak` in AppModule)
   constructor(
     private readonly keycloak: Keycloak,
     private httpClient: HttpClient,
   ) {
+    this.isLoggedIn$.subscribe((isLoggedIn) => {
+      if (isLoggedIn) {
+        this.startIdleMonitor();
+      } else {
+        this.stopIdleMonitor();
+      }
+    });
+
     void this.init();
   }
 
@@ -25,6 +36,12 @@ export class AuthenticationService {
     null,
   );
   public readonly userProfile$ = this._userProfile$.asObservable();
+
+  private activitySub: Subscription | null = null;
+  private idleWarningTimeoutId: ReturnType<typeof setTimeout> | null = null;
+  private idleLogoutTimeoutId: ReturnType<typeof setTimeout> | null = null;
+  private warningCountdownIntervalId: ReturnType<typeof setInterval> | null = null;
+  private idleWarningIsVisible = false;
 
   // constructor is defined above to inject Keycloak instance
 
@@ -146,6 +163,155 @@ export class AuthenticationService {
     } catch (err) {
       console.error('Frontend failed to update user profile', err);
     }
+  }
+
+  private startIdleMonitor(): void {
+    if (typeof document === 'undefined') {
+      return;
+    }
+
+    if (!this.activitySub) {
+      /* merge and fromEvent is deprecated in RxJS 7, 
+      consider using fromEventPattern or other 
+      alternatives */
+      this.activitySub = merge(
+        fromEvent(document, 'keydown'),
+        fromEvent(document, 'touchstart'),
+        fromEvent(document, 'scroll'),
+      ).subscribe(() => {
+        this.handleUserActivity();
+      });
+    }
+
+    this.resetIdleTimers();
+  }
+
+  private stopIdleMonitor(): void {
+    this.activitySub?.unsubscribe();
+    this.activitySub = null;
+
+    this.clearIdleTimeouts();
+    this.clearWarningCountdown();
+    this.idleWarningIsVisible = false;
+
+    if (Swal.isVisible()) {
+      Swal.close();
+    }
+  }
+
+  private handleUserActivity(): void {
+    if (!this._isLoggedIn$.value) {
+      return;
+    }
+
+    if (this.idleWarningIsVisible && Swal.isVisible()) {
+      Swal.close();
+      this.idleWarningIsVisible = false;
+    }
+
+    this.resetIdleTimers();
+  }
+
+  private resetIdleTimers(): void {
+    this.clearIdleTimeouts();
+
+    this.idleWarningTimeoutId = setTimeout(() => {
+      void this.showIdleWarning();
+    }, AuthenticationService.IDLE_WARNING_AFTER_MS);
+
+    this.idleLogoutTimeoutId = setTimeout(() => {
+      void this.logoutDueToInactivity();
+    }, AuthenticationService.IDLE_LOGOUT_AFTER_MS);
+  }
+
+  private clearIdleTimeouts(): void {
+    if (this.idleWarningTimeoutId) {
+      clearTimeout(this.idleWarningTimeoutId);
+      this.idleWarningTimeoutId = null;
+    }
+
+    if (this.idleLogoutTimeoutId) {
+      clearTimeout(this.idleLogoutTimeoutId);
+      this.idleLogoutTimeoutId = null;
+    }
+  }
+
+  private clearWarningCountdown(): void {
+    if (this.warningCountdownIntervalId) {
+      clearInterval(this.warningCountdownIntervalId);
+      this.warningCountdownIntervalId = null;
+    }
+  }
+
+  private async showIdleWarning(): Promise<void> {
+    if (!this._isLoggedIn$.value || this.idleWarningIsVisible) {
+      return;
+    }
+
+    this.idleWarningIsVisible = true;
+    let remainingSeconds =
+      (AuthenticationService.IDLE_LOGOUT_AFTER_MS -
+        AuthenticationService.IDLE_WARNING_AFTER_MS) /
+      1000;
+
+    const result = await Swal.fire({
+      icon: 'warning',
+      title: 'Still there?',
+      html: `You have been idle for a while. You will be signed out in <b><span id="idle-countdown">${remainingSeconds}</span>s</b>.`,
+      showCancelButton: true,
+      confirmButtonText: 'Stay signed in',
+      cancelButtonText: 'Sign out now',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      didOpen: () => {
+        this.warningCountdownIntervalId = setInterval(() => {
+          remainingSeconds = Math.max(remainingSeconds - 1, 0);
+          const countdownElement = document.getElementById('idle-countdown');
+          if (countdownElement) {
+            countdownElement.textContent = String(remainingSeconds);
+          }
+        }, 1000);
+      },
+      willClose: () => {
+        this.clearWarningCountdown();
+      },
+    });
+
+    this.idleWarningIsVisible = false;
+
+    if (!this._isLoggedIn$.value) {
+      return;
+    }
+
+    if (result.isConfirmed) {
+      this.resetIdleTimers();
+      return;
+    }
+
+    if (result.dismiss === Swal.DismissReason.cancel) {
+      await this.logout();
+    }
+  }
+
+  private async logoutDueToInactivity(): Promise<void> {
+    if (!this._isLoggedIn$.value) {
+      return;
+    }
+
+    if (Swal.isVisible()) {
+      Swal.close();
+    }
+
+    await Swal.fire({
+      icon: 'info',
+      title: 'Signed out due to inactivity',
+      text: 'For your security, you have been signed out after being idle for too long.',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      confirmButtonText: 'OK',
+    });
+
+    await this.logout();
   }
 
   async deleteAccount(userId: string): Promise<void> {

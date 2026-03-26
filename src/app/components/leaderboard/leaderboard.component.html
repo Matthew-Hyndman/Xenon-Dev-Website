@@ -13,7 +13,7 @@
         </a>
       </div>
       <div class="row mt-4">
-        <table class="mb-3">
+        <table class="mb-1">
           <thead>
             <tr>
               <th>Username</th>
@@ -67,8 +67,8 @@
 
 @if (leaderboardData) {
   <div class="footer-pagination">
-    <div class="row">
-      <div class="col simple-center-element">
+    <div class="row leaderboard-footer-controls">
+      <div class="simple-center-element">
         <ngb-pagination
           [(page)]="pageNo"
           [pageSize]="pageSize"
@@ -79,8 +79,7 @@
         >
         </ngb-pagination>
       </div>
-      <div class="row" style="justify-content: right">
-        <div class="col-md-1 page-size-selection">
+        <div class="page-size-selection">
           <span class="mr-2">Page Size</span>
           <select
             name="pageSizeSelection"
@@ -92,18 +91,17 @@
               <option value="{{ sizeOption }}">{{ sizeOption }}</option>
             }
           </select>
-        </div>
       </div>
-      <div class="row">
+      
         <a
           [routerLink]="['/black-jack-leaderboard']"
           fragment="LeaderboardTop"
-          class="btn btn-info mb-3"
+          class="btn btn-info mb-3 back-to-top-link"
           style="max-width: 150px"
         >
           back to top
         </a>
-      </div>
+      
     </div>
   </div>
 }
