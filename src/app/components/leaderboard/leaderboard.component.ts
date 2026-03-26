@@ -20,12 +20,12 @@ export class LeaderboardComponent implements OnInit {
 
   ngOnInit() {
     this.loadLeaderboard();
-    console.log('Leaderboard data:', this.leaderboardData);
+    console.log('Leaderboard data:', this.leaderboardData); 
   }
 
-  async loadLeaderboard(): Promise<void> {
-    await this.leaderboardService.getLeaderboard(this.pageNo, this.pageSize).subscribe(
-      (data) => {
+  loadLeaderboard(): void {    
+    this.leaderboardService.getLeaderboard(this.pageNo, this.pageSize).subscribe(
+      (data) => {               
         this.leaderboardData = data;
       });
   }

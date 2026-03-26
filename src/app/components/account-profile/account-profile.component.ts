@@ -235,9 +235,16 @@ export class AccountProfileComponent implements OnDestroy, OnInit {
     }).then((result) => {
       if (result.isConfirmed) {
         // Call the service to reset the player profile
+        const profileId = this.playerProfile?.player_id;
         this.playerProfileService
-          .resetPlayerProfile(this.playerProfile!.player_id!)
+          .resetPlayerProfile(profileId!)
           .then(() => {
+            this.playerProfile = {
+              player_id: profileId!,
+              pot: 3000,
+              wins: 0,
+              losses: 0,
+            };
             Swal.fire(
               'Reset!',
               'Your player profile has been reset.',

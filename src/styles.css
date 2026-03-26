@@ -22,6 +22,7 @@
  *   14. Retro Speech Bubbles
  *   15. Keyframe Animations
  *   16. Media Queries
+ *   17. Loader
  *
  * Note: Unused / legacy classes have been moved to styles-legacy.css
  * =============================================================================
@@ -374,6 +375,13 @@ a:hover {
   cursor: pointer
 }
 
+.form-error-message {
+  color: #fff;
+  background: #ff0000;
+  background: linear-gradient(90deg, rgba(255, 0, 0, 1) 0%, rgba(179, 116, 116, 1) 50%, rgba(237, 83, 83, 1) 100%);  
+  border-radius: 3px;
+  padding: 5px;
+}
 
 /* 
  * -----------------------------------------------------------------------------
@@ -647,7 +655,7 @@ footer li a {
 }
 
 table {
-  width: 900px;
+  width: auto;
   border-collapse: collapse;
   border-top: 1px solid #000;
   border-radius: 10px;
@@ -962,6 +970,7 @@ tbody {
 }
 
 @media (max-width:991px) {
+
   .section-content-p30 {
     padding: 0
   }
@@ -1084,6 +1093,23 @@ tbody {
   .table-fromat {
     visibility: hidden;
     height: 0px;
+    padding-left: 0 !important;    
+  }
+
+  table{
+    text-align: left !important;
+    font-size: small;
+    display: flexbox;
+    justify-items: left;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    overflow: auto;
+    width: 100%;
+  }
+
+  th {
+    text-align: left;
   }
 
   .updates-on-mobile {
@@ -1101,12 +1127,12 @@ tbody {
 
   .page-container {
     position: relative;
-    top: 66px;
+    top: 66px;    
     padding-left: 0
   }
 
   .footer-pagination {
-    text-align: center
+    text-align: center;
   }
 }
 
@@ -1120,5 +1146,48 @@ tbody {
   .footer-image {
     height: 15%;
     width: 36%;
+  }
+}
+
+/* 
+ * -----------------------------------------------------------------------------
+ * 17. Loader
+ * -----------------------------------------------------------------------------
+ */
+
+ /* From Uiverse.io by dovatgabriel */ 
+.spinner {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+}
+
+.spinner::before,
+.spinner::after {
+  content: "";
+  position: absolute;
+  border-radius: inherit;
+}
+
+.spinner::before {
+  width: 100%;
+  height: 100%;
+  background-image: linear-gradient(0deg, #0011ff 0%, #212121 50%);
+  animation: spin .5s infinite linear;
+}
+
+.spinner::after {
+  width: 85%;
+  height: 85%;
+  background-color: #212121;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
   }
 }

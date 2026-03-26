@@ -41,7 +41,7 @@ export class BlackJackHelpService implements OnInit {
     return false;
   }
 
-  isHasUserAgreedToDisclaimerNull(): boolean {
+  isHasUserAgreedToDisclaimerNotNull(): boolean {
     if (isPlatformBrowser(this.platformId)) {
       return this.storage?.getItem('hasUserAgreedToDisclaimer') != null;
     }
