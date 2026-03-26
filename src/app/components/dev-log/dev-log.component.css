@@ -1,0 +1,8 @@
+.dev-log-image{
+    display: block;
+    margin: 0 auto;
+    border: 5px solid;
+    border-image: linear-gradient(90deg, rgba(0, 238, 255, 1) 0%, rgba(70, 155, 176, 1) 28%, rgba(98, 83, 237, 1) 100%);
+    border-image-slice: 1;
+}
+

@@ -1,0 +1,107 @@
+<div class="main-content">
+  <div class="section-content section-content-p30">
+    <div class="container-fulid">
+      <h1>Dev Log</h1>
+
+      <h2>Phase 2 completed</h2>
+      <p>
+        Hello!! This is the first entry of my dev log. This is under Phase 2,
+        you are not reading that wrong. I started this log to start showing
+        where I am along my developer career and better demonstrate my
+        understanding of concepts, processes and experience.
+      </p>
+      <div class="dev-log-accordion" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="dev-log-accordion-header">
+              Github team management tools
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="dev-log-accordion-body">
+                <!--content here-->
+                <p>
+                  I started using management tools around the time I began
+                  struggling to keep track of what I was doing and how far along
+                  I was with the project. I would work on a feature one day,
+                  then spend the next hour catching up on where I'd left off.
+                  This was a terribly inefficient way of working — it even led
+                  me to writing certain methods twice, simply because I couldn't
+                  track down where I'd originally put them or forgot I
+                  implemented it.
+                </p>
+                <p>
+                  All of this was happening because the project had grown past a
+                  certain threshold. Moving from a small project to a
+                  medium-sized one brought new and unforeseen challenges that I
+                  hadn't anticipated. Recognising this, I took some time to find
+                  a system that worked for me.
+                </p>
+                <img
+                  src="/assets/images/Dev_Log_imgs/Phase 2/Project-Size.PNG"
+                  alt="Project Size"
+                  class="dev-log-image"
+                />
+                <p>
+                  I eventually discovered that I could create tickets (which I
+                  now call issues) and Projects directly within GitHub. This was
+                  a genuine godsend, as it meant three things for me:
+                  <br />
+                  1. I now have a reliable way of tracking my progress — no more
+                  hour-long catch-ups, and no more getting lost mid-feature.
+                  <br />
+                  2. I can apply the experience I gained at Alchemy Technology
+                  Services.
+                  <br />
+                  3. I can finally maintain a solid branching strategy.
+                </p>
+                <img
+                  src="/assets/images/Dev_Log_imgs/Phase 2/Branch-Strategy.PNG"
+                  alt="Branch Strategy"
+                  class="dev-log-image"
+                />
+                <p>
+                  The above is this project's current branching strategy (as of
+                  writing this). Let me walk you through the most important
+                  branches to give you a sense of how seriously I take producing
+                  my best work:
+                </p>
+
+                <p>
+                  <strong>main</strong> – The production branch. Only code that
+                  has been tested multiple times makes it here. It is linked to
+                  AWS and deployed using CI/CD pipelines.
+                </p>
+                <p>
+                  <strong>Dev</strong> – The last line of defence. Like main, it
+                  is linked to AWS and deployed via CI/CD, but the hosted site
+                  is not public-facing — it exists strictly for development and
+                  QA testing. Any feature destined for production is validated
+                  here first.
+                </p>
+                <p>
+                  <strong>dependency_updates</strong> – Because I use frameworks
+                  with regularly updated dependencies (Angular and Spring Boot),
+                  this dedicated branch keeps those updates contained and
+                  manageable.
+                </p>
+                <p>
+                  <strong>small-changes</strong> – Reserved for minor, low-risk
+                  changes that I want on production quickly without bypassing
+                  proper protocol.
+                </p>
+                <p>
+                  <strong>Backend-Integration</strong> – The branch I am
+                  currently working on (and close to finishing) as I write this.
+                  It has been a major focus for several months and has taught me
+                  a great deal along the way.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

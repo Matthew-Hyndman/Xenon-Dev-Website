@@ -23,6 +23,7 @@
  *   15. Keyframe Animations
  *   16. Media Queries
  *   17. Loader
+ *   18. Accordions
  *
  * Note: Unused / legacy classes have been moved to styles-legacy.css
  * =============================================================================
@@ -1190,4 +1191,32 @@ tbody {
   to {
     transform: rotate(360deg);
   }
+}
+
+/* 
+* -----------------------------------------------------------------------------
+* 18. Accordions
+* -----------------------------------------------------------------------------
+*/
+
+.dev-log-accordion {
+  background-color: #2B2C3C;
+  color: #fff;
+  cursor: pointer;
+  width: 70%;
+  text-align: left;
+  font-size: 15px;
+  justify-self: center;
+  
+}
+
+
+.dev-log-accordion .dev-log-accordion-header,
+.dev-log-accordion .dev-log-accordion-header:not(.collapsed) {
+  background: linear-gradient(90deg, rgba(0, 238, 255, 1) 0%, rgba(70, 155, 176, 1) 28%, rgba(98, 83, 237, 1) 100%);
+}
+
+.dev-log-accordion p {
+  color: #000;
+  padding: 10px;
 }
