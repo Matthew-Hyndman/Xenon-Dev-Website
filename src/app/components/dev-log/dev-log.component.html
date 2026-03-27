@@ -1,12 +1,12 @@
 <div class="main-content">
   <div class="section-content section-content-p30">
     <div class="container-fulid">
-      <h1>Dev Log</h1>
+      <h1>Dev Vlog</h1>
 
       <h2>Phase 2 completed</h2>
       <p>
-        Hello!! This is the first entry of my dev log. This is under Phase 2,
-        you are not reading that wrong. I started this log to start showing
+        Hello!! This is the first entry of my dev vlog. This is under Phase 2,
+        you are not reading that wrong. I started this vlog to start showing
         where I am along my developer career and better demonstrate my
         understanding of concepts, processes and experience.
       </p>
@@ -44,29 +44,32 @@
                   class="dev-log-image"
                 />
                 <p>
-                  I eventually discovered that I could create tickets (which I
-                  now call issues) and Projects directly within GitHub. This was
-                  a genuine godsend, as it meant three things for me:
+                  To address this, I introduced structured project management
+                  practices directly within GitHub. Creating issues and project
+                  boards transformed my workflow by giving me:
                   <br />
-                  1. I now have a reliable way of tracking my progress — no more
-                  hour-long catch-ups, and no more getting lost mid-feature.
+                  1. A reliable, transparent way to track progress and maintain
+                  momentum.
                   <br />
-                  2. I can apply the experience I gained at Alchemy Technology
-                  Services.
+                  2. A space to apply the delivery discipline I developed at
+                  Alchemy Technology Services.
                   <br />
-                  3. I can finally maintain a solid branching strategy.
+                  3. A foundation for a consistent, maintainable branching
+                  strategy.
                 </p>
+
+                <p>
+                  This shift significantly improved the quality and
+                  predictability of my development process. Below is the
+                  branching strategy currently used in the project, reflecting
+                  the level of rigour I apply to code quality:
+                </p>
+
                 <img
                   src="/assets/images/Dev_Log_imgs/Phase 2/Branch-Strategy.PNG"
                   alt="Branch Strategy"
                   class="dev-log-image"
                 />
-                <p>
-                  The above is this project's current branching strategy (as of
-                  writing this). Let me walk you through the most important
-                  branches to give you a sense of how seriously I take producing
-                  my best work:
-                </p>
 
                 <p>
                   <strong>main</strong> – The production branch. Only code that
@@ -81,10 +84,9 @@
                   here first.
                 </p>
                 <p>
-                  <strong>dependency_updates</strong> – Because I use frameworks
-                  with regularly updated dependencies (Angular and Spring Boot),
-                  this dedicated branch keeps those updates contained and
-                  manageable.
+                  <strong>dependency_updates</strong> – A dedicated branch for
+                  managing frequent framework updates (Angular and Spring Boot),
+                  ensuring they remain isolated and controlled.
                 </p>
                 <p>
                   <strong>small-changes</strong> – Reserved for minor, low-risk
@@ -93,9 +95,127 @@
                 </p>
                 <p>
                   <strong>Backend-Integration</strong> – The branch I am
-                  currently working on (and close to finishing) as I write this.
-                  It has been a major focus for several months and has taught me
-                  a great deal along the way.
+                  currently working on. It has been a major focus for several months and has deepened
+                  my understanding of backend architecture, API design, and
+                  full‑stack integration.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="dev-log-accordion mt-2" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="dev-log-accordion-header">
+              Spring Security
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="dev-log-accordion-body">
+                <!--content here-->
+                <p>
+                  Spring Security was a complex topic to learn and wrap my head
+                  around, but it is incredibly powerful when used correctly. I
+                  first encountered it through a
+                  <a
+                    href="https://www.udemy.com/course/spring-hibernate-tutorial/"
+                    >Spring Boot course</a
+                  >
+                  on Udemy by Chad Darby — and as a side note, Chad is a
+                  fantastic instructor if you're looking to get into full-stack
+                  development. Highly recommended.
+                </p>
+                <p>
+                  The first learning curve was truly understanding what a filter
+                  chain is and what happens under the hood. A basic, bare-bones
+                  filter configuration would look something like this:
+                </p>
+                <pre class="dev-log-code-block">
+                  <code>
+                  import org.springframework.context.annotation.Bean;
+                  import org.springframework.context.annotation.Configuration;
+                  import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+                  import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+                  import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+                  import org.springframework.security.web.SecurityFilterChain;
+
+                  &#64;Configuration // Marks this class as a source of bean definitions for the application context
+                  &#64;EnableWebSecurity // Enables Spring Security's web security support
+                  public class SecurityConfig {{ '{' }}
+
+                      &#64;Bean // Indicates that this method produces a bean to be managed by the Spring container
+                      public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {{ '{' }}
+
+                          http
+                              /* 
+                                ---------------------------------------------------------------
+                                  CSRF PROTECTION
+                                  Enabled by default. Protects state-changing requests (POST,
+                                  PUT, DELETE) from cross-site request forgery attacks by
+                                  requiring a hidden token in forms.
+                                  Disable only for stateless REST APIs (using JWTs, etc.).
+                                ---------------------------------------------------------------
+                              */ 
+                              .csrf(AbstractHttpConfigurer::disable)
+
+                              /*
+                                  ---------------------------------------------------------------
+                                    AUTHORIZATION RULES
+                                    Processed by FilterSecurityInterceptor (or, in modern Spring
+                                    Security, AuthorizationFilter) at the END of the chain.
+                                    Rules are evaluated top-to-bottom — put specific rules first.
+                                
+                                    AnonymousAuthenticationFilter runs just before this block:
+                                    if no auth has been set by the earlier filters, it assigns
+                                    an "anonymous" token so the principal is never null.
+                                  ---------------------------------------------------------------
+                              */
+                              .authorizeHttpRequests(requests -> requests
+                                  // Public pages — anyone (including anonymous) can access
+                                  .requestMatchers("/", "/welcome", "/css/**", "/js/**").permitAll()                
+
+                                  // Any authenticated user (not anonymous)
+                                  .anyRequest().authenticated()  
+                                  
+                              );            
+
+                          return http.build(); // build the SecurityFilterChain
+
+                          /*
+                              Note: We don't configure CorsConfiguration, implement role-based 
+                              access control, or any authentication, because those topics will be
+                              demonstrated in other sections.
+                          */
+                      {{ '}' }}
+                      
+                  {{ '}' }}                
+                </code>
+              </pre>
+                <p>
+                  On its own, the above configuration doesn't do a great deal.
+                  That said, these were the foundational concepts that gave me
+                  my first real foothold in both cybersecurity and Spring. But
+                  if Spring Security were limited to just that, it wouldn't have
+                  made it into this project. There is much more to it. Other key
+                  topics that fall under the Spring Security umbrella — and that
+                  are relevant to this project — include:
+                </p>
+                <p>
+                  <strong>Filter Chains</strong> – Filter chains with their own
+                  unique rules, responses, and behaviours.
+                  <br />
+                  <strong>CORS (Cross-Origin Resource Sharing)</strong> – An
+                  essential component for any site that takes security
+                  seriously.
+                  <br />
+                  <strong>JWT (JSON Web Token)</strong> – The first grant type I
+                  got to grips with.
+                  <br />
+                  <strong>Role Authorisation</strong> – Something I am still
+                  deepening my understanding of, but which will be put to use in
+                  this project.
                 </p>
               </ng-template>
             </div>

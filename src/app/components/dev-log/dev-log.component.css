@@ -6,3 +6,18 @@
     border-image-slice: 1;
 }
 
+.dev-log-code-block {
+  background-color: #1e1f2e;
+  color: #e0e0e0;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  padding: 1rem 1.25rem;
+  margin: 1rem 0;
+  overflow-x: auto;
+  white-space: pre;
+  border: 3px solid;
+  border-image: linear-gradient(90deg, rgba(0, 238, 255, 1) 0%, rgba(70, 155, 176, 1) 28%, rgba(98, 83, 237, 1) 100%);
+  border-image-slice: 1;
+}
+

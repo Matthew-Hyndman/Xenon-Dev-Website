@@ -1117,6 +1117,10 @@ tbody {
     visibility: visible !important;
     height: auto !important;
   }
+
+  .dev-log-accordion {
+  width: 100% !important;
+  }
 }
 
 @media (max-width:767px) {
