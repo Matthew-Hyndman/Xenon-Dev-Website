@@ -222,6 +222,1141 @@
           </div>
         </div>
       </div>
+
+      <!-- Custom Filter Chains -->
+      <div class="dev-log-accordion mt-2" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="dev-log-accordion-header">
+              Custom Filter Chains
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="dev-log-accordion-body">
+                <p>
+                  One of the most powerful aspects of Spring Security is the ability to define multiple,
+                  independent <strong>SecurityFilterChain</strong> beans — each with its own rules, matching
+                  criteria, and behaviour. This became essential once the backend grew beyond a single
+                  "lock everything down" policy. Different parts of the API genuinely needed different
+                  security models: some endpoints are public-facing, some are internal service-to-service
+                  calls, and others require full user authentication with role checks.
+                </p>
+                <p>
+                  The key insight is that Spring Security evaluates each chain in order by its
+                  <code>&#64;Order</code> value, and the first chain whose <code>securityMatcher</code>
+                  matches the incoming request wins — subsequent chains are not evaluated. This makes
+                  ordering critical. In the project, I defined a dedicated chain for the public health-check
+                  and actuator endpoints, a second chain for the OAuth2 resource server (JWT-protected API
+                  routes), and a fallback chain that rejects anything else:
+                </p>
+                <pre class="dev-log-code-block">
+                  <code>
+                  &#64;Configuration
+                  &#64;EnableWebSecurity
+                  public class SecurityConfig {{ '{' }}
+
+                      /*
+                       * Chain 1 — public / actuator endpoints.
+                       * Matched first (&#64;Order(1)) so Spring never runs JWT validation
+                       * against health-check calls.
+                       */
+                      &#64;Bean
+                      &#64;Order(1)
+                      public SecurityFilterChain publicFilterChain(HttpSecurity http) throws Exception {{ '{' }}
+                          http
+                              .securityMatcher("/actuator/**", "/api/public/**")
+                              .csrf(AbstractHttpConfigurer::disable)
+                              .authorizeHttpRequests(auth -> auth
+                                  .anyRequest().permitAll()
+                              );
+                          return http.build();
+                      {{ '}' }}
+
+                      /*
+                       * Chain 2 — JWT-protected API.
+                       * Validates the Bearer token on every request to /api/**.
+                       */
+                      &#64;Bean
+                      &#64;Order(2)
+                      public SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {{ '{' }}
+                          http
+                              .securityMatcher("/api/**")
+                              .csrf(AbstractHttpConfigurer::disable)
+                              .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                              .authorizeHttpRequests(auth -> auth
+                                  .anyRequest().authenticated()
+                              )
+                              .oauth2ResourceServer(oauth2 -> oauth2
+                                  .jwt(Customizer.withDefaults())
+                              );
+                          return http.build();
+                      {{ '}' }}
+
+                      /*
+                       * Chain 3 — catch-all fallback.
+                       * Anything that didn't match a previous chain is denied.
+                       */
+                      &#64;Bean
+                      &#64;Order(3)
+                      public SecurityFilterChain fallbackFilterChain(HttpSecurity http) throws Exception {{ '{' }}
+                          http
+                              .csrf(AbstractHttpConfigurer::disable)
+                              .authorizeHttpRequests(auth -> auth
+                                  .anyRequest().denyAll()
+                              );
+                          return http.build();
+                      {{ '}' }}
+                  {{ '}' }}
+                </code>
+              </pre>
+                <p>
+                  Splitting security concerns across chains kept each configuration small, readable, and
+                  independently testable. It also made it straightforward to add a new chain later — for
+                  example, a dedicated chain for webhook endpoints that verifies an HMAC signature rather
+                  than a Bearer token — without touching any of the existing chains.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CORS -->
+      <div class="dev-log-accordion mt-2" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="dev-log-accordion-header">
+              CORS
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="dev-log-accordion-body">
+                <p>
+                  Cross-Origin Resource Sharing (CORS) was one of those topics I had read about before
+                  but never truly understood until I ran into a wall of browser console errors telling me
+                  my Angular app couldn't talk to its own backend. The browser's same-origin policy blocks
+                  requests from one origin (e.g. <code>https://xenon-dev.com</code>) to a different origin
+                  (e.g. <code>https://api.xenon-dev.com</code>) unless the server explicitly opts in by
+                  sending the right response headers.
+                </p>
+                <p>
+                  In Spring Security, CORS is handled before any authentication filter runs. This matters
+                  because a browser sends a <strong>preflight OPTIONS request</strong> before the real
+                  request, and that preflight must be answered with a 200 OK — not a 401 Unauthorized.
+                  Getting this order of operations wrong is a very common source of confusion. The solution
+                  is to register a <code>CorsConfigurationSource</code> bean and wire it into the filter
+                  chain explicitly:
+                </p>
+                <pre class="dev-log-code-block">
+                  <code>
+                  &#64;Bean
+                  public CorsConfigurationSource corsConfigurationSource() {{ '{' }}
+                      CorsConfiguration config = new CorsConfiguration();
+
+                      // Allowed origins — lock this down to real domains in production
+                      config.setAllowedOrigins(List.of(
+                          "http://localhost:4200",          // Angular dev server
+                          "https://xenon-dev.com"           // Production frontend
+                      ));
+
+                      // HTTP methods the browser is allowed to use
+                      config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+
+                      // Headers the browser may send (Authorization carries the JWT)
+                      config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+
+                      // Allow the browser to read the Authorization header in responses
+                      config.setExposedHeaders(List.of("Authorization"));
+
+                      // Cache the preflight result for 1 hour (reduces OPTIONS round-trips)
+                      config.setMaxAge(3600L);
+
+                      // Required when the frontend sends cookies or Authorization headers
+                      config.setAllowCredentials(true);
+
+                      UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+                      source.registerCorsConfiguration("/**", config);
+                      return source;
+                  {{ '}' }}
+                </code>
+              </pre>
+                <p>
+                  A mistake I made early on was setting <code>allowedOrigins("*")</code> while also setting
+                  <code>allowCredentials(true)</code>. These two settings are mutually exclusive — browsers
+                  refuse wildcard origins when credentials are involved. The fix is always to enumerate
+                  exact origins. This forced me to think carefully about environment-specific configuration
+                  and led directly to how the project manages its environment variables today.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- JWT -->
+      <div class="dev-log-accordion mt-2" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="dev-log-accordion-header">
+              JWT
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="dev-log-accordion-body">
+                <p>
+                  JSON Web Tokens (JWTs) are the mechanism the project uses to prove identity across the
+                  boundary between the Angular frontend, the Spring Boot API, and Keycloak. A JWT is a
+                  compact, URL-safe string made up of three Base64URL-encoded parts separated by dots:
+                  a <strong>header</strong> (algorithm metadata), a <strong>payload</strong> (claims about
+                  the user), and a <strong>signature</strong> (cryptographic proof that the token hasn't
+                  been tampered with).
+                </p>
+                <p>
+                  In this project, Keycloak issues the tokens. The Angular app obtains an access token
+                  after the user logs in and attaches it to every API request as a
+                  <code>Bearer</code> token in the <code>Authorization</code> header. The Spring Boot
+                  resource server then validates the token without contacting Keycloak on every request —
+                  it does this by fetching Keycloak's public keys from the JWKS endpoint once and caching
+                  them locally. Configuring the resource server requires only a single property pointing
+                  at the issuer URI:
+                </p>
+                <pre class="dev-log-code-block">
+                  <code>
+                  # application.properties
+                  spring.security.oauth2.resourceserver.jwt.issuer-uri=\
+                      http://localhost:8080/realms/Xenon-Dev-DEV-ENV
+
+                  # Spring auto-discovers the JWKS URI from the issuer's
+                  # OpenID Connect discovery document at:
+                  # {{ '{' }}issuer-uri{{ '}' }}/.well-known/openid-configuration
+                </code>
+              </pre>
+                <p>
+                  On the Spring side, enabling JWT validation in the filter chain is then just one line:
+                </p>
+                <pre class="dev-log-code-block">
+                  <code>
+                  .oauth2ResourceServer(oauth2 -> oauth2
+                      .jwt(jwt -> jwt
+                          // Optional: customise how claims are mapped to Spring's
+                          // GrantedAuthority list (e.g. extracting Keycloak realm roles)
+                          .jwtAuthenticationConverter(keycloakJwtAuthenticationConverter())
+                      )
+                  )
+                </code>
+              </pre>
+                <p>
+                  One thing worth noting is that JWTs are <strong>stateless</strong>. The server never
+                  stores them — which means revoking a token before it expires requires extra work (a token
+                  blacklist or short expiry windows). For this project I settled on short-lived access
+                  tokens (5 minutes) combined with Keycloak's refresh token flow, which strikes a reasonable
+                  balance between security and usability.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Client Secret Management -->
+      <div class="dev-log-accordion mt-2" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="dev-log-accordion-header">
+              Client Secret Management
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="dev-log-accordion-body">
+                <p>
+                  One of the earliest and most important lessons in building a real backend is:
+                  <strong>secrets do not belong in source code</strong>. This sounds obvious, but in
+                  practice it is surprisingly easy to slip a database password or API key into an
+                  <code>application.properties</code> file and commit it. I set up a workflow from the
+                  very beginning to ensure this never happened in the Xenon Dev project.
+                </p>
+                <p>
+                  The strategy is layered. Locally, sensitive values live in a
+                  <code>application-local.properties</code> file that is listed in <code>.gitignore</code>
+                  and never committed. Spring Boot is told to activate the <code>local</code> profile during
+                  development, so it picks up those values automatically without any changes to the tracked
+                  files. For the deployed environment, the values are injected as environment variables by
+                  AWS, keeping them entirely outside the repository:
+                </p>
+                <pre class="dev-log-code-block">
+                  <code>
+                  # application.properties (committed — no secrets here)
+                  spring.datasource.url=$&#123;DB_URL&#125;
+                  spring.datasource.username=$&#123;DB_USERNAME&#125;
+                  spring.datasource.password=$&#123;DB_PASSWORD&#125;
+
+                  keycloak.client-secret=$&#123;KEYCLOAK_CLIENT_SECRET&#125;
+                  aws.ses.access-key=$&#123;AWS_SES_ACCESS_KEY&#125;
+                  aws.ses.secret-key=$&#123;AWS_SES_SECRET_KEY&#125;
+
+                  # -----------------------------------------------------------
+                  # application-local.properties (git-ignored — secrets live here locally)
+                  # -----------------------------------------------------------
+                  # spring.datasource.url=jdbc:mysql://localhost:3306/xenon_dev
+                  # spring.datasource.username=root
+                  # spring.datasource.password=supersecret
+                  # keycloak.client-secret=abc123...
+                </code>
+              </pre>
+                <p>
+                  The Keycloak client secret itself deserves special attention. In OAuth2, the
+                  <strong>client secret</strong> is the credential the backend uses to authenticate itself
+                  to Keycloak when exchanging an authorisation code for a token, or when using the
+                  client credentials flow for service-to-service calls. Leaking it would allow an attacker
+                  to impersonate the backend application entirely. Rotating it regularly and treating it
+                  with the same care as a database password is non-negotiable.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- REST API Design -->
+      <div class="dev-log-accordion mt-2" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="dev-log-accordion-header">
+              REST API Design
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="dev-log-accordion-body">
+                <p>
+                  Designing a clean REST API is harder than it looks. I started with a rough set of
+                  endpoints that "got the job done" but quickly realised they were inconsistent, hard to
+                  document, and awkward for the Angular frontend to consume. Taking a step back and
+                  applying RESTful conventions properly made an enormous difference to the maintainability
+                  of the project.
+                </p>
+                <p>
+                  The core principle is that URLs represent <strong>resources</strong> (nouns), not
+                  actions (verbs). HTTP methods carry the action semantics. Below is an example of the
+                  controller structure used for the user resource in this project:
+                </p>
+                <pre class="dev-log-code-block">
+                  <code>
+                  &#64;RestController
+                  &#64;RequestMapping("/api/users")
+                  public class UserController {{ '{' }}
+
+                      // GET /api/users          — list all users (paginated)
+                      &#64;GetMapping
+                      public Page&lt;UserDTO&gt; getUsers(Pageable pageable) {{ '{' }}
+                          return userService.findAll(pageable);
+                      {{ '}' }}
+
+                      // GET /api/users/&#123;id&#125;    — get a single user by ID
+                      &#64;GetMapping("/&#123;id&#125;")
+                      public UserDTO getUser(&#64;PathVariable Long id) {{ '{' }}
+                          return userService.findById(id);
+                      {{ '}' }}
+
+                      // POST /api/users         — create a new user
+                      &#64;PostMapping
+                      &#64;ResponseStatus(HttpStatus.CREATED) // 201 Created, not 200 OK
+                      public UserDTO createUser(&#64;RequestBody &#64;Valid CreateUserRequest request) {{ '{' }}
+                          return userService.create(request);
+                      {{ '}' }}
+
+                      // PUT /api/users/&#123;id&#125;    — replace a user (idempotent)
+                      &#64;PutMapping("/&#123;id&#125;")
+                      public UserDTO updateUser(&#64;PathVariable Long id,
+                                               &#64;RequestBody &#64;Valid UpdateUserRequest request) {{ '{' }}
+                          return userService.update(id, request);
+                      {{ '}' }}
+
+                      // DELETE /api/users/&#123;id&#125; — remove a user
+                      &#64;DeleteMapping("/&#123;id&#125;")
+                      &#64;ResponseStatus(HttpStatus.NO_CONTENT) // 204, no body
+                      public void deleteUser(&#64;PathVariable Long id) {{ '{' }}
+                          userService.delete(id);
+                      {{ '}' }}
+                  {{ '}' }}
+                </code>
+              </pre>
+                <p>
+                  A few conventions I adopted across the whole API: always return DTOs rather than JPA
+                  entities directly (covered in its own section), use meaningful HTTP status codes
+                  (<code>201</code> for created, <code>204</code> for deleted, <code>404</code> with a
+                  consistent error body for not found), and version the API in the URL path
+                  (<code>/api/v1/...</code>) from the very beginning — it is far easier to version upfront
+                  than to retrofit it later when the Angular frontend already depends on a dozen endpoints.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- REST API Debugging -->
+      <div class="dev-log-accordion mt-2" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="dev-log-accordion-header">
+              REST API Debugging
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="dev-log-accordion-body">
+                <p>
+                  Debugging a REST API involves a different mindset to debugging a monolithic application.
+                  The problem could be anywhere in the chain: the Angular HTTP client, the network, the
+                  Spring Security filter, the controller, the service, or the database. Over the course of
+                  building this project I built up a systematic approach to narrowing down where things
+                  are going wrong quickly.
+                </p>
+                <p>
+                  My primary tool is <strong>Postman</strong>. By firing requests directly at the API
+                  (bypassing the Angular app entirely), I can immediately eliminate the frontend as the
+                  source of the problem. Postman also handles OAuth2 flows natively, so I can obtain a
+                  real Keycloak token and attach it to requests without writing a single line of code.
+                  For logging on the Spring side, I enable detailed request/response logging through a
+                  custom <code>OncePerRequestFilter</code>:
+                </p>
+                <pre class="dev-log-code-block">
+                  <code>
+                  &#64;Component
+                  public class RequestLoggingFilter extends OncePerRequestFilter {{ '{' }}
+
+                      private static final Logger log =
+                          LoggerFactory.getLogger(RequestLoggingFilter.class);
+
+                      &#64;Override
+                      protected void doFilterInternal(HttpServletRequest request,
+                                                      HttpServletResponse response,
+                                                      FilterChain filterChain)
+                              throws ServletException, IOException {{ '{' }}
+
+                          long start = System.currentTimeMillis();
+
+                          try {{ '{' }}
+                              filterChain.doFilter(request, response);
+                          {{ '}' }} finally {{ '{' }}
+                              long duration = System.currentTimeMillis() - start;
+                              log.info("[&#123;&#125;] &#123;&#125; &#123;&#125; -> &#123;&#125; (&#123;&#125;ms)",
+                                  request.getRemoteAddr(),
+                                  request.getMethod(),
+                                  request.getRequestURI(),
+                                  response.getStatus(),
+                                  duration);
+                          {{ '}' }}
+                      {{ '}' }}
+                  {{ '}' }}
+                </code>
+              </pre>
+                <p>
+                  For Spring Security specifically, the most useful debugging property is
+                  <code>logging.level.org.springframework.security=TRACE</code>. This floods the console
+                  with output, but it shows exactly which filters ran, which ones voted, and why a request
+                  was ultimately permitted or denied. I only enable it locally when actively investigating
+                  a security-related issue — leaving it on in any other environment would be a
+                  confidentiality risk. Pairing this with the browser's Network tab to inspect the raw
+                  request and response headers gives a complete picture of what is happening at every layer.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- IAM Authorisation -->
+      <div class="dev-log-accordion mt-2" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="dev-log-accordion-header">
+              IAM Authorisation
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="dev-log-accordion-body">
+                <p>
+                  Identity and Access Management (IAM) is the discipline of deciding <em>who</em> can
+                  do <em>what</em> on <em>which</em> resource. In this project, IAM is implemented through
+                  a combination of Keycloak (which handles authentication and issues JWTs carrying identity
+                  claims) and Spring Security (which enforces authorisation rules on each endpoint based on
+                  those claims).
+                </p>
+                <p>
+                  The critical bridge between the two is the <strong>JWT authentication converter</strong>.
+                  Keycloak encodes the user's roles inside the token under a non-standard claim path
+                  (<code>realm_access.roles</code>), whereas Spring Security expects
+                  <code>GrantedAuthority</code> objects prefixed with <code>ROLE_</code>. Without a custom
+                  converter, Spring simply wouldn't see any roles in the token and would deny every
+                  role-restricted endpoint. The converter unwraps the Keycloak claim and maps it to
+                  Spring's format:
+                </p>
+                <pre class="dev-log-code-block">
+                  <code>
+                  &#64;Component
+                  public class KeycloakJwtAuthenticationConverter
+                          implements Converter&lt;Jwt, AbstractAuthenticationToken&gt; {{ '{' }}
+
+                      private final JwtGrantedAuthoritiesConverter defaultConverter =
+                          new JwtGrantedAuthoritiesConverter();
+
+                      &#64;Override
+                      public AbstractAuthenticationToken convert(Jwt jwt) {{ '{' }}
+                          // Extract standard scopes (e.g. SCOPE_openid) via the default converter
+                          Collection&lt;GrantedAuthority&gt; authorities =
+                              new ArrayList&lt;&gt;(defaultConverter.convert(jwt));
+
+                          // Extract Keycloak realm roles from realm_access.roles
+                          Map&lt;String, Object&gt; realmAccess =
+                              jwt.getClaimAsMap("realm_access");
+
+                          if (realmAccess != null && realmAccess.containsKey("roles")) {{ '{' }}
+                              List&lt;?&gt; roles = (List&lt;?&gt;) realmAccess.get("roles");
+                              roles.stream()
+                                  .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+                                  .forEach(authorities::add);
+                          {{ '}' }}
+
+                          return new JwtAuthenticationToken(jwt, authorities,
+                              jwt.getClaimAsString("preferred_username"));
+                      {{ '}' }}
+                  {{ '}' }}
+                </code>
+              </pre>
+                <p>
+                  With this converter in place, the JWT arriving from Keycloak is fully understood by
+                  Spring Security. Downstream, the controller can use standard Spring annotations such as
+                  <code>&#64;PreAuthorize("hasRole('ADMIN')")</code> to enforce fine-grained access control,
+                  and the identity of the authenticated user is available anywhere in the request via
+                  the <code>SecurityContextHolder</code> — without any additional calls to Keycloak.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Role Authorisation -->
+      <div class="dev-log-accordion mt-2" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="dev-log-accordion-header">
+              Role Authorisation
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="dev-log-accordion-body">
+                <p>
+                  Role-based access control (RBAC) is the layer on top of authentication that answers the
+                  question: "this user is who they say they are — but are they <em>allowed</em> to perform
+                  this action?" In this project, roles are defined in Keycloak and embedded in the JWT,
+                  then enforced in Spring Security at both the HTTP layer (filter chain rules) and the
+                  method layer (<code>&#64;PreAuthorize</code> annotations).
+                </p>
+                <p>
+                  The project currently defines three roles: <strong>USER</strong> (standard
+                  authenticated user), <strong>MODERATOR</strong> (elevated read access and the ability
+                  to manage content), and <strong>ADMIN</strong> (full access including user management
+                  endpoints). Applying these rules at the filter chain level covers the coarse-grained
+                  cases, while <code>&#64;PreAuthorize</code> handles fine-grained method-level security:
+                </p>
+                <pre class="dev-log-code-block">
+                  <code>
+                  // --- Filter chain (coarse-grained) ---
+                  .authorizeHttpRequests(auth -> auth
+                      .requestMatchers(HttpMethod.GET, "/api/v1/**").hasAnyRole("USER", "MODERATOR", "ADMIN")
+                      .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
+                      .requestMatchers("/api/v1/moderation/**").hasAnyRole("MODERATOR", "ADMIN")
+                      .anyRequest().authenticated()
+                  )
+
+                  // --- Method-level (fine-grained) ---
+                  &#64;Service
+                  public class UserManagementService {{ '{' }}
+
+                      // Only admins can delete users
+                      &#64;PreAuthorize("hasRole('ADMIN')")
+                      public void deleteUser(Long userId) {{ '{' }}
+                          userRepository.deleteById(userId);
+                      {{ '}' }}
+
+                      // A user can read their own profile; an admin can read any profile
+                      &#64;PreAuthorize("hasRole('ADMIN') or #username == authentication.name")
+                      public UserDTO getProfile(String username) {{ '{' }}
+                          return userRepository.findByUsername(username)
+                              .map(userMapper::toDTO)
+                              .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                      {{ '}' }}
+                  {{ '}' }}
+                </code>
+              </pre>
+                <p>
+                  The <code>&#64;PreAuthorize</code> expression on <code>getProfile</code> above
+                  demonstrates Spring's SpEL-based security expressions. The
+                  <code>#username == authentication.name</code> clause binds the method parameter to the
+                  currently authenticated principal — a clean way to enforce ownership rules without
+                  writing any conditional logic inside the method body itself. Enabling method security
+                  requires adding <code>&#64;EnableMethodSecurity</code> to the security configuration class.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Agent Task Management -->
+      <div class="dev-log-accordion mt-2" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="dev-log-accordion-header">
+              AI Agent Task Management
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="dev-log-accordion-body">
+                <p>
+                  One of the more experimental features in the backend integration branch is a lightweight
+                  <strong>AI agent task management</strong> system. The idea is that certain long-running
+                  or ambiguous tasks can be delegated to an AI agent (backed by an LLM API), which then
+                  breaks them down into sub-tasks, executes them asynchronously, and reports progress back
+                  to the application. This is an emerging architectural pattern often called an
+                  <em>agentic loop</em>.
+                </p>
+                <p>
+                  In practice the implementation is straightforward: each agent task is persisted as a
+                  database record with a status field (<code>PENDING</code>, <code>IN_PROGRESS</code>,
+                  <code>COMPLETED</code>, <code>FAILED</code>). A Spring <code>&#64;Async</code> service
+                  picks up pending tasks, calls the LLM API, updates the record, and emits a
+                  Server-Sent Event so the Angular frontend can show live progress. Below is the core
+                  task entity and the async execution flow:
+                </p>
+                <pre class="dev-log-code-block">
+                  <code>
+                  &#64;Entity
+                  &#64;Table(name = "agent_tasks")
+                  public class AgentTask {{ '{' }}
+
+                      &#64;Id &#64;GeneratedValue(strategy = GenerationType.IDENTITY)
+                      private Long id;
+
+                      &#64;Column(nullable = false)
+                      private String prompt;         // The instruction given to the agent
+
+                      &#64;Enumerated(EnumType.STRING)
+                      private TaskStatus status = TaskStatus.PENDING;
+
+                      &#64;Column(columnDefinition = "TEXT")
+                      private String result;          // LLM response stored on completion
+
+                      private LocalDateTime createdAt = LocalDateTime.now();
+                      private LocalDateTime completedAt;
+                      // ... getters / setters
+                  {{ '}' }}
+
+                  // --- Async execution service ---
+                  &#64;Service
+                  public class AgentTaskService {{ '{' }}
+
+                      &#64;Async
+                      public CompletableFuture&lt;Void&gt; executeTask(AgentTask task) {{ '{' }}
+                          task.setStatus(TaskStatus.IN_PROGRESS);
+                          agentTaskRepository.save(task);
+
+                          try {{ '{' }}
+                              String result = llmClient.complete(task.getPrompt()); // call LLM
+                              task.setResult(result);
+                              task.setStatus(TaskStatus.COMPLETED);
+                          {{ '}' }} catch (Exception e) {{ '{' }}
+                              task.setStatus(TaskStatus.FAILED);
+                          {{ '}' }} finally {{ '{' }}
+                              task.setCompletedAt(LocalDateTime.now());
+                              agentTaskRepository.save(task);
+                              sseEmitterService.broadcast(task); // push update to frontend
+                          {{ '}' }}
+
+                          return CompletableFuture.completedFuture(null);
+                      {{ '}' }}
+                  {{ '}' }}
+                </code>
+              </pre>
+                <p>
+                  Using <code>&#64;Async</code> with a dedicated thread pool prevents the LLM call (which
+                  can take several seconds) from blocking the request thread. The SSE emitter broadcasts
+                  the completed task to any connected Angular clients so the UI updates in real time —
+                  no polling required.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AWS SES -->
+      <div class="dev-log-accordion mt-2" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="dev-log-accordion-header">
+              AWS SES
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="dev-log-accordion-body">
+                <p>
+                  AWS Simple Email Service (SES) is the transactional email layer for this project. It
+                  handles emails like account verification, password reset links, and notification
+                  messages. I chose SES over alternatives because the project is already hosted on AWS,
+                  meaning IAM roles can be used to grant the application permission to send emails
+                  without storing long-lived API keys in the application itself (when running in a
+                  properly configured EC2 or ECS environment).
+                </p>
+                <p>
+                  Integration is done through the AWS SDK v2 for Java. The
+                  <code>SesClient</code> is configured as a Spring bean, and a thin service wraps the
+                  SDK calls to keep the rest of the application decoupled from AWS specifics:
+                </p>
+                <pre class="dev-log-code-block">
+                  <code>
+                  &#64;Configuration
+                  public class AwsSesConfig {{ '{' }}
+
+                      &#64;Bean
+                      public SesClient sesClient(
+                              &#64;Value("$&#123;aws.ses.region&#125;") String region,
+                              &#64;Value("$&#123;aws.ses.access-key&#125;") String accessKey,
+                              &#64;Value("$&#123;aws.ses.secret-key&#125;") String secretKey) {{ '{' }}
+
+                          return SesClient.builder()
+                              .region(Region.of(region))
+                              .credentialsProvider(StaticCredentialsProvider.create(
+                                  AwsBasicCredentials.create(accessKey, secretKey)))
+                              .build();
+                      {{ '}' }}
+                  {{ '}' }}
+
+                  // --- Email service ---
+                  &#64;Service
+                  public class EmailService {{ '{' }}
+
+                      private final SesClient sesClient;
+
+                      &#64;Value("$&#123;aws.ses.sender-address&#125;")
+                      private String senderAddress;
+
+                      public void sendVerificationEmail(String toAddress, String verificationLink) {{ '{' }}
+                          SendEmailRequest request = SendEmailRequest.builder()
+                              .source(senderAddress)
+                              .destination(Destination.builder()
+                                  .toAddresses(toAddress)
+                                  .build())
+                              .message(Message.builder()
+                                  .subject(Content.builder()
+                                      .data("Verify your Xenon Dev account")
+                                      .build())
+                                  .body(Body.builder()
+                                      .html(Content.builder()
+                                          .data("&lt;p&gt;Click &lt;a href='" + verificationLink
+                                              + "'&gt;here&lt;/a&gt; to verify your account.&lt;/p&gt;")
+                                          .build())
+                                      .build())
+                                  .build())
+                              .build();
+
+                          sesClient.sendEmail(request);
+                      {{ '}' }}
+                  {{ '}' }}
+                </code>
+              </pre>
+                <p>
+                  Before SES will send emails to arbitrary addresses, the sending domain must be
+                  verified and the account must be moved out of the SES sandbox. During development, both
+                  the sender and recipient addresses need to be individually verified — a friction point
+                  worth knowing about early. In production, domain verification via a DNS TXT record
+                  unlocks sending to any address on that domain.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- JPA Repo -->
+      <div class="dev-log-accordion mt-2" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="dev-log-accordion-header">
+              JPA Repository
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="dev-log-accordion-body">
+                <p>
+                  Spring Data JPA repositories were one of the features that made me genuinely
+                  appreciate the Spring ecosystem. At its simplest, a JPA repository is an interface
+                  that Spring implements at runtime — you declare the methods you need and Spring writes
+                  the SQL for you. No boilerplate, no manual connection management, no result-set mapping.
+                </p>
+                <p>
+                  In the project I use a hierarchy of repository types depending on the complexity of
+                  the queries needed. <code>JpaRepository</code> covers the standard CRUD operations and
+                  pagination. For more complex queries I use JPQL with <code>&#64;Query</code> annotations,
+                  and for the most performance-sensitive paths I drop down to native SQL:
+                </p>
+                <pre class="dev-log-code-block">
+                  <code>
+                  &#64;Repository
+                  public interface UserRepository extends JpaRepository&lt;User, Long&gt; {{ '{' }}
+
+                      // Spring derives the SQL from the method name automatically
+                      Optional&lt;User&gt; findByEmail(String email);
+                      boolean existsByUsername(String username);
+
+                      // JPQL query — operates on JPA entities, not raw tables
+                      &#64;Query("SELECT u FROM User u WHERE u.role = :role AND u.active = true")
+                      List&lt;User&gt; findActiveUsersByRole(&#64;Param("role") Role role);
+
+                      // Native SQL for a complex aggregation — bypasses the JPA entity model
+                      &#64;Query(
+                          value = "SELECT u.username, COUNT(o.id) AS order_count " +
+                                  "FROM users u LEFT JOIN orders o ON o.user_id = u.id " +
+                                  "GROUP BY u.username " +
+                                  "ORDER BY order_count DESC LIMIT :limit",
+                          nativeQuery = true
+                      )
+                      List&lt;Object[]&gt; findTopUsersByOrderCount(&#64;Param("limit") int limit);
+                  {{ '}' }}
+                </code>
+              </pre>
+                <p>
+                  One pitfall I ran into early on was the <strong>N+1 query problem</strong>. When a JPA
+                  entity has a lazily-loaded relationship (e.g. a <code>User</code> has many
+                  <code>Orders</code>), fetching a list of 100 users and then accessing each user's orders
+                  triggers 101 queries — one for the user list and one per user. The fix is a
+                  <code>JOIN FETCH</code> in the JPQL query, or a
+                  <code>&#64;EntityGraph</code> annotation on the repository method, which tells JPA to
+                  fetch the related data in a single query.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DTOs -->
+      <div class="dev-log-accordion mt-2" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="dev-log-accordion-header">
+              DTOs
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="dev-log-accordion-body">
+                <p>
+                  A Data Transfer Object (DTO) is a plain object whose sole purpose is to carry data
+                  between layers of the application. In the context of this project, DTOs sit between
+                  the JPA entities (which mirror the database schema) and the REST API (which defines
+                  the public contract). This separation solves several real problems at once: it prevents
+                  accidentally exposing sensitive fields, it decouples the API contract from the database
+                  schema, and it gives a natural place to put input validation annotations.
+                </p>
+                <p>
+                  The project follows a convention of having separate DTOs for reads and writes —
+                  a response DTO (what the API sends out) and a request DTO (what the API accepts).
+                  Mapping between entity and DTO is done by a dedicated <code>Mapper</code> class rather
+                  than doing it inline in the controller or service:
+                </p>
+                <pre class="dev-log-code-block">
+                  <code>
+                  // --- Response DTO (what the API sends to the client) ---
+                  public record UserDTO(
+                      Long id,
+                      String username,
+                      String email,
+                      String role,
+                      LocalDateTime createdAt
+                      // Note: password hash is NOT included here
+                  ) {{ '{' }}{{ '}' }}
+
+                  // --- Request DTO (what the client sends to create a user) ---
+                  public record CreateUserRequest(
+                      &#64;NotBlank(message = "Username is required")
+                      &#64;Size(min = 3, max = 30, message = "Username must be 3-30 characters")
+                      String username,
+
+                      &#64;Email(message = "Must be a valid email address")
+                      &#64;NotBlank
+                      String email,
+
+                      &#64;NotBlank
+                      &#64;Size(min = 8, message = "Password must be at least 8 characters")
+                      String password
+                  ) {{ '{' }}{{ '}' }}
+
+                  // --- Mapper ---
+                  &#64;Component
+                  public class UserMapper {{ '{' }}
+
+                      public UserDTO toDTO(User user) {{ '{' }}
+                          return new UserDTO(
+                              user.getId(),
+                              user.getUsername(),
+                              user.getEmail(),
+                              user.getRole().name(),
+                              user.getCreatedAt()
+                          );
+                      {{ '}' }}
+
+                      public User toEntity(CreateUserRequest request) {{ '{' }}
+                          User user = new User();
+                          user.setUsername(request.username());
+                          user.setEmail(request.email());
+                          // Password is hashed in the service layer, not here
+                          return user;
+                      {{ '}' }}
+                  {{ '}' }}
+                </code>
+              </pre>
+                <p>
+                  Using Java records for DTOs (available since Java 16) keeps the code concise —
+                  the compiler generates the constructor, accessors, <code>equals</code>,
+                  <code>hashCode</code>, and <code>toString</code> automatically. The
+                  <code>&#64;Valid</code> annotation on the controller method parameter triggers Bean
+                  Validation on the incoming request DTO, and any violation automatically produces a
+                  400 Bad Request response with a descriptive error body — no manual validation code needed.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MySQL Views -->
+      <div class="dev-log-accordion mt-2" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="dev-log-accordion-header">
+              MySQL Views
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="dev-log-accordion-body">
+                <p>
+                  A MySQL view is a stored <code>SELECT</code> statement that acts like a virtual table.
+                  Querying a view looks identical to querying a real table, but the data is assembled on
+                  the fly from the underlying tables when the view is accessed. I introduced views in this
+                  project for two reasons: to simplify complex recurring queries that appeared in multiple
+                  places, and to provide a read-only, security-trimmed projection of data that could be
+                  exposed more freely than the raw tables.
+                </p>
+                <p>
+                  A practical example is the <code>v_user_order_summary</code> view used by the admin
+                  dashboard. Rather than writing the same multi-table join every time the dashboard data
+                  is needed, the join is defined once in the view, and every subsequent query becomes a
+                  simple <code>SELECT</code>:
+                </p>
+                <pre class="dev-log-code-block">
+                  <code>
+                  -- Create the view once (run as part of Flyway migration)
+                  CREATE OR REPLACE VIEW v_user_order_summary AS
+                  SELECT
+                      u.id          AS user_id,
+                      u.username,
+                      u.email,
+                      COUNT(o.id)   AS total_orders,
+                      COALESCE(SUM(o.total_amount), 0) AS lifetime_spend,
+                      MAX(o.created_at) AS last_order_date
+                  FROM users u
+                  LEFT JOIN orders o ON o.user_id = u.id
+                  GROUP BY u.id, u.username, u.email;
+
+                  -- Querying the view is as simple as a table read
+                  SELECT * FROM v_user_order_summary
+                  WHERE total_orders > 0
+                  ORDER BY lifetime_spend DESC
+                  LIMIT 10;
+                </code>
+              </pre>
+                <p>
+                  On the Spring side, views integrate cleanly with JPA by mapping them to a read-only
+                  entity annotated with <code>&#64;Immutable</code> (Hibernate). This tells Hibernate never
+                  to attempt an <code>INSERT</code> or <code>UPDATE</code> against the view, which
+                  prevents confusing runtime errors. Flyway, which the project uses for schema migrations,
+                  tracks view definitions just like table definitions, keeping the view always in sync
+                  with the application code.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MySQL Triggers -->
+      <div class="dev-log-accordion mt-2" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="dev-log-accordion-header">
+              MySQL Triggers
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="dev-log-accordion-body">
+                <p>
+                  A MySQL trigger is a piece of SQL that the database engine executes automatically in
+                  response to an <code>INSERT</code>, <code>UPDATE</code>, or <code>DELETE</code> on a
+                  specified table. Triggers enforce data integrity rules at the database level — meaning
+                  they fire regardless of which application, service, or tool modifies the data. This
+                  makes them a reliable safety net for invariants that must <em>always</em> hold.
+                </p>
+                <p>
+                  In this project, triggers are used for two things: maintaining an
+                  <strong>audit log</strong> (every change to a sensitive table is recorded automatically),
+                  and enforcing a <strong>soft-delete pattern</strong> that prevents hard deletes on the
+                  users table. Below is the audit log trigger used on the <code>orders</code> table:
+                </p>
+                <pre class="dev-log-code-block">
+                  <code>
+                  DELIMITER $$
+
+                  -- Fires after any UPDATE on the orders table and records
+                  -- the old and new values in the audit_log table.
+                  CREATE TRIGGER trg_orders_after_update
+                  AFTER UPDATE ON orders
+                  FOR EACH ROW
+                  BEGIN
+                      INSERT INTO audit_log (
+                          table_name,
+                          record_id,
+                          action,
+                          old_value,
+                          new_value,
+                          changed_at
+                      ) VALUES (
+                          'orders',
+                          OLD.id,
+                          'UPDATE',
+                          JSON_OBJECT(
+                              'status',       OLD.status,
+                              'total_amount', OLD.total_amount
+                          ),
+                          JSON_OBJECT(
+                              'status',       NEW.status,
+                              'total_amount', NEW.total_amount
+                          ),
+                          NOW()
+                      );
+                  END$$
+
+                  DELIMITER ;
+                </code>
+              </pre>
+                <p>
+                  One important caveat: because triggers run inside the database engine, they are
+                  invisible to the JPA layer — Hibernate has no knowledge that a trigger fired. This means
+                  the first-level cache can become stale after a triggered operation. The safest approach
+                  is to call <code>entityManager.refresh(entity)</code> after operations you know will
+                  fire a trigger that affects the same entity, or to structure the code so that
+                  Hibernate-managed entities and trigger-maintained data are in separate tables that
+                  never overlap in a single transaction.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Keycloak -->
+      <div class="dev-log-accordion mt-2" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="dev-log-accordion-header">
+              Keycloak
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="dev-log-accordion-body">
+                <p>
+                  Keycloak is the identity provider at the heart of the project's authentication
+                  architecture. It handles user registration, login, token issuance, token refresh, and
+                  logout — offloading all of that complexity from the application itself. Instead of
+                  building and maintaining a custom auth system (with all the security risks that entails),
+                  the Spring Boot backend acts purely as a resource server that trusts the JWTs that
+                  Keycloak signs.
+                </p>
+                <p>
+                  Setting up Keycloak for this project involved creating a <strong>realm</strong>
+                  (a namespace for users and clients), registering the Angular app and the Spring Boot
+                  API as separate <strong>clients</strong>, and defining the realm roles that map to the
+                  application's access control model. The Angular client uses the
+                  <strong>Authorization Code + PKCE</strong> flow — the most secure flow for
+                  public clients (browser apps that cannot safely store a client secret):
+                </p>
+                <pre class="dev-log-code-block">
+                  <code>
+                  // xenon-dev-config.ts — Keycloak connection settings (Angular)
+                  export default {{ '{' }}
+                      keycloak: {{ '{' }}
+                          local: {{ '{' }}
+                              url:      'http://localhost:8080',
+                              realm:    'Xenon-Dev-DEV-ENV',
+                              clientId: 'xenon-dev-oauth2-client-dev-env-id'
+                              // No client secret — public PKCE client
+                          {{ '}' }}
+                      {{ '}' }}
+                  {{ '}' }};
+
+                  // keycloak.service.ts — initialise Keycloak before the Angular app bootstraps
+                  &#64;Injectable({{ '{' }} providedIn: 'root' {{ '}' }})
+                  export class KeycloakInitService {{ '{' }}
+
+                      constructor(private keycloak: KeycloakService) {{ '{' }}{{ '}' }}
+
+                      init(): Promise&lt;boolean&gt; {{ '{' }}
+                          return this.keycloak.init({{ '{' }}
+                              config: {{ '{' }}
+                                  url:      environment.localKeycloakURL,
+                                  realm:    xenonDevConfig.keycloak.local.realm,
+                                  clientId: xenonDevConfig.keycloak.local.clientId
+                              {{ '}' }},
+                              initOptions: {{ '{' }}
+                                  onLoad:              'check-sso',   // don't force login on every page load
+                                  silentCheckSsoRedirectUri:
+                                      window.location.origin + '/assets/silent-check-sso.html'
+                              {{ '}' }}
+                          {{ '}' }});
+                      {{ '}' }}
+                  {{ '}' }}
+                </code>
+              </pre>
+                <p>
+                  The <code>check-sso</code> init option means the app silently checks whether the user
+                  already has an active Keycloak session (via an iframe) rather than redirecting them
+                  to the login page immediately. This gives the app a smooth experience — logged-in users
+                  land on the page they requested, while unauthenticated users see the public content
+                  until they explicitly choose to log in. Protected routes are guarded by an Angular
+                  <code>CanActivate</code> guard that checks the Keycloak token and redirects to the
+                  Keycloak login page if the token is absent or expired.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
