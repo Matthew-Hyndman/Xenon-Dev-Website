@@ -7,8 +7,8 @@
 }
 
 .dev-log-code-block {
-  background-color: #1e1f2e;
-  color: #e0e0e0;
+  background-color: #1e1e1e;
+  color: #d4d4d4;
   font-family: 'Courier New', Courier, monospace;
   font-size: 0.875rem;
   line-height: 1.6;
@@ -19,5 +19,60 @@
   border: 3px solid;
   border-image: linear-gradient(90deg, rgba(0, 238, 255, 1) 0%, rgba(70, 155, 176, 1) 28%, rgba(98, 83, 237, 1) 100%);
   border-image-slice: 1;
+}
+
+/* VS Code Dark+ (2019-style) syntax colours */
+.dev-log-code-block code.hljs {
+  color: #d4d4d4;
+}
+
+.dev-log-code-block .hljs-keyword,
+.dev-log-code-block .hljs-selector-tag,
+.dev-log-code-block .hljs-literal,
+.dev-log-code-block .hljs-type {
+  color: #569cd6;
+}
+
+.dev-log-code-block .hljs-title,
+.dev-log-code-block .hljs-title.class_,
+.dev-log-code-block .hljs-title.function_ {
+  color: #dcdcaa;
+}
+
+.dev-log-code-block .hljs-string,
+.dev-log-code-block .hljs-attr,
+.dev-log-code-block .hljs-template-variable {
+  color: #ce9178;
+}
+
+.dev-log-code-block .hljs-number,
+.dev-log-code-block .hljs-symbol,
+.dev-log-code-block .hljs-bullet {
+  color: #b5cea8;
+}
+
+.dev-log-code-block .hljs-meta,
+.dev-log-code-block .hljs-meta .hljs-keyword,
+.dev-log-code-block .hljs-annotation {
+  color: #c586c0;
+}
+
+.dev-log-code-block .hljs-built_in,
+.dev-log-code-block .hljs-class .hljs-title,
+.dev-log-code-block .hljs-title.class_ {
+  color: #4ec9b0;
+}
+
+.dev-log-code-block .hljs-variable,
+.dev-log-code-block .hljs-property,
+.dev-log-code-block .hljs-params,
+.dev-log-code-block .hljs-name {
+  color: #9cdcfe;
+}
+
+.dev-log-code-block .hljs-comment,
+.dev-log-code-block .hljs-quote {
+  color: #6a9955;
+  font-style: italic;
 }
 

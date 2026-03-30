@@ -1224,3 +1224,9 @@ tbody {
   color: #000;
   padding: 10px;
 }
+
+  /* highlight.js — keep background/padding set on the <pre>, not the <code> */
+  .dev-log-code-block code.hljs {
+    background: transparent;
+    padding: 0;
+  }

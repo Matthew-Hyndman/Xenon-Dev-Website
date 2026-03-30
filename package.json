@@ -25,6 +25,7 @@
     "aws-amplify": "^6.16.0",
     "bootstrap": "^5.3.5",
     "brace-expansion": "^4.0.1",
+    "highlight.js": "^11.11.1",
     "jsonpath-plus": "^10.3.0",
     "keycloak-angular": "^19.0.2",
     "keycloak-js": "^22.0.5",
