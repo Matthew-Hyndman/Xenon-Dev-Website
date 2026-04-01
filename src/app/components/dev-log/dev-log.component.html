@@ -3,6 +3,688 @@
     <div class="container-fulid">
       <h1>Dev Blog</h1>
 
+      <!-- Phase 1 -->
+      <h2>Phase 1 completed</h2>
+      <p>
+        Phase 1 was where it all started. The objective was straightforward:
+        build a functional, publicly deployed frontend that demonstrated real
+        engineering decisions rather than a throw-away prototype. In this phase,
+        I focused on establishing a solid foundation — learning how to deploy an
+        Angular application through AWS Amplify, getting to grips with the
+        Angular framework itself, and applying disciplined HTML, CSS,
+        TypeScript, and JavaScript practices throughout. The entries below
+        document the key tools and topics I worked through, the problems I
+        encountered, and the decisions that shaped the production site you are
+        reading now.
+      </p>
+
+      <!-- AWS Amplify -->
+      <div class="dev-log-accordion" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="dev-log-accordion-header">
+              AWS Amplify
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="dev-log-accordion-body">
+                <p>
+                  Choosing a deployment platform for Phase 1 required something
+                  that could handle a CI/CD pipeline without requiring a
+                  dedicated DevOps background to configure from scratch. AWS
+                  Amplify was the clear choice: it integrates directly with a
+                  GitHub repository, automatically rebuilds and deploys on every
+                  push to a tracked branch, and handles HTTPS, CDN distribution,
+                  and custom domain configuration out of the box.
+                </p>
+                <p>
+                  The setup process itself surfaced an important principle early
+                  on: the environment you deploy to is rarely identical to your
+                  local development environment. Node version mismatches and
+                  missing environment-specific settings caused the first several
+                  builds to fail before the pipeline was stable. Resolving this
+                  required pinning the Node version explicitly inside
+                  <code>amplify.yml</code> and aligning the build command with
+                  the Angular production configuration. Once those details were
+                  locked in, every subsequent push to the tracked branch
+                  deployed automatically without manual intervention — which is
+                  precisely the value of a well-configured pipeline.
+                </p>
+                <p>
+                  Amplify also introduced me to the concept of separating branch
+                  environments. The <strong>main</strong> branch maps to the
+                  public-facing production site, while the
+                  <strong>Dev</strong> branch maps to a private preview
+                  environment — a pattern that was later formalised as part of
+                  the branching strategy described in the Phase 2 entry on
+                  GitHub team management tools.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- amplify.yml -->
+      <div class="dev-log-accordion mt-2" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="dev-log-accordion-header">
+              amplify.yml
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="dev-log-accordion-body">
+                <p>
+                  <code>amplify.yml</code> is the build specification file that
+                  tells AWS Amplify exactly how to install, build, and package
+                  the application during each deployment. Without it, Amplify
+                  falls back to auto-detected defaults — which are rarely
+                  correct for a project with specific Node version requirements
+                  or custom build flags.
+                </p>
+                <p>
+                  The version I arrived at after several failed builds looks
+                  like this:
+                </p>
+                <pre class="dev-log-code-block">
+                  <code class="language-yaml">
+                  version: 1
+                  frontend:
+                    phases:
+                      preBuild:
+                        commands:
+                          - nvm use 20         # pin node version to match local dev
+                          - npm ci             # clean install — reproducible builds
+                      build:
+                        commands:
+                          - npm run build      # runs ng build --configuration production
+                    artifacts:
+                      baseDirectory: dist/amplify-angular-template-test/browser
+                      files:
+                        - '**/*'
+                    cache:
+                      paths:
+                        - node_modules/**/*   # cache dependencies between builds
+                </code>
+              </pre>
+                <p>
+                  A few things are worth highlighting here. Using
+                  <code>npm ci</code> rather than
+                  <code>npm install</code> ensures that every build installs
+                  dependencies exactly as specified in
+                  <code>package-lock.json</code>, eliminating the risk of a
+                  dependency version drifting between deploys. The
+                  <code>baseDirectory</code> must point to the exact output
+                  folder Angular generates — getting this wrong produces a
+                  deployment that serves a blank page with no obvious error in
+                  the Amplify console. These were the kind of small but critical
+                  details that Phase 1 taught me to pay close attention to.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sweet Alert 2 -->
+      <div class="dev-log-accordion mt-2" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="dev-log-accordion-header">
+              Sweet Alert 2
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="dev-log-accordion-body">
+                <p>
+                  The native browser <code>alert()</code>,
+                  <code>confirm()</code>, and <code>prompt()</code> dialogs are
+                  functional but visually inconsistent with a polished frontend.
+                  SweetAlert2 replaces them with fully customisable, animated
+                  modal dialogs that can be styled to match the rest of the
+                  application. Integrating it into the Angular project was
+                  straightforward via NPM:
+                </p>
+                <pre class="dev-log-code-block">
+                  <code class="language-bash">
+                  npm install sweetalert2
+                </code>
+              </pre>
+                <p>
+                  From there, calling a dialog is a single import and a
+                  promise-based API call:
+                </p>
+                <pre class="dev-log-code-block">
+                  <code class="language-typescript">
+                  import Swal from 'sweetalert2';
+
+                  Swal.fire({{ '{' }}
+                    title: 'Are you sure?',
+                    text: 'This action cannot be undone.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, proceed',
+                    cancelButtonText: 'Cancel'
+                  {{ '}' }}).then((result) => {{ '{' }}
+                    if (result.isConfirmed) {{ '{' }}
+                      // handle confirmation
+                    {{ '}' }}
+                  {{ '}' }});
+                </code>
+              </pre>
+                <p>
+                  Beyond aesthetics, SweetAlert2 encourages better UX habits.
+                  Replacing a raw <code>confirm()</code> with a styled dialog
+                  that clearly names the action being confirmed reduces the
+                  chance of a user dismissing a destructive prompt without
+                  reading it. It is a small detail, but it reflects the broader
+                  principle that production-quality UX is built from many small
+                  deliberate decisions.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HTML -->
+      <div class="dev-log-accordion mt-2" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="dev-log-accordion-header">
+              HTML
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="dev-log-accordion-body">
+                <p>
+                  HTML forms the structural backbone of every page on this site.
+                  While it is tempting to treat HTML as trivial — it is, after
+                  all, the starting point for most web developers — writing
+                  clean, semantic HTML has a measurable impact on accessibility,
+                  SEO, and the long-term maintainability of a project. Phase 1
+                  reinforced a discipline of reaching for the correct semantic
+                  element rather than defaulting to
+                  <code>&lt;div&gt;</code> for everything.
+                </p>
+                <p>
+                  In an Angular context, HTML templates also carry
+                  framework-specific responsibility. Data binding, event
+                  handling, structural directives, and component composition all
+                  live in the template layer. Getting comfortable with Angular's
+                  template syntax — particularly the distinction between
+                  property binding <code>[property]</code>, event binding
+                  <code>(event)</code>, and two-way binding
+                  <code>[(ngModel)]</code> — was an early focus that paid
+                  dividends throughout the rest of the phase.
+                </p>
+                <p>
+                  One pattern that proved especially useful was decomposing
+                  pages into small, focused components with clear input and
+                  output contracts. This keeps individual templates short and
+                  readable, and it mirrors the separation of concerns principle
+                  that applies equally on the backend.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CSS – Animations -->
+      <div class="dev-log-accordion mt-2" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="dev-log-accordion-header">
+              CSS – Animations
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="dev-log-accordion-body">
+                <p>
+                  Animations are one of the areas where a site's perceived
+                  quality is most immediately felt. An abrupt transition between
+                  states — a button that changes colour in a single frame, a
+                  panel that appears instantaneously — reads as unfinished.
+                  Thoughtfully applied CSS animations and transitions smooth
+                  those state changes and give the interface a sense of
+                  responsiveness and physicality.
+                </p>
+                <p>
+                  The approach used throughout this project relies primarily on
+                  CSS
+                  <code>transition</code> for hover states and simple property
+                  changes, and <code>&#64;keyframes</code> for entrance and
+                  loading animations:
+                </p>
+                <pre class="dev-log-code-block">
+                  <code class="language-css">
+                  /* Smooth hover transition on nav links */
+                  .nav-link {{ '{' }}
+                    color: var(--text-secondary);
+                    transition: color 0.2s ease, border-bottom 0.2s ease;
+                  {{ '}' }}
+
+                  .nav-link:hover {{ '{' }}
+                    color: var(--accent);
+                    border-bottom: 2px solid var(--accent);
+                  {{ '}' }}
+
+                  /* Entrance animation for page content */
+                  &#64;keyframes fadeSlideIn {{ '{' }}
+                    from {{ '{' }}
+                      opacity: 0;
+                      transform: translateY(12px);
+                    {{ '}' }}
+                    to {{ '{' }}
+                      opacity: 1;
+                      transform: translateY(0);
+                    {{ '}' }}
+                  {{ '}' }}
+
+                  .main-content {{ '{' }}
+                    animation: fadeSlideIn 0.35s ease forwards;
+                  {{ '}' }}
+                </code>
+              </pre>
+                <p>
+                  One discipline that Phase 1 established early was restraint.
+                  Animation should serve the user, not distract them. Every
+                  animation in this project has a duration of 0.35 seconds or
+                  less for interactive elements, and entrance animations are
+                  used sparingly — only where they reinforce the structure of
+                  the content rather than simply adding visual noise.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CSS – Layout -->
+      <div class="dev-log-accordion mt-2" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="dev-log-accordion-header">
+              CSS – Layout
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="dev-log-accordion-body">
+                <p>
+                  Layout is the most consequential CSS decision in any project.
+                  Getting it wrong produces pages that break on certain screen
+                  sizes, require excessive overrides to adjust, and become
+                  increasingly difficult to maintain as the component tree
+                  grows. Phase 1 established a consistent layout system built on
+                  CSS Flexbox and Grid, with a clear convention for when to use
+                  each.
+                </p>
+                <p>
+                  Flexbox handles one-dimensional alignment — navigation bars,
+                  card rows, and any component where items need to be
+                  distributed along a single axis. Grid handles two-dimensional
+                  page structure — the overall page shell, multi-column content
+                  areas, and responsive section arrangements. Keeping this
+                  distinction consistent throughout the codebase prevents the
+                  situation where layout rules fight each other and produce
+                  unpredictable results at certain viewport sizes.
+                </p>
+                <p>
+                  Responsive design was built in from the start rather than
+                  retrofitted. All layout breakpoints use relative units and
+                  <code>clamp()</code> where appropriate to allow fluid scaling
+                  between viewport sizes, reducing the number of explicit media
+                  queries needed to maintain a usable layout across devices. The
+                  result is a site that renders cleanly on both desktop and
+                  mobile without a separate mobile stylesheet.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- JavaScript -->
+      <div class="dev-log-accordion mt-2" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="dev-log-accordion-header">
+              JavaScript
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="dev-log-accordion-body">
+                <p>
+                  JavaScript underpins every interactive behaviour on the
+                  frontend. In an Angular project, most of that logic is written
+                  in TypeScript — but a solid grounding in the JavaScript
+                  runtime is still essential. Angular's compilation model,
+                  change detection, and asynchronous data flows all depend on
+                  JavaScript fundamentals that are easy to overlook when working
+                  exclusively at the framework level.
+                </p>
+                <p>
+                  Two areas received the most attention during Phase 1. The
+                  first was the event loop and asynchronous execution model —
+                  understanding why
+                  <code>Promise</code> callbacks and
+                  <code>async/await</code> behave differently from synchronous
+                  code, and how Angular's zone-based change detection interacts
+                  with asynchronous operations. The second was the module
+                  system: understanding the difference between ES modules and
+                  CommonJS, and how Angular's build pipeline resolves and
+                  bundles imports.
+                </p>
+                <p>
+                  Working through these fundamentals made debugging
+                  significantly more productive. Rather than treating unexpected
+                  behaviour as framework magic, having a mental model of the
+                  runtime made it possible to reason about what was actually
+                  happening — which is ultimately the difference between
+                  guessing at a fix and understanding why it works.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TypeScript -->
+      <div class="dev-log-accordion mt-2" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="dev-log-accordion-header">
+              TypeScript
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="dev-log-accordion-body">
+                <p>
+                  TypeScript is the language Angular is written in and the
+                  language this project uses throughout the frontend. The core
+                  value it provides over plain JavaScript is static typing — the
+                  ability to describe the shape of data at compile time rather
+                  than discovering type errors at runtime in a user's browser.
+                  The practical effect is that a large class of bugs is caught
+                  before the application is ever deployed.
+                </p>
+                <p>
+                  In Phase 1, the most immediate benefit was when working with
+                  API response shapes and component inputs. Defining an
+                  interface for each data structure the frontend handles means
+                  that typos in property names and incorrect assumptions about
+                  nullable fields are caught immediately by the compiler:
+                </p>
+                <pre class="dev-log-code-block">
+                  <code class="language-typescript">
+                  export interface NavLink {{ '{' }}
+                    label: string;
+                    route: string;
+                    icon?: string;          // optional — not all links have icons
+                    requiresAuth: boolean;
+                  {{ '}' }}
+
+                  // Any component consuming NavLink is guaranteed these properties exist.
+                  // Accessing navLink.rout (a typo) is a compile error, not a runtime one.
+                </code>
+              </pre>
+                <p>
+                  The <code>tsconfig.json</code> configuration was also tuned
+                  during this phase. Enabling <code>strict</code> mode enforces
+                  the most useful group of type-checking options in a single
+                  flag — including strict null checks, which prevent the common
+                  mistake of treating a potentially-undefined value as though it
+                  is always defined. These constraints add a small amount of
+                  friction during initial development but significantly reduce
+                  the time spent debugging production issues.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Optimisation -->
+      <div class="dev-log-accordion mt-2" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="dev-log-accordion-header">
+              Optimisation
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="dev-log-accordion-body">
+                <p>
+                  A site that works correctly but loads slowly or wastes
+                  resources is not production-ready. Optimisation was treated as
+                  a first-class concern throughout Phase 1 rather than something
+                  to address after launch. The two primary areas were bundle
+                  size and image delivery.
+                </p>
+                <p>
+                  Angular's production build applies tree-shaking and
+                  minification automatically, but bundle size can still grow
+                  significantly if third-party libraries are imported
+                  carelessly. Importing an entire utility library to use a
+                  single function is a common source of unnecessary weight. The
+                  discipline established in Phase 1 is to import only what is
+                  explicitly needed and to evaluate the bundle cost of any new
+                  dependency before adding it to <code>package.json</code>.
+                </p>
+                <p>
+                  Image optimisation had an equally large impact on load time.
+                  Serving uncompressed <code>.png</code> files for every asset
+                  was the first thing identified during a Lighthouse audit.
+                  Converting assets to <code>WebP</code> format and applying
+                  lazy loading to images that appear below the fold reduced the
+                  initial page weight substantially. Lazy loading in Angular is
+                  handled with a single attribute on the image element:
+                </p>
+                <pre class="dev-log-code-block">
+                  <code class="language-html">
+                  &lt;img
+                    src="/assets/images/example.webp"
+                    alt="Descriptive alt text"
+                    loading="lazy"
+                  /&gt;
+                </code>
+              </pre>
+                <p>
+                  Running a Lighthouse audit before every production release
+                  became a habit during this phase. It surfaces performance
+                  regressions early, well before users encounter them.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- angular.json -->
+      <div class="dev-log-accordion mt-2" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="dev-log-accordion-header">
+              angular.json
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="dev-log-accordion-body">
+                <p>
+                  <code>angular.json</code> is Angular's workspace configuration
+                  file. It defines build targets, asset paths, style inclusions,
+                  environment file mappings, and the configuration differences
+                  between development and production builds. Understanding it
+                  thoroughly — rather than treating it as boilerplate to leave
+                  untouched — was necessary early in Phase 1.
+                </p>
+                <p>
+                  The most consequential section is the
+                  <code>configurations</code> block inside the
+                  <code>build</code> target. This is where the production build
+                  is given its environment file substitution, output hashing
+                  (for cache-busting on deploy), and bundle budget limits that
+                  warn or fail the build if the output exceeds a defined
+                  threshold:
+                </p>
+                <pre class="dev-log-code-block">
+                  <code class="language-json">
+                  "configurations": {{ '{' }}
+                    "production": {{ '{' }}
+                      "fileReplacements": [
+                        {{ '{' }}
+                          "replace": "src/environments/environment.ts",
+                          "with": "src/environments/environment.prod.ts"
+                        {{ '}' }}
+                      ],
+                      "outputHashing": "all",
+                      "budgets": [
+                        {{ '{' }}
+                          "type": "initial",
+                          "maximumWarning": "500kB",
+                          "maximumError": "1MB"
+                        {{ '}' }}
+                      ]
+                    {{ '}' }}
+                  {{ '}' }}
+                </code>
+              </pre>
+                <p>
+                  The bundle budget configuration turned out to be directly
+                  useful: after adding a syntax highlighting library in Phase 2,
+                  the initial bundle exceeded the warning threshold. Because the
+                  budget was in place from Phase 1, the regression was surfaced
+                  at build time rather than discovered later through a slow user
+                  experience.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Jasmine -->
+      <div class="dev-log-accordion mt-2" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="dev-log-accordion-header">
+              Jasmine
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="dev-log-accordion-body">
+                <p>
+                  Jasmine is the testing framework Angular projects use by
+                  default for unit tests. It provides a behaviour-driven syntax
+                  that keeps tests readable and close to the language of
+                  requirements. Establishing a test suite early in Phase 1 was a
+                  deliberate decision — retrofitting tests onto an untested
+                  codebase is significantly harder than building the habit from
+                  the start.
+                </p>
+                <p>
+                  The core pattern used throughout the project follows the
+                  <strong>Arrange, Act, Assert</strong> structure: set up the
+                  state, perform the operation, then verify the outcome:
+                </p>
+                <pre class="dev-log-code-block">
+                  <code class="language-typescript">
+                  describe('NavLinks', () => {{ '{' }}
+
+                    it('should return only public links for an unauthenticated user', () => {{ '{' }}
+                      // Arrange
+                      const navLinks = new NavLinks();
+
+                      // Act
+                      const result = navLinks.getLinks(false);
+
+                      // Assert
+                      expect(result.every(link => !link.requiresAuth)).toBeTrue();
+                    {{ '}' }});
+
+                  {{ '}' }});
+                </code>
+              </pre>
+                <p>
+                  One lesson Phase 1 reinforced is that the value of a test
+                  suite is not simply having tests — it is having tests that
+                  actually fail when the code breaks. Writing tests that always
+                  pass regardless of implementation (for example, testing that a
+                  component renders without throwing, but nothing more) gives a
+                  false sense of coverage. Every test in this project is written
+                  to catch at least one specific regression.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NPM -->
+      <div class="dev-log-accordion mt-2" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="dev-log-accordion-header">
+              NPM
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="dev-log-accordion-body">
+                <p>
+                  NPM (Node Package Manager) is the dependency management tool
+                  for the Angular frontend. While it is straightforward to use
+                  at the surface level, understanding the distinction between
+                  its core concepts avoids a category of problems that tend to
+                  surface in CI/CD environments and collaborative codebases.
+                </p>
+                <p>
+                  The most important discipline established in Phase 1 was the
+                  difference between <code>npm install</code> and
+                  <code>npm ci</code>. <code>npm install</code> resolves and
+                  updates <code>package-lock.json</code> if it diverges from
+                  <code>package.json</code>, which introduces the risk of a
+                  dependency version changing silently between environments.
+                  <code>npm ci</code> installs strictly from the lockfile and
+                  fails if any discrepancy exists — making it the correct choice
+                  for build pipelines where reproducibility is mandatory. The
+                  same logic applies to separating
+                  <code>dependencies</code> from <code>devDependencies</code>:
+                  test frameworks and build tools belong in
+                  <code>devDependencies</code>
+                  to prevent them from being included in the production bundle.
+                </p>
+                <p>
+                  Keeping the dependency list lean is also an ongoing security
+                  practice. Every package added to the project is a potential
+                  attack surface. Running <code>npm audit</code> regularly and
+                  acting on high-severity findings before they accumulate was
+                  adopted as a habit during this phase — it is far easier to
+                  address vulnerabilities one at a time than to face a backlog
+                  of unresolved issues late in a project lifecycle.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <hr class="mb-3" />
+
+      <!-- Phase 2 -->
       <h2>Phase 2 completed</h2>
       <p>
         Phase 2 marked the point where this project shifted from a simple
@@ -500,19 +1182,21 @@
               <ng-template class="dev-log-accordion-body">
                 <p>
                   A foundational principle of secure backend development is that
-                  <strong>secrets must never be embedded in source code</strong>.
-                  Despite how self-evident this may appear, it is a surprisingly
-                  common mistake to include a database password or API key
-                  directly in an <code>application.properties</code> file and
-                  commit it to version control. A deliberate configuration
-                  strategy was established from the outset of the Xenon Dev
-                  project to prevent this entirely.
+                  <strong>secrets must never be embedded in source code</strong
+                  >. Despite how self-evident this may appear, it is a
+                  surprisingly common mistake to include a database password or
+                  API key directly in an
+                  <code>application.properties</code> file and commit it to
+                  version control. A deliberate configuration strategy was
+                  established from the outset of the Xenon Dev project to
+                  prevent this entirely.
                 </p>
                 <p>
-                  The approach is layered. In local development, sensitive values
-                  are stored in an <code>application-local.properties</code> file
-                  that is listed in <code>.gitignore</code> and excluded from all
-                  commits. Spring Boot is configured to activate the
+                  The approach is layered. In local development, sensitive
+                  values are stored in an
+                  <code>application-local.properties</code> file that is listed
+                  in <code>.gitignore</code> and excluded from all commits.
+                  Spring Boot is configured to activate the
                   <code>local</code> profile automatically during development,
                   resolving these values without requiring any modifications to
                   tracked files. In deployed environments, credentials are
@@ -566,19 +1250,20 @@
             <div ngbAccordionBody>
               <ng-template class="dev-log-accordion-body">
                 <p>
-                  Designing a clean REST API is harder than it looks. I started
-                  with a rough set of endpoints that "got the job done" but
-                  quickly realised they were inconsistent, hard to document, and
-                  awkward for the Angular frontend to consume. Taking a step
-                  back and applying RESTful conventions properly made an
-                  enormous difference to the maintainability of the project.
+                  Designing a robust REST API requires more rigor than it may
+                  initially appear. Early endpoint implementations were
+                  functional, but lacked consistency, were difficult to
+                  document, and introduced unnecessary complexity for the
+                  Angular frontend. Refactoring the API around established
+                  RESTful conventions significantly improved maintainability and
+                  long-term scalability.
                 </p>
                 <p>
                   The core principle is that URLs represent
                   <strong>resources</strong> (nouns), not actions (verbs). HTTP
-                  methods carry the action semantics. Below is an example of the
-                  controller structure used for the user resource in this
-                  project:
+                  methods define the action semantics. The following example
+                  shows the controller structure used for the user resource in
+                  this project:
                 </p>
                 <pre class="dev-log-code-block">
                   <code class="language-java">
@@ -622,17 +1307,12 @@
                 </code>
               </pre>
                 <p>
-                  A few conventions I adopted across the whole API: always
-                  return DTOs rather than JPA entities directly (covered in its
-                  own section), use meaningful HTTP status codes (<code
-                    >201</code
-                  >
-                  for created, <code>204</code> for deleted,
-                  <code>404</code> with a consistent error body for not found),
-                  and version the API in the URL path (<code>/api/v1/...</code>)
-                  from the very beginning — it is far easier to version upfront
-                  than to retrofit it later when the Angular frontend already
-                  depends on a dozen endpoints.
+                  Several conventions are applied consistently across the API:
+                  return DTOs rather than exposing JPA entities directly, use
+                  explicit and appropriate HTTP status codes (<code>201</code>
+                  for created resources, <code>204</code> for deletions, and
+                  <code>404</code> with a consistent error payload for missing
+                  resources) from the outset.
                 </p>
               </ng-template>
             </div>
@@ -666,41 +1346,21 @@
                   entirely), I can immediately eliminate the frontend as the
                   source of the problem. Postman also handles OAuth2 flows
                   natively, so I can obtain a real Keycloak token and attach it
-                  to requests without writing a single line of code. For logging
-                  on the Spring side, I enable detailed request/response logging
-                  through a custom <code>OncePerRequestFilter</code>:
+                  to requests without writing a single line of code.
                 </p>
-                <pre class="dev-log-code-block">
-                  <code class="language-java">
-                  &#64;Component
-                  public class RequestLoggingFilter extends OncePerRequestFilter {{ '{' }}
-
-                      private static final Logger log =
-                          LoggerFactory.getLogger(RequestLoggingFilter.class);
-
-                      &#64;Override
-                      protected void doFilterInternal(HttpServletRequest request,
-                                                      HttpServletResponse response,
-                                                      FilterChain filterChain)
-                              throws ServletException, IOException {{ '{' }}
-
-                          long start = System.currentTimeMillis();
-
-                          try {{ '{' }}
-                              filterChain.doFilter(request, response);
-                          {{ '}' }} finally {{ '{' }}
-                              long duration = System.currentTimeMillis() - start;
-                              log.info("[&#123;&#125;] &#123;&#125; &#123;&#125; -> &#123;&#125; (&#123;&#125;ms)",
-                                  request.getRemoteAddr(),
-                                  request.getMethod(),
-                                  request.getRequestURI(),
-                                  response.getStatus(),
-                                  duration);
-                          {{ '}' }}
-                      {{ '}' }}
-                  {{ '}' }}
-                </code>
-              </pre>
+                <p>
+                  Another tool I use is the browser's built-in developer tools,
+                  particularly the Network tab. This allows me to inspect the
+                  raw HTTP requests and responses, including headers, status
+                  codes, and payloads. It's especially useful for debugging CORS
+                  issues, as I can see exactly which headers are being sent and
+                  received, and how the browser is interpreting them.
+                </p>
+                <img
+                  src="/assets/images/Dev_Log_imgs/Phase 2/browser-built-in-network-tab.png"
+                  alt="browser built-in network tab"
+                  class="dev-log-image"
+                />
                 <p>
                   For Spring Security specifically, the most useful debugging
                   property is
@@ -833,9 +1493,9 @@
                   <code class="language-java">
                   // --- Filter chain (coarse-grained) ---
                   .authorizeHttpRequests(auth -> auth
-                      .requestMatchers(HttpMethod.GET, "/api/v1/**").hasAnyRole("USER", "MODERATOR", "ADMIN")
-                      .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
-                      .requestMatchers("/api/v1/moderation/**").hasAnyRole("MODERATOR", "ADMIN")
+                      .requestMatchers(HttpMethod.GET, "/api/**").hasAnyRole("USER", "MODERATOR", "ADMIN")
+                      .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                      .requestMatchers("/api/moderation/**").hasAnyRole("MODERATOR", "ADMIN")
                       .anyRequest().authenticated()
                   )
 
@@ -889,80 +1549,41 @@
             <div ngbAccordionBody>
               <ng-template class="dev-log-accordion-body">
                 <p>
-                  One of the more experimental features in the backend
-                  integration branch is a lightweight
-                  <strong>AI agent task management</strong> system. The idea is
-                  that certain long-running or ambiguous tasks can be delegated
-                  to an AI agent (backed by an LLM API), which then breaks them
-                  down into sub-tasks, executes them asynchronously, and reports
-                  progress back to the application. This is an emerging
-                  architectural pattern often called an <em>agentic loop</em>.
+                  During backend integration, I used GitHub Copilot to support
+                  low-complexity but high-effort tasks. A clear example was the
+                  <code>styles.css</code> file, which became significantly
+                  bloated after Phase 1 with unused and poorly organised classes
+                  and animations. While restructuring it was technically
+                  straightforward, completing it manually would have been
+                  time-consuming. To address this, I designed a prompt for a
+                  Copilot AI Agent to categorise classes and animations with
+                  scalability in mind, and to move unused CSS into a separate
+                  file for potential future reuse.
                 </p>
                 <p>
-                  In practice the implementation is straightforward: each agent
-                  task is persisted as a database record with a status field
-                  (<code>PENDING</code>, <code>IN_PROGRESS</code>,
-                  <code>COMPLETED</code>, <code>FAILED</code>). A Spring
-                  <code>&#64;Async</code> service picks up pending tasks, calls
-                  the LLM API, updates the record, and emits a Server-Sent Event
-                  so the Angular frontend can show live progress. Below is the
-                  core task entity and the async execution flow:
+                  The outcome aligned with the objective: classes and animations
+                  were reorganised into clear categories, and unused CSS was
+                  isolated into a dedicated file. This reduced maintenance
+                  overhead, saved substantial time, and allowed greater focus on
+                  higher-priority engineering work. It also demonstrated the
+                  practical value of AI agents for automating repetitive,
+                  operational tasks.
                 </p>
-                <pre class="dev-log-code-block">
-                  <code class="language-java">
-                  &#64;Entity
-                  &#64;Table(name = "agent_tasks")
-                  public class AgentTask {{ '{' }}
-
-                      &#64;Id &#64;GeneratedValue(strategy = GenerationType.IDENTITY)
-                      private Long id;
-
-                      &#64;Column(nullable = false)
-                      private String prompt;         // The instruction given to the agent
-
-                      &#64;Enumerated(EnumType.STRING)
-                      private TaskStatus status = TaskStatus.PENDING;
-
-                      &#64;Column(columnDefinition = "TEXT")
-                      private String result;          // LLM response stored on completion
-
-                      private LocalDateTime createdAt = LocalDateTime.now();
-                      private LocalDateTime completedAt;
-                      // ... getters / setters
-                  {{ '}' }}
-
-                  // --- Async execution service ---
-                  &#64;Service
-                  public class AgentTaskService {{ '{' }}
-
-                      &#64;Async
-                      public CompletableFuture&lt;Void&gt; executeTask(AgentTask task) {{ '{' }}
-                          task.setStatus(TaskStatus.IN_PROGRESS);
-                          agentTaskRepository.save(task);
-
-                          try {{ '{' }}
-                              String result = llmClient.complete(task.getPrompt()); // call LLM
-                              task.setResult(result);
-                              task.setStatus(TaskStatus.COMPLETED);
-                          {{ '}' }} catch (Exception e) {{ '{' }}
-                              task.setStatus(TaskStatus.FAILED);
-                          {{ '}' }} finally {{ '{' }}
-                              task.setCompletedAt(LocalDateTime.now());
-                              agentTaskRepository.save(task);
-                              sseEmitterService.broadcast(task); // push update to frontend
-                          {{ '}' }}
-
-                          return CompletableFuture.completedFuture(null);
-                      {{ '}' }}
-                  {{ '}' }}
-                </code>
-              </pre>
+                <img
+                  src="/assets/images/Dev_Log_imgs/Phase 2/styles-css.png"
+                  alt="picture of the completed task in the codebase"
+                  class="dev-log-image"
+                />
                 <p>
-                  Using <code>&#64;Async</code> with a dedicated thread pool
-                  prevents the LLM call (which can take several seconds) from
-                  blocking the request thread. The SSE emitter broadcasts the
-                  completed task to any connected Angular clients so the UI
-                  updates in real time — no polling required.
+                  In other scenarios, AI assistance has been most useful for
+                  generating relevant next-step suggestions, such as frontend
+                  fetch request scaffolding when implementing API calls.
+                  However, suggestions are never accepted uncritically. AI can
+                  be inaccurate in project-specific contexts, so each proposal
+                  is reviewed, validated, and assessed against architectural and
+                  performance requirements. When unfamiliar patterns or
+                  libraries are suggested, they are evaluated before adoption to
+                  ensure they improve the quality and efficiency of the project.
                 </p>
               </ng-template>
             </div>
@@ -982,81 +1603,42 @@
             <div ngbAccordionBody>
               <ng-template class="dev-log-accordion-body">
                 <p>
-                  AWS Simple Email Service (SES) is the transactional email
-                  layer for this project. It handles emails like account
-                  verification, password reset links, and notification messages.
-                  I chose SES over alternatives because the project is already
-                  hosted on AWS, meaning IAM roles can be used to grant the
-                  application permission to send emails without storing
-                  long-lived API keys in the application itself (when running in
-                  a properly configured EC2 or ECS environment).
+                  While configuring Keycloak SMTP (Simple Mail Transfer
+                  Protocol), it became clear that a dedicated email delivery
+                  service was required to handle outbound messages reliably.
+                  Because the site is hosted on AWS, AWS SES (Simple Email
+                  Service) was selected as the most suitable option. Setup was
+                  straightforward, particularly because the project domain
+                  (<code>xenon-dev.com</code>) was already managed through Route
+                  53. After creating an SES account, Keycloak SMTP was
+                  configured with the relevant credentials. Initial delivery
+                  failed because the SES account was in sandbox mode, which
+                  restricts recipient addresses. Once production access was
+                  approved, email delivery to unrestricted recipients functioned
+                  as expected.
                 </p>
                 <p>
-                  Integration is done through the AWS SDK v2 for Java. The
-                  <code>SesClient</code> is configured as a Spring bean, and a
-                  thin service wraps the SDK calls to keep the rest of the
-                  application decoupled from AWS specifics:
+                  The default email formatting and tone were functional but did
+                  not meet the desired standard for user experience or brand
+                  presentation. To address this, a custom theme was implemented
+                  for Keycloak emails, with the same design approach extended to
+                  login-related pages for consistency.
                 </p>
-                <pre class="dev-log-code-block">
-                  <code class="language-java">
-                  &#64;Configuration
-                  public class AwsSesConfig {{ '{' }}
-
-                      &#64;Bean
-                      public SesClient sesClient(
-                              &#64;Value("$&#123;aws.ses.region&#125;") String region,
-                              &#64;Value("$&#123;aws.ses.access-key&#125;") String accessKey,
-                              &#64;Value("$&#123;aws.ses.secret-key&#125;") String secretKey) {{ '{' }}
-
-                          return SesClient.builder()
-                              .region(Region.of(region))
-                              .credentialsProvider(StaticCredentialsProvider.create(
-                                  AwsBasicCredentials.create(accessKey, secretKey)))
-                              .build();
-                      {{ '}' }}
-                  {{ '}' }}
-
-                  // --- Email service ---
-                  &#64;Service
-                  public class EmailService {{ '{' }}
-
-                      private final SesClient sesClient;
-
-                      &#64;Value("$&#123;aws.ses.sender-address&#125;")
-                      private String senderAddress;
-
-                      public void sendVerificationEmail(String toAddress, String verificationLink) {{ '{' }}
-                          SendEmailRequest request = SendEmailRequest.builder()
-                              .source(senderAddress)
-                              .destination(Destination.builder()
-                                  .toAddresses(toAddress)
-                                  .build())
-                              .message(Message.builder()
-                                  .subject(Content.builder()
-                                      .data("Verify your Xenon Dev account")
-                                      .build())
-                                  .body(Body.builder()
-                                      .html(Content.builder()
-                                          .data("&lt;p&gt;Click &lt;a href='" + verificationLink
-                                              + "'&gt;here&lt;/a&gt; to verify your account.&lt;/p&gt;")
-                                          .build())
-                                      .build())
-                                  .build())
-                              .build();
-
-                          sesClient.sendEmail(request);
-                      {{ '}' }}
-                  {{ '}' }}
-                </code>
-              </pre>
+                <img
+                  src="/assets/images/Dev_Log_imgs/Phase 2/keycloak-email.png"
+                  alt="keycloak email example"
+                  class="dev-log-image"
+                />
                 <p>
-                  Before SES will send emails to arbitrary addresses, the
-                  sending domain must be verified and the account must be moved
-                  out of the SES sandbox. During development, both the sender
-                  and recipient addresses need to be individually verified — a
-                  friction point worth knowing about early. In production,
-                  domain verification via a DNS TXT record unlocks sending to
-                  any address on that domain.
+                  Theme customisation was implemented using FTL (FreeMarker
+                  Template Language), guided by Keycloak documentation. A new
+                  theme, <code>xenon-dev-theme</code>, was created by extending
+                  the base templates and updating email layouts to reflect Xenon
+                  Dev branding. This included refining colour usage and
+                  improving visual hierarchy for readability. The result was a
+                  substantially more polished presentation across all
+                  Keycloak-generated emails, improving both user experience and
+                  branding consistency.
                 </p>
               </ng-template>
             </div>
