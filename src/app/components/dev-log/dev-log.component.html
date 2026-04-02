@@ -39,6 +39,18 @@
                   and custom domain configuration out of the box.
                 </p>
                 <p>
+                  Given that I had never used a hosting platform before, the
+                  setup process was a significant learning experience. The
+                  Amplify console walks you through connecting a repository,
+                  selecting a branch to track, and configuring the build
+                  settings. The defaults are a reasonable starting point, but
+                  they required several adjustments to work with the Angular
+                  project structure and build process. And at this point, I had
+                  not yet learned the principle of paying close attention to
+                  configuration details — which meant that the first few builds
+                  failed unexpectedly.
+                </p>
+                <p>
                   The setup process itself surfaced an important principle early
                   on: the environment you deploy to is rarely identical to your
                   local development environment. Node version mismatches and
@@ -447,63 +459,6 @@
                   is always defined. These constraints add a small amount of
                   friction during initial development but significantly reduce
                   the time spent debugging production issues.
-                </p>
-              </ng-template>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Optimisation -->
-      <div class="dev-log-accordion mt-2" ngbAccordion>
-        <div ngbAccordionItem>
-          <div ngbAccordionHeader>
-            <button ngbAccordionButton class="dev-log-accordion-header">
-              Optimisation
-            </button>
-          </div>
-          <div ngbAccordionCollapse>
-            <div ngbAccordionBody>
-              <ng-template class="dev-log-accordion-body">
-                <p>
-                  A site that works correctly but loads slowly or wastes
-                  resources is not production-ready. Optimisation was treated as
-                  a first-class concern throughout Phase 1 rather than something
-                  to address after launch. The two primary areas were bundle
-                  size and image delivery.
-                </p>
-                <p>
-                  Angular's production build applies tree-shaking and
-                  minification automatically, but bundle size can still grow
-                  significantly if third-party libraries are imported
-                  carelessly. Importing an entire utility library to use a
-                  single function is a common source of unnecessary weight. The
-                  discipline established in Phase 1 is to import only what is
-                  explicitly needed and to evaluate the bundle cost of any new
-                  dependency before adding it to <code>package.json</code>.
-                </p>
-                <p>
-                  Image optimisation had an equally large impact on load time.
-                  Serving uncompressed <code>.png</code> files for every asset
-                  was the first thing identified during a Lighthouse audit.
-                  Converting assets to <code>WebP</code> format and applying
-                  lazy loading to images that appear below the fold reduced the
-                  initial page weight substantially. Lazy loading in Angular is
-                  handled with a single attribute on the image element:
-                </p>
-                <pre class="dev-log-code-block">
-                  <code class="language-html">
-                  &lt;img
-                    src="/assets/images/example.webp"
-                    alt="Descriptive alt text"
-                    loading="lazy"
-                  /&gt;
-                </code>
-              </pre>
-                <p>
-                  Running a Lighthouse audit before every production release
-                  became a habit during this phase. It surfaces performance
-                  regressions early, well before users encounter them.
                 </p>
               </ng-template>
             </div>
@@ -1666,49 +1621,50 @@
                   connection management, no result-set mapping.
                 </p>
                 <p>
-                  In the project I use a hierarchy of repository types depending
-                  on the complexity of the queries needed.
-                  <code>JpaRepository</code> covers the standard CRUD operations
-                  and pagination. For more complex queries I use JPQL with
-                  <code>&#64;Query</code> annotations, and for the most
-                  performance-sensitive paths I drop down to native SQL:
+                  <code>Player_ProfileRepo</code> is a good example of where the
+                  repository abstraction stays useful even when the query is no
+                  longer a simple entity lookup. The interface still extends
+                  <code>JpaRepository&lt;Player_Profile, Long&gt;</code>, so it
+                  inherits the standard CRUD methods, but it also adds a custom
+                  native query for the leaderboard endpoint:
                 </p>
                 <pre class="dev-log-code-block">
                   <code class="language-java">
-                  &#64;Repository
-                  public interface UserRepository extends JpaRepository&lt;User, Long&gt; {{ '{' }}
+                    &#64;RepositoryRestResource
+                    public interface Player_ProfileRepo extends JpaRepository&lt;Player_Profile, Long&gt; {{ '{' }}
 
-                      // Spring derives the SQL from the method name automatically
-                      Optional&lt;User&gt; findByEmail(String email);
-                      boolean existsByUsername(String username);
-
-                      // JPQL query — operates on JPA entities, not raw tables
-                      &#64;Query("SELECT u FROM User u WHERE u.role = :role AND u.active = true")
-                      List&lt;User&gt; findActiveUsersByRole(&#64;Param("role") Role role);
-
-                      // Native SQL for a complex aggregation — bypasses the JPA entity model
                       &#64;Query(
-                          value = "SELECT u.username, COUNT(o.id) AS order_count " +
-                                  "FROM users u LEFT JOIN orders o ON o.user_id = u.id " +
-                                  "GROUP BY u.username " +
-                                  "ORDER BY order_count DESC LIMIT :limit",
+                            value = "SELECT USERNAME, wins, losses, pot " +
+                                    "FROM accounts_with_player_profiles_view " +
+                                    "ORDER BY pot DESC, wins DESC",
+                            countQuery = "SELECT COUNT(*) FROM accounts_with_player_profiles_view",
                           nativeQuery = true
                       )
-                      List&lt;Object[]&gt; findTopUsersByOrderCount(&#64;Param("limit") int limit);
+                        Page&lt;Object[]&gt; getAccountsWithPlayerProfiles(Pageable pageable);
                   {{ '}' }}
                 </code>
               </pre>
                 <p>
-                  One pitfall I ran into early on was the
-                  <strong>N+1 query problem</strong>. When a JPA entity has a
-                  lazily-loaded relationship (e.g. a <code>User</code> has many
-                  <code>Orders</code>), fetching a list of 100 users and then
-                  accessing each user's orders triggers 101 queries — one for
-                  the user list and one per user. The fix is a
-                  <code>JOIN FETCH</code> in the JPQL query, or a
-                  <code>&#64;EntityGraph</code> annotation on the repository
-                  method, which tells JPA to fetch the related data in a single
-                  query.
+                  The key point here is that the leaderboard data does not come
+                  directly from a single JPA entity table. Instead, the query
+                  reads from <code>accounts_with_player_profiles_view</code>, a
+                  database view that already joins and shapes the account and
+                  player profile data into the exact projection needed by the
+                  frontend. That keeps the SQL centralised in one place and
+                  avoids repeating the same join logic across controllers or
+                  services.
+                </p>
+                <p>
+                  Returning <code>Page&lt;Object[]&gt;</code> rather than a full
+                  entity is a deliberate trade-off. The query only needs four
+                  columns for the leaderboard — username, wins, losses, and pot
+                  — so pulling back a raw projection is lighter than hydrating a
+                  full entity graph. The separate <code>countQuery</code> is
+                  also important: without it, Spring Data would not know how to
+                  calculate the total number of rows for pagination metadata. In
+                  practice, this gives the Angular frontend a leaderboard result
+                  set that is already sorted by pot first and wins second, while
+                  still supporting pageable API responses.
                 </p>
               </ng-template>
             </div>
@@ -1739,73 +1695,53 @@
                   validation annotations.
                 </p>
                 <p>
-                  The project follows a convention of having separate DTOs for
-                  reads and writes — a response DTO (what the API sends out) and
-                  a request DTO (what the API accepts). Mapping between entity
-                  and DTO is done by a dedicated <code>Mapper</code> class
-                  rather than doing it inline in the controller or service:
+                  In the leaderboard flow, DTOs are used as an output contract
+                  for aggregated data that does not map cleanly to a single JPA
+                  entity. The repository returns each row as
+                  <code>Object[]</code> from a native SQL view query, and the
+                  service maps those positional columns into a typed
+                  <code>Leader_Board_DTO</code> before returning the response:
                 </p>
                 <pre class="dev-log-code-block">
                   <code class="language-java">
-                  // --- Response DTO (what the API sends to the client) ---
-                  public record UserDTO(
-                      Long id,
-                      String username,
-                      String email,
-                      String role,
-                      LocalDateTime createdAt
-                      // Note: password hash is NOT included here
-                  ) {{ '{' }}{{ '}' }}
+                  &#64;Getter
+                  &#64;Setter
+                  &#64;AllArgsConstructor
+                  public class Leader_Board_DTO {{ '{' }}
+                      private String USERNAME;
+                      private int wins;
+                      private int losses;
+                      private int pot;
+                  {{ '}' }}
 
-                  // --- Request DTO (what the client sends to create a user) ---
-                  public record CreateUserRequest(
-                      &#64;NotBlank(message = "Username is required")
-                      &#64;Size(min = 3, max = 30, message = "Username must be 3-30 characters")
-                      String username,
+                  &#64;Override
+                  public Page&lt;Leader_Board_DTO&gt; getAccountsWithPlayerProfiles_view(Pageable pageable) {{ '{' }}
+                      Page&lt;Object[]&gt; results = playerProfileRepo.getAccountsWithPlayerProfiles(pageable);
+                      return results.map(row -&gt; new Leader_Board_DTO(
+                          (String) row[0],
+                          (Integer) row[1],
+                          (Integer) row[2],
+                          (Integer) row[3]
+                      ));
+                  {{ '}' }}
 
-                      &#64;Email(message = "Must be a valid email address")
-                      &#64;NotBlank
-                      String email,
-
-                      &#64;NotBlank
-                      &#64;Size(min = 8, message = "Password must be at least 8 characters")
-                      String password
-                  ) {{ '{' }}{{ '}' }}
-
-                  // --- Mapper ---
-                  &#64;Component
-                  public class UserMapper {{ '{' }}
-
-                      public UserDTO toDTO(User user) {{ '{' }}
-                          return new UserDTO(
-                              user.getId(),
-                              user.getUsername(),
-                              user.getEmail(),
-                              user.getRole().name(),
-                              user.getCreatedAt()
-                          );
-                      {{ '}' }}
-
-                      public User toEntity(CreateUserRequest request) {{ '{' }}
-                          User user = new User();
-                          user.setUsername(request.username());
-                          user.setEmail(request.email());
-                          // Password is hashed in the service layer, not here
-                          return user;
-                      {{ '}' }}
+                  &#64;GetMapping("leaderboard")
+                  public ResponseEntity&lt;Page&lt;Leader_Board_DTO&gt;&gt; getleaderboard(
+                      &#64;RequestParam(defaultValue = "0") int page,
+                      &#64;RequestParam(defaultValue = "10") int size
+                  ) {{ '{' }}
+                      Pageable pageable = PageRequest.of(page, size);
+                      return ResponseEntity.ok(playerService.getAccountsWithPlayerProfiles_view(pageable));
                   {{ '}' }}
                 </code>
               </pre>
                 <p>
-                  Using Java records for DTOs (available since Java 16) keeps
-                  the code concise — the compiler generates the constructor,
-                  accessors, <code>equals</code>, <code>hashCode</code>, and
-                  <code>toString</code> automatically. The
-                  <code>&#64;Valid</code> annotation on the controller method
-                  parameter triggers Bean Validation on the incoming request
-                  DTO, and any violation automatically produces a 400 Bad
-                  Request response with a descriptive error body — no manual
-                  validation code needed.
+                  This pattern keeps the native SQL details isolated to the
+                  repository and service, while the controller exposes a stable,
+                  paginated DTO response to the frontend. It also makes future
+                  refactoring safer: if the underlying view changes, the API
+                  contract can remain unchanged as long as the service mapping
+                  still builds the same DTO fields.
                 </p>
               </ng-template>
             </div>
@@ -1835,45 +1771,44 @@
                   data that could be exposed more freely than the raw tables.
                 </p>
                 <p>
-                  A practical example is the
-                  <code>v_user_order_summary</code> view used by the admin
-                  dashboard. Rather than writing the same multi-table join every
-                  time the dashboard data is needed, the join is defined once in
-                  the view, and every subsequent query becomes a simple
-                  <code>SELECT</code>:
+                  A practical example in this project is
+                  <code>accounts_with_player_profiles_view</code>, which powers
+                  the leaderboard endpoint. Instead of joining
+                  <code>user_entity</code> and <code>player_profile</code> in
+                  every repository query, the join is defined once in the view
+                  and reused as a stable read model:
                 </p>
                 <pre class="dev-log-code-block">
                   <code class="language-sql">
-                  -- Create the view once (run as part of Flyway migration)
-                  CREATE OR REPLACE VIEW v_user_order_summary AS
+                  CREATE
+                      ALGORITHM = UNDEFINED
+                      DEFINER = `xenondev`&#64;`localhost`
+                      SQL SECURITY DEFINER
+                  VIEW `accounts_with_player_profiles_view` AS
                   SELECT
-                      u.id          AS user_id,
-                      u.username,
-                      u.email,
-                      COUNT(o.id)   AS total_orders,
-                      COALESCE(SUM(o.total_amount), 0) AS lifetime_spend,
-                      MAX(o.created_at) AS last_order_date
-                  FROM users u
-                  LEFT JOIN orders o ON o.user_id = u.id
-                  GROUP BY u.id, u.username, u.email;
+                      ue.USERNAME AS USERNAME,
+                      pp.wins     AS wins,
+                      pp.losses   AS losses,
+                      pp.pot      AS pot
+                  FROM user_entity ue
+                  JOIN player_profile pp
+                      ON ue.PLAYER_PROFILE_ID = pp.player_id;
 
-                  -- Querying the view is as simple as a table read
-                  SELECT * FROM v_user_order_summary
-                  WHERE total_orders > 0
-                  ORDER BY lifetime_spend DESC
-                  LIMIT 10;
+                  -- Consumed by the leaderboard repository query
+                  SELECT USERNAME, wins, losses, pot
+                  FROM accounts_with_player_profiles_view
+                  ORDER BY pot DESC, wins DESC;
                 </code>
               </pre>
                 <p>
-                  On the Spring side, views integrate cleanly with JPA by
-                  mapping them to a read-only entity annotated with
-                  <code>&#64;Immutable</code> (Hibernate). This tells Hibernate
-                  never to attempt an <code>INSERT</code> or
-                  <code>UPDATE</code> against the view, which prevents confusing
-                  runtime errors. Flyway, which the project uses for schema
-                  migrations, tracks view definitions just like table
-                  definitions, keeping the view always in sync with the
-                  application code.
+                  On the Spring side, this view is queried through a native
+                  repository method that returns
+                  <code>Page&lt;Object[]&gt;</code>, then mapped in the service
+                  layer to <code>Leader_Board_DTO</code> for the API response.
+                  That keeps SQL shaping in the database, data access in the
+                  repository, and response shaping in the service. The result is
+                  a clean, paginated leaderboard payload with username, wins,
+                  losses, and pot already sorted in rank order.
                 </p>
               </ng-template>
             </div>
@@ -1902,61 +1837,33 @@
                   safety net for invariants that must <em>always</em> hold.
                 </p>
                 <p>
-                  In this project, triggers are used for two things: maintaining
-                  an
-                  <strong>audit log</strong> (every change to a sensitive table
-                  is recorded automatically), and enforcing a
-                  <strong>soft-delete pattern</strong> that prevents hard
-                  deletes on the users table. Below is the audit log trigger
-                  used on the <code>orders</code> table:
+                  In this project, the trigger is used to keep related user and
+                  player-profile data consistent during hard deletes. The
+                  trigger runs <strong>before</strong> a row is deleted from
+                  <code>user_entity</code> and removes the linked
+                  <code>player_profile</code> row using the old
+                  <code>PLAYER_PROFILE_ID</code> value:
                 </p>
                 <pre class="dev-log-code-block">
                   <code class="language-sql">
-                  DELIMITER $$
-
-                  -- Fires after any UPDATE on the orders table and records
-                  -- the old and new values in the audit_log table.
-                  CREATE TRIGGER trg_orders_after_update
-                  AFTER UPDATE ON orders
+                  CREATE DEFINER=`xenondev`&#64;`localhost`
+                  TRIGGER `xenondevdb`.`user_entity_BEFORE_DELETE`
+                  BEFORE DELETE ON `user_entity`
                   FOR EACH ROW
                   BEGIN
-                      INSERT INTO audit_log (
-                          table_name,
-                          record_id,
-                          action,
-                          old_value,
-                          new_value,
-                          changed_at
-                      ) VALUES (
-                          'orders',
-                          OLD.id,
-                          'UPDATE',
-                          JSON_OBJECT(
-                              'status',       OLD.status,
-                              'total_amount', OLD.total_amount
-                          ),
-                          JSON_OBJECT(
-                              'status',       NEW.status,
-                              'total_amount', NEW.total_amount
-                          ),
-                          NOW()
-                      );
-                  END$$
-
-                  DELIMITER ;
+                      DELETE FROM `xenondevdb`.`player_profile`
+                      WHERE OLD.PLAYER_PROFILE_ID = `player_profile`.`player_id`;
+                  END
                 </code>
               </pre>
                 <p>
-                  One important caveat: because triggers run inside the database
-                  engine, they are invisible to the JPA layer — Hibernate has no
-                  knowledge that a trigger fired. This means the first-level
-                  cache can become stale after a triggered operation. The safest
-                  approach is to call
-                  <code>entityManager.refresh(entity)</code> after operations
-                  you know will fire a trigger that affects the same entity, or
-                  to structure the code so that Hibernate-managed entities and
-                  trigger-maintained data are in separate tables that never
-                  overlap in a single transaction.
+                  The practical effect is application-level cascade cleanup at
+                  the database layer: deleting a user also deletes that user's
+                  profile record, preventing orphaned rows in
+                  <code>player_profile</code>. Because this logic runs in the
+                  database engine, it applies consistently no matter whether the
+                  delete originates from Spring, a script, or a direct SQL
+                  client.
                 </p>
               </ng-template>
             </div>
@@ -2019,7 +1926,7 @@
                       init(): Promise&lt;boolean&gt; {{ '{' }}
                           return this.keycloak.init({{ '{' }}
                               config: {{ '{' }}
-                                  url:      environment.localKeycloakURL,
+                                  url:      xenonDevConfig.keycloak.local.url,
                                   realm:    xenonDevConfig.keycloak.local.realm,
                                   clientId: xenonDevConfig.keycloak.local.clientId
                               {{ '}' }},
