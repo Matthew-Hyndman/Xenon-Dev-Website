@@ -25,7 +25,7 @@ import xenonDevConfig from './config/xenon-dev-config';
 import { AccountProfileComponent } from './components/account-profile/account-profile.component';
 import { LeaderboardComponent } from './components/leaderboard/leaderboard.component';
 import { NgbModule, NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
-import { DevLogComponent } from './components/dev-log/dev-log.component';
+import { BlogComponent } from './components/blog/blog.component';
 
 @NgModule({
   declarations: [
@@ -37,7 +37,7 @@ import { DevLogComponent } from './components/dev-log/dev-log.component';
     NoDoubleClickDirective,
     AccountProfileComponent,
     LeaderboardComponent,
-    DevLogComponent,
+    BlogComponent,
   ],
   imports: [
     CommonModule,

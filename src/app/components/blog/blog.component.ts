@@ -11,12 +11,12 @@ hljs.registerLanguage('typescript', typescript);
 hljs.registerLanguage('ini', ini);
 
 @Component({
-  selector: 'app-dev-log',
+  selector: 'app-blog',
   standalone: false,
-  templateUrl: './dev-log.component.html',
-  styleUrl: './dev-log.component.css'
+  templateUrl: './blog.component.html',
+  styleUrl: './blog.component.css'
 })
-export class DevLogComponent implements AfterViewInit, OnDestroy {
+export class BlogComponent implements AfterViewInit, OnDestroy {
   private mutationObserver?: MutationObserver;
 
   constructor(
@@ -45,7 +45,7 @@ export class DevLogComponent implements AfterViewInit, OnDestroy {
 
   private highlightUnprocessedBlocks(): void {
     const blocks = this.host.nativeElement.querySelectorAll(
-      'pre.dev-log-code-block code[class*="language-"]:not(.hljs)'
+      'pre.blog-code-block code[class*="language-"]:not(.hljs)'
     );
 
     blocks.forEach((block) => {

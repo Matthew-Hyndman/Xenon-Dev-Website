@@ -1118,7 +1118,7 @@ tbody {
     height: auto !important;
   }
 
-  .dev-log-accordion {
+  .blog-accordion {
   width: 100% !important;
   }
 }
@@ -1203,7 +1203,7 @@ tbody {
 * -----------------------------------------------------------------------------
 */
 
-.dev-log-accordion {
+.blog-accordion {
   background-color: #2B2C3C;
   color: #fff;
   cursor: pointer;
@@ -1215,18 +1215,18 @@ tbody {
 }
 
 
-.dev-log-accordion .dev-log-accordion-header,
-.dev-log-accordion .dev-log-accordion-header:not(.collapsed) {
+.blog-accordion .blog-accordion-header,
+.blog-accordion .blog-accordion-header:not(.collapsed) {
   background: linear-gradient(90deg, rgba(0, 238, 255, 1) 0%, rgba(70, 155, 176, 1) 28%, rgba(98, 83, 237, 1) 100%);
 }
 
-.dev-log-accordion p {
+.blog-accordion p {
   color: #000;
   padding: 10px;
 }
 
   /* highlight.js — keep background/padding set on the <pre>, not the <code> */
-  .dev-log-code-block code.hljs {
+  .blog-code-block code.hljs {
     background: transparent;
     padding: 0;
   }

@@ -10,7 +10,7 @@ import { keycloakGuard } from './guards/keycloak.guard';
 import {blackJackHelpAuthenticationGuard } from './guards/black-jack-help-authentication.guard';
 import { blackJackHelpDisclaimerCheckedGuard } from './guards/black-jack-help-disclaimer-checked.guard';
 import { LeaderboardComponent } from './components/leaderboard/leaderboard.component';
-import { DevLogComponent } from './components/dev-log/dev-log.component';
+import { BlogComponent } from './components/blog/blog.component';
 
 export const routes: Routes = [
   { path: 'black-jack-game', component: BlackJackGameComponent, canActivate: [blackJackHelpDisclaimerCheckedGuard] },
@@ -22,7 +22,7 @@ export const routes: Routes = [
   ] },
   { path: 'site-info', component: SiteInfoComponent },
   { path: 'landing', component: LandingComponent },
-  { path: 'dev-log', component: DevLogComponent },
+  { path: 'blog', component: BlogComponent },
   { path: 'user-profile', component: AccountProfileComponent, canActivate: [keycloakGuard] },
   { path: '**', redirectTo: '/landing', pathMatch: 'full' },
   { path: '', redirectTo: '/landing', pathMatch: 'full' },
