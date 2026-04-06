@@ -23,6 +23,7 @@
  *   15. Keyframe Animations
  *   16. Media Queries
  *   17. Loader
+ *   18. Accordions
  *
  * Note: Unused / legacy classes have been moved to styles-legacy.css
  * =============================================================================
@@ -714,6 +715,9 @@ tbody {
   }
 }
 
+.phase-description {
+  margin-bottom: 20px;
+}
 
 /* 
  * -----------------------------------------------------------------------------
@@ -1116,6 +1120,10 @@ tbody {
     visibility: visible !important;
     height: auto !important;
   }
+
+  .blog-accordion {
+  width: 100% !important;
+  }
 }
 
 @media (max-width:767px) {
@@ -1191,3 +1199,37 @@ tbody {
     transform: rotate(360deg);
   }
 }
+
+/* 
+* -----------------------------------------------------------------------------
+* 18. Accordions
+* -----------------------------------------------------------------------------
+*/
+
+.blog-accordion {
+  background-color: #2B2C3C;
+  color: #fff;
+  cursor: pointer;
+  width: 70%;
+  text-align: left;
+  font-size: 15px;
+  justify-self: center;
+  
+}
+
+
+.blog-accordion .blog-accordion-header,
+.blog-accordion .blog-accordion-header:not(.collapsed) {
+  background: linear-gradient(90deg, rgba(0, 238, 255, 1) 0%, rgba(70, 155, 176, 1) 28%, rgba(98, 83, 237, 1) 100%);
+}
+
+.blog-accordion p {
+  color: #000;
+  padding: 10px;
+}
+
+  /* highlight.js — keep background/padding set on the <pre>, not the <code> */
+  .blog-code-block code.hljs {
+    background: transparent;
+    padding: 0;
+  }

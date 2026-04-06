@@ -73,6 +73,10 @@ export class BlackJackHelpComponent implements OnInit, OnDestroy {
     this.blackJackHelpService.setHasUserAgreedToDisclamer(accepted);
   }
 
+  login() {
+    this.authService.login();
+  }
+
   async onContinue() {
     if (
       this.blackJackHelpService.isHasUserAgreedToDisclaimerTrue() &&

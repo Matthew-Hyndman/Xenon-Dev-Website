@@ -1,0 +1,78 @@
+.blog-image{
+    display: block;
+    margin: 0 auto;
+    border: 5px solid;
+    border-image: linear-gradient(90deg, rgba(0, 238, 255, 1) 0%, rgba(70, 155, 176, 1) 28%, rgba(98, 83, 237, 1) 100%);
+    border-image-slice: 1;
+}
+
+.blog-code-block {
+  background-color: #1e1e1e;
+  color: #d4d4d4;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  padding: 1rem 1.25rem;
+  margin: 1rem 0;
+  overflow-x: auto;
+  white-space: pre;
+  border: 3px solid;
+  border-image: linear-gradient(90deg, rgba(0, 238, 255, 1) 0%, rgba(70, 155, 176, 1) 28%, rgba(98, 83, 237, 1) 100%);
+  border-image-slice: 1;
+}
+
+/* VS Code Dark+ (2019-style) syntax colours */
+.blog-code-block code.hljs {
+  color: #d4d4d4;
+}
+
+.blog-code-block .hljs-keyword,
+.blog-code-block .hljs-selector-tag,
+.blog-code-block .hljs-literal,
+.blog-code-block .hljs-type {
+  color: #569cd6;
+}
+
+.blog-code-block .hljs-title,
+.blog-code-block .hljs-title.class_,
+.blog-code-block .hljs-title.function_ {
+  color: #dcdcaa;
+}
+
+.blog-code-block .hljs-string,
+.blog-code-block .hljs-attr,
+.blog-code-block .hljs-template-variable {
+  color: #ce9178;
+}
+
+.blog-code-block .hljs-number,
+.blog-code-block .hljs-symbol,
+.blog-code-block .hljs-bullet {
+  color: #b5cea8;
+}
+
+.blog-code-block .hljs-meta,
+.blog-code-block .hljs-meta .hljs-keyword,
+.blog-code-block .hljs-annotation {
+  color: #c586c0;
+}
+
+.blog-code-block .hljs-built_in,
+.blog-code-block .hljs-class .hljs-title,
+.blog-code-block .hljs-title.class_ {
+  color: #4ec9b0;
+}
+
+.blog-code-block .hljs-variable,
+.blog-code-block .hljs-property,
+.blog-code-block .hljs-params,
+.blog-code-block .hljs-name {
+  color: #9cdcfe;
+}
+
+.blog-code-block .hljs-comment,
+.blog-code-block .hljs-quote {
+  color: #6a9955;
+  font-style: italic;
+}
+

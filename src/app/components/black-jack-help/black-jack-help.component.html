@@ -3,6 +3,22 @@
     <div class="container-fulid" *ngIf="isLoggedIn !== null; else loading">
       <h1>Black Jack rules and disclaimer</h1>
       <h3>Rules</h3>
+      @if (!isLoggedIn) {
+        <ngb-alert [type]="'info'" [dismissible]="false">
+          <strong>Please Note:</strong><br />
+          You can play this game without logging in, but you will not be able to
+          save your progress (wins, losses, and pot amount). <br />
+          If you do login or register, you will get the additional benefits of
+          having your progress saved and being able to view it on the
+          leaderboards! <br />
+          The following information is required to register an account: <br />
+          - A valid email address <br />
+          - A password <br />
+          - A username <br />
+          - First and last name<br />
+          <a class="btn btn-info" (click)="login()">Login or Register Now</a>
+        </ngb-alert>
+      }
       <p><strong>Objective</strong></p>
 
       <p>
