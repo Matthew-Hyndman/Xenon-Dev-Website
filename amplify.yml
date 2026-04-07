@@ -4,7 +4,7 @@ backend:
   phases:
     build:
       commands:
-        - echo "Skipping backend deployment for now"
+        - echo "Skipping backend deployment"
 frontend:
   phases:
     preBuild:
@@ -14,19 +14,62 @@ frontend:
 
         # Install dependencies with legacy peer deps support
         - npm install --legacy-peer-deps
-        
+
+        # Default to prod if BUILD_ENV is not set on Amplify branch
+        - export BUILD_ENV=${BUILD_ENV:-prod}
+
+        # Runtime config file for the selected build environment
+        - |
+          if [ "$BUILD_ENV" = "prod" ]; then
+            cat > src/assets/config.prod.json <<EOF
+          {
+            "keycloak": {
+              "url": "${AWS_PROD_KEYCLOAK_URL}",
+              "realm": "${AWS_PROD_KEYCLOAK_REALM}",
+              "clientId": "${AWS_PROD_KEYCLOAK_CLIENT_ID}"
+            },
+            "SpringAPIServer": {
+              "url": "${AWS_PROD_SPRING_API_URL}"
+            }
+          }
+          EOF
+          elif [ "$BUILD_ENV" = "dev" ]; then
+            cat > src/assets/config.dev.json <<EOF
+          {
+            "keycloak": {
+              "url": "${AWS_DEV_KEYCLOAK_URL}",
+              "realm": "${AWS_DEV_KEYCLOAK_REALM}",
+              "clientId": "${AWS_DEV_KEYCLOAK_CLIENT_ID}"
+            },
+            "SpringAPIServer": {
+              "url": "${AWS_DEV_SPRING_API_URL}"
+            }
+          }
+          EOF
+          else
+            echo "Unsupported BUILD_ENV=$BUILD_ENV. Use dev or prod."
+            exit 1
+          fi
+
         - npx ng version
     build:
       commands:
         # Aggressive memory limits for large build
-        - export NODE_OPTIONS="--max_old_space_size=4096 --max-semi-space-size=1024"
-        - export NG_BUILD_MAX_WORKERS=1
-        - npx ng build --configuration=production --source-map=false --poll=2000
+        #- export NODE_OPTIONS="--max_old_space_size=4096 --max-semi-space-size=1024"
+        #- export NG_BUILD_MAX_WORKERS=1
+        #- npx ng build --configuration=production --source-map=false --poll=2000
+
+        # the dev build commands
+        - npm run build:${BUILD_ENV}
+    postBuild:
+      commands:
+        - echo "Build complete for BUILD_ENV=${BUILD_ENV}"
+
   artifacts:
     # Angular 19 puts browser output under dist/<name>/browser
     baseDirectory: dist/amplify-angular-template/browser
     files:
-      - '**/*'
+      - "**/*"
   cache:
     paths:
       - node_modules/**/*

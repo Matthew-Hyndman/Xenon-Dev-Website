@@ -71,9 +71,9 @@ import { BlogComponent } from './components/blog/blog.component';
     },
     provideKeycloak({
       config: {
-        url: 'http://localhost:8080',
-        realm: xenonDevConfig.keycloak.local.realm,
-        clientId: xenonDevConfig.keycloak.local.clientId,
+        url: xenonDevConfig.keycloak.url,
+        realm: xenonDevConfig.keycloak.realm,
+        clientId: xenonDevConfig.keycloak.clientId,
       },
       initOptions: {
         onLoad: 'check-sso',

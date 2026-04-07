@@ -1,0 +1,10 @@
+{
+  "keycloak": {
+    "url": "http://localhost:8080",
+    "realm": "Xenon-Dev-DEV-ENV",
+    "clientId": "xenon-dev-oauth2-client-dev-env-id"
+  },
+  "SpringAPIServer": {
+    "url": "http://localhost:8443"
+  }
+}

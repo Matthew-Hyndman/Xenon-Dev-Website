@@ -75,7 +75,7 @@ export class PlayerProfileService {
     const profile = await firstValueFrom(
       this.httpClient
         .get<PlayerProfile>(
-          `${xenonDevConfig.SpringAPIServer.local.url}/api/player/getPlayerDetails/${userId}`,
+          `${xenonDevConfig.SpringAPIServer.url}/api/player/getPlayerDetails/${userId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -120,7 +120,7 @@ export class PlayerProfileService {
 
     return this.httpClient
       .post<PlayerProfile>(
-        `${xenonDevConfig.SpringAPIServer.local.url}/api/player/createPlayer/${userId}`,
+        `${xenonDevConfig.SpringAPIServer.url}/api/player/createPlayer/${userId}`,
         playerProfile,
         {
           headers: {
@@ -155,7 +155,7 @@ export class PlayerProfileService {
     const token = this.keycloak.token;
     this.httpClient
       .get<PlayerProfile>(
-        `${xenonDevConfig.SpringAPIServer.local.url}/api/player/resetPlayer/${profile_id}`,
+        `${xenonDevConfig.SpringAPIServer.url}/api/player/resetPlayer/${profile_id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -187,7 +187,7 @@ export class PlayerProfileService {
     const token = this.keycloak.token;
     this.httpClient
       .delete(
-        `${xenonDevConfig.SpringAPIServer.local.url}/api/player/deletePlayer/${profile_id}`,
+        `${xenonDevConfig.SpringAPIServer.url}/api/player/deletePlayer/${profile_id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -229,7 +229,7 @@ export class PlayerProfileService {
       const token = this.keycloak.token;
       this.httpClient
         .patch(
-          `${xenonDevConfig.SpringAPIServer.local.url}/api/player/updatePlayer/${profile_id}`,
+          `${xenonDevConfig.SpringAPIServer.url}/api/player/updatePlayer/${profile_id}`,
           thePlayerProfile,
           {
             headers: {

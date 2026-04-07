@@ -1,14 +1,31 @@
-export default {
+type XenonDevConfig = {
   keycloak: {
-    local: {
-      url: 'http://localhost:8080',  // Must include full Keycloak URL
-      realm: 'Xenon-Dev-DEV-ENV',
-      clientId: 'xenon-dev-oauth2-client-dev-env-id'
-    }
+    url: string;
+    realm: string;
+    clientId: string;
+  };
+  SpringAPIServer: {
+    url: string;
+  };
+};
+
+const fallbackConfig: XenonDevConfig = {
+  keycloak: {
+    url: 'http://localhost:8080',
+    realm: 'Xenon-Dev-DEV-ENV',
+    clientId: 'xenon-dev-oauth2-client-dev-env-id',
   },
   SpringAPIServer: {
-    local: {
-      url: 'http://localhost:8443'  // Must include full Spring API Server URL
-    }
-  }
+    url: 'http://localhost:8443',
+  },
 };
+
+const runtimeConfig = window.__XENON_DEV_CONFIG__;
+
+if (!runtimeConfig) {
+  console.warn('Runtime config not found, using fallback local config.');
+}
+
+const xenonDevConfig: XenonDevConfig = runtimeConfig ?? fallbackConfig;
+
+export default xenonDevConfig;

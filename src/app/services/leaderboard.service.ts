@@ -13,7 +13,7 @@ export class LeaderboardService {
   private readonly keycloak = inject(Keycloak);
 
   getLeaderboard(page: number, pageSize: number): Observable<LeaderboardResponse> {
-    const url = `${xenonDevConfig.SpringAPIServer.local.url}/api/player/leaderboard?page=${page - 1}&size=${pageSize}`;
+    const url = `${xenonDevConfig.SpringAPIServer.url}/api/player/leaderboard?page=${page - 1}&size=${pageSize}`;
 
     this.ensureIsTokenValid();
     const token = this.keycloak.token;
