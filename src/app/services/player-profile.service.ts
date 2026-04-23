@@ -1,9 +1,9 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, catchError, of, firstValueFrom } from 'rxjs';
-import { map, tap, throwIfEmpty } from 'rxjs/operators';
+import { tap } from 'rxjs/operators';
 import xenonDevConfig from '../config/xenon-dev-config';
-import Keycloak from 'keycloak-js';
+import { AwsLoginService } from './aws-login.service';
 
 export interface PlayerProfile {
   player_id?: number;
@@ -17,7 +17,7 @@ export interface PlayerProfile {
 })
 export class PlayerProfileService {
   private readonly httpClient = inject(HttpClient);
-  private readonly keycloak = inject(Keycloak);
+  private readonly awsLoginService = inject(AwsLoginService);
   private readonly playerProfileCache = new Map<string, PlayerProfile>();
   private readonly profileChecked$ = new BehaviorSubject<Map<string, boolean>>(
     new Map(),
@@ -69,8 +69,7 @@ export class PlayerProfileService {
       return this.playerProfileCache.get(userId)!;
     }
 
-    await this.ensureIsTokenValid(); // Ensure token is fresh
-    const token = this.keycloak.token;
+    const token = await this.getRequiredAccessToken();
 
     const profile = await firstValueFrom(
       this.httpClient
@@ -116,7 +115,7 @@ export class PlayerProfileService {
       losses: 0,
     };
 
-    const token = this.keycloak.token;
+    const token = await this.getRequiredAccessToken();
 
     return this.httpClient
       .post<PlayerProfile>(
@@ -151,8 +150,7 @@ export class PlayerProfileService {
    * reset player profile to default values
    */
   async resetPlayerProfile(profile_id: number) {
-    await this.ensureIsTokenValid();
-    const token = this.keycloak.token;
+    const token = await this.getRequiredAccessToken();
     this.httpClient
       .get<PlayerProfile>(
         `${xenonDevConfig.SpringAPIServer.url}/api/player/resetPlayer/${profile_id}`,
@@ -183,8 +181,7 @@ export class PlayerProfileService {
    * Delete player profile by Player ID
    */
   async deletePlayerProfile(profile_id: number) {
-    await this.ensureIsTokenValid();
-    const token = this.keycloak.token;
+    const token = await this.getRequiredAccessToken();
     this.httpClient
       .delete(
         `${xenonDevConfig.SpringAPIServer.url}/api/player/deletePlayer/${profile_id}`,
@@ -224,28 +221,27 @@ export class PlayerProfileService {
     }
   }
 
-    async updatePlayerProfile(profile_id: number, thePlayerProfile: PlayerProfile) {
-      await this.ensureIsTokenValid();
-      const token = this.keycloak.token;
-      this.httpClient
-        .patch(
-          `${xenonDevConfig.SpringAPIServer.url}/api/player/updatePlayer/${profile_id}`,
-          thePlayerProfile,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+  async updatePlayerProfile(profile_id: number, thePlayerProfile: PlayerProfile) {
+    const token = await this.getRequiredAccessToken();
+    this.httpClient
+      .patch(
+        `${xenonDevConfig.SpringAPIServer.url}/api/player/updatePlayer/${profile_id}`,
+        thePlayerProfile,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
           },
-        )
-        .subscribe({
-          next: (response) => {
-            console.log('Player profile updated successfully:', response);
-          },
-          error: (error) => {
-            console.error('Error updating player profile:', error);
-          },
-        });
-    }
+        },
+      )
+      .subscribe({
+        next: (response) => {
+          console.log('Player profile updated successfully:', response);
+        },
+        error: (error) => {
+          console.error('Error updating player profile:', error);
+        },
+      });
+  }
 
   /**
    * Get cache status observable
@@ -254,7 +250,11 @@ export class PlayerProfileService {
     return this.profileChecked$.asObservable();
   }
 
-  async ensureIsTokenValid(): Promise<void> {
-    await this.keycloak.updateToken(20);
+  private async getRequiredAccessToken(): Promise<string> {
+    const token = await this.awsLoginService.getAccessToken();
+    if (!token) {
+      throw new Error('No authenticated Cognito session is available.');
+    }
+    return token;
   }
 }

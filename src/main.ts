@@ -1,9 +1,11 @@
 /// <reference types="@angular/localize" />
 
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+import { Amplify } from 'aws-amplify';
+import awsconfig from '../amplify_outputs.json';
 import { environment } from './environments/environment';
 
-type XenonRuntimeConfig = {
+/*type XenonRuntimeConfig = {
   keycloak: {
     url: string;
     realm: string;
@@ -59,15 +61,17 @@ async function loadRuntimeConfig(): Promise<void> {
   const config = (await response.json()) as XenonRuntimeConfig;
   validateRuntimeConfig(config);
   window.__XENON_DEV_CONFIG__ = config;
-}
+}*/
 
 async function bootstrap(): Promise<void> {
-  await loadRuntimeConfig();
+  //await loadRuntimeConfig();
   const { AppModule } = await import('./app/app.module');
 
   await platformBrowserDynamic().bootstrapModule(AppModule, {
     ngZoneEventCoalescing: true,
   });
 }
+
+Amplify.configure(awsconfig);
 
 bootstrap().catch((err) => console.error(err));

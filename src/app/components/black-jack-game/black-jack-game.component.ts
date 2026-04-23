@@ -6,12 +6,12 @@ import { BlackJackGameService } from '../../services/black-jack-game.service';
 import { Card } from '../../common/card';
 
 import Swal from 'sweetalert2';
-import { AuthenticationService } from '../../services/authentication.service';
-import { Subject } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 import {
   PlayerProfile,
   PlayerProfileService,
 } from '../../services/player-profile.service';
+import { AwsLoginService } from '../../services/aws-login.service';
 
 const MAX_HAND_VALUE = 21;
 
@@ -48,7 +48,7 @@ export class BlackJackGameComponent implements OnInit, OnDestroy {
   isLoggedIn: boolean | null = false;
 
   constructor(
-    private authenticationService: AuthenticationService,
+    private authenticationService: AwsLoginService,
     private blackJackGameService: BlackJackGameService,
     private playerProfileService: PlayerProfileService,
   ) {}
@@ -341,18 +341,37 @@ export class BlackJackGameComponent implements OnInit, OnDestroy {
       if (isLoggedIn) {
         this.isLoggedIn = isLoggedIn;
 
-        this.authenticationService.userProfile$.subscribe((userProfile) => {
+        this.authenticationService.userProfile$
+          .pipe(takeUntil(this.destroy$))
+          .subscribe((userProfile) => {
           this.playerHand = new Hand(userProfile?.username ?? 'Player');
           this.dealerHand = new Hand('Dealer');
         });
 
         // get the player profile from the service
-        this.playerProfileService.playerProfile$.subscribe((profile) => {
-          this.playerProfile = profile;
-          this.pot = profile?.pot ?? 3000;
-          this.playerHand.wins = profile?.wins ?? 0;
-          this.dealerHand.wins = profile?.losses ?? 0;
-        });
+        this.authenticationService.userProfile$
+          .pipe(takeUntil(this.destroy$))
+          .subscribe(async (userProfile) => {
+            if (!userProfile) {
+              return;
+            }
+
+            const exists = await this.playerProfileService.checkPlayerProfileExists(userProfile.userId);
+            if (!exists) {
+              return;
+            }
+
+            this.playerProfileService.playerProfile$
+              .pipe(takeUntil(this.destroy$))
+              .subscribe((profile) => {
+                this.playerProfile = profile;
+                this.pot = profile?.pot ?? 3000;
+                this.playerHand.wins = profile?.wins ?? 0;
+                this.dealerHand.wins = profile?.losses ?? 0;
+              });
+          });
+      } else {
+        this.isLoggedIn = false;
       }
     });
   }

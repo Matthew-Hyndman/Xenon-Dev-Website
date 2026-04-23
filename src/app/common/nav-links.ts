@@ -9,7 +9,7 @@ export class NavLinks {
         new LinkObj('Blog', '/blog', true),
         new LinkObj('BlackJack', '/black-jack-help', true),
         new LinkObj('Profile', '/user-profile', false),
-        new LinkObj('Login', '/login', true),
+        new LinkObj('Login', '/aws-login', true),
         new LinkObj('Logout', '', false)
     ];    
 }

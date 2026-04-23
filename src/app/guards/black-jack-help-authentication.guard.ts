@@ -1,36 +1,31 @@
 import { inject } from '@angular/core';
 import { CanActivateFn } from '@angular/router';
-import { firstValueFrom, take, skipWhile } from 'rxjs';
-import { AuthenticationService } from '../services/authentication.service';
+import { firstValueFrom, filter } from 'rxjs';
 import { PlayerProfileService } from '../services/player-profile.service';
+import { AwsLoginService } from '../services/aws-login.service';
 
 export const blackJackHelpAuthenticationGuard: CanActivateFn = async (route, state) => {
-  const authService = inject(AuthenticationService);
+  const authService = inject(AwsLoginService);
   const playerProfileService = inject(PlayerProfileService);
 
   try {
-    // Check if user is logged in
     const isLoggedIn = await firstValueFrom(
-      authService.isLoggedIn$.pipe(take(1))
+      authService.isLoggedIn$.pipe(filter((value): value is boolean => value !== null)),
     );
 
-    if (!isLoggedIn) {      
-      console.log('user is not logged in');
-    } else {
-
-    // Get user profile
-    const userProfile = await firstValueFrom(
-      authService.userProfile$.pipe(skipWhile(u => u == null), take(1))
-    );
-
-    // Check if player profile exists
-    const hasPlayerProfile = await playerProfileService.checkPlayerProfileExists(
-      userProfile!.id!
-    );
-    if (!hasPlayerProfile) {
-      console.log('User does not have a player profile');      
+    if (!isLoggedIn) {
+      return true;
     }
-  }    
+
+    const userProfile = await firstValueFrom(
+      authService.userProfile$.pipe(filter((u) => u !== null)),
+    );
+
+    const hasPlayerProfile = await playerProfileService.checkPlayerProfileExists(userProfile.userId);
+    if (!hasPlayerProfile) {
+      console.log('User does not have a player profile');
+    }
+
     return true;
   } catch (error) {
     console.error('Guard error:', error);

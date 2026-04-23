@@ -1,13 +1,9 @@
 import { Component, HostListener } from '@angular/core';
 //import { TodosComponent } from './todos/todos.component';
-//import outputs from '../../amplify_outputs.json';
 import { NavLinks } from './common/nav-links';
 import { LinkObj } from './common/link-obj';
-//import { a } from '@aws-amplify/backend';
-import { AuthenticationService } from './services/authentication.service';
+import { AwsLoginService } from './services/aws-login.service';
 import { Router } from '@angular/router';
-
-//Amplify.configure(outputs);
 
 @Component({
   selector: 'app-root',
@@ -28,26 +24,26 @@ export class AppComponent {
   constructor(
     private router: Router,
     private navLinks: NavLinks,
-    private authService: AuthenticationService,
+    private awsLoginService: AwsLoginService,
   ) {
     this.links = this.navLinks.links;
     this.isLoggedInCheck();
-
-    // Enable profile and logout links if logged in
-    if (this.isLoggedInToSession) {
-      this.toggleLoggedInLinks();
-    }
   }
 
   toggleLoggedInLinks() {
-    this.navLinks.links.filter((link) => {
+    this.loggedInNavLinksEnabled = !this.loggedInNavLinksEnabled;
+    this.setLoggedInLinksEnabled(this.loggedInNavLinksEnabled);
+  }
+
+  private setLoggedInLinksEnabled(isLoggedIn: boolean) {
+    this.navLinks.links.forEach((link) => {
       if (link.name === 'Profile' || link.name === 'Logout') {
-        link.enable = !this.loggedInNavLinksEnabled;
+        link.enable = isLoggedIn;
       } else if (link.name === 'Login') {
-        link.enable = this.loggedInNavLinksEnabled;
+        link.enable = !isLoggedIn;
       }
     });
-    this.loggedInNavLinksEnabled = !this.loggedInNavLinksEnabled;
+    this.loggedInNavLinksEnabled = isLoggedIn;
   }
 
   toggleMobileNav() {
@@ -65,18 +61,20 @@ export class AppComponent {
     }
   }
 
-  login() {
-    this.authService.login();
+  async login() {
+    await this.router.navigate(['/aws-login']);
   }
 
-  logout() {
-    this.authService.logout();
+  async logout() {
+    await this.awsLoginService.logout();
+    await this.router.navigate(['/landing']);
   }
 
   isLoggedInCheck() {
     try {
-      this.authService.isLoggedIn$.subscribe((result) => {
+      this.awsLoginService.isLoggedIn$.subscribe((result) => {
         this.isLoggedInToSession = result ?? false;
+        this.setLoggedInLinksEnabled(this.isLoggedInToSession);
       });
     } catch (error) {
       console.error('Could not read if session is created: ', error);

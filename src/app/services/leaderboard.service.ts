@@ -1,8 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import Keycloak from 'keycloak-js';
 import xenonDevConfig from '../config/xenon-dev-config';
-import { Observable } from 'rxjs';
+import { Observable, from } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
+import { AwsLoginService } from './aws-login.service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,23 +11,24 @@ import { Observable } from 'rxjs';
 export class LeaderboardService {
   
   private readonly httpClient = inject(HttpClient);
-  private readonly keycloak = inject(Keycloak);
+  private readonly awsLoginService = inject(AwsLoginService);
 
   getLeaderboard(page: number, pageSize: number): Observable<LeaderboardResponse> {
     const url = `${xenonDevConfig.SpringAPIServer.url}/api/player/leaderboard?page=${page - 1}&size=${pageSize}`;
 
-    this.ensureIsTokenValid();
-    const token = this.keycloak.token;
+    return from(this.awsLoginService.getAccessToken()).pipe(
+      switchMap((token) => {
+        if (!token) {
+          throw new Error('No authenticated Cognito session is available.');
+        }
 
-    return this.httpClient.get<LeaderboardResponse>(url, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-  }
-
-  async ensureIsTokenValid(): Promise<void> {
-    await this.keycloak.updateToken(20);
+        return this.httpClient.get<LeaderboardResponse>(url, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+      }),
+    );
   }
 
 }

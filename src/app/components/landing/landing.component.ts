@@ -2,10 +2,9 @@ import { Component, OnInit, inject } from '@angular/core';
 import { BlackJackHelpService } from '../../services/black-jack-help.service';
 import {
   HttpClient,
-  HttpClientModule,
   HttpHeaders,
 } from '@angular/common/http';
-import { AuthenticationService } from '../../services/authentication.service';
+import { AwsLoginService } from '../../services/aws-login.service';
 import { firstValueFrom } from 'rxjs';
 
 @Component({
@@ -27,7 +26,7 @@ export class LandingComponent implements OnInit {
 
   constructor(
     private blackJackHelpService: BlackJackHelpService,
-    private authService: AuthenticationService
+    private awsLoginService: AwsLoginService,
   ) {}
 
   ngOnInit(): void {
@@ -62,7 +61,7 @@ export class LandingComponent implements OnInit {
 
   isLoggedInCheck() {
     try {
-      this.authService.isLoggedIn$.subscribe((result) => {
+      this.awsLoginService.isLoggedIn$.subscribe((result) => {
         this.isLoggedInToSession = result ?? false;
       });
     } catch (error) {
@@ -72,7 +71,7 @@ export class LandingComponent implements OnInit {
 
   getUserFullName(){
     try{
-      this.authService.userProfile$.subscribe((user) => {
+      this.awsLoginService.userProfile$.subscribe((user) => {
         this.userName = user?.firstName ?? '';
         if (typeof(user?.lastName) !== undefined) {
           this.userName += ' ' + user?.lastName

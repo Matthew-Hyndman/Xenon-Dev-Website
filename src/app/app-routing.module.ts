@@ -6,24 +6,26 @@ import { SiteInfoComponent } from './components/site-info/site-info.component';
 import { NgModule } from '@angular/core';
 
 import { AccountProfileComponent } from './components/account-profile/account-profile.component';
-import { keycloakGuard } from './guards/keycloak.guard';
+import { cognitoGuard } from './guards/cognito.guard';
 import {blackJackHelpAuthenticationGuard } from './guards/black-jack-help-authentication.guard';
 import { blackJackHelpDisclaimerCheckedGuard } from './guards/black-jack-help-disclaimer-checked.guard';
 import { LeaderboardComponent } from './components/leaderboard/leaderboard.component';
 import { BlogComponent } from './components/blog/blog.component';
+import { AwsLoginComponent } from './components/aws-login/aws-login.component';
 
 export const routes: Routes = [
   { path: 'black-jack-game', component: BlackJackGameComponent, canActivate: [blackJackHelpDisclaimerCheckedGuard] },
   { path: 'black-jack-help', component: BlackJackHelpComponent, canActivate: [blackJackHelpAuthenticationGuard] },
   { path: 'black-jack-leaderboard', component: LeaderboardComponent, canActivate: [
-    keycloakGuard, 
+    cognitoGuard,
     blackJackHelpAuthenticationGuard,
     blackJackHelpDisclaimerCheckedGuard
   ] },
   { path: 'site-info', component: SiteInfoComponent },
+  { path: 'aws-login', component: AwsLoginComponent },
   { path: 'landing', component: LandingComponent },
   { path: 'blog', component: BlogComponent },
-  { path: 'user-profile', component: AccountProfileComponent, canActivate: [keycloakGuard] },
+  { path: 'user-profile', component: AccountProfileComponent, canActivate: [cognitoGuard] },
   { path: '**', redirectTo: '/landing', pathMatch: 'full' },
   { path: '', redirectTo: '/landing', pathMatch: 'full' },
 ];

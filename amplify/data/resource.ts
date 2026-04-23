@@ -1,17 +1,28 @@
 import { type ClientSchema, a, defineData } from '@aws-amplify/backend';
 
-/*== STEP 1 ===============================================================
-The section below creates a Todo database table with a "content" field. Try
-adding a new "isDone" field as a boolean. The authorization rule below
-specifies that any user authenticated via an API key can "create", "read",
-"update", and "delete" any "Todo" records.
-=========================================================================*/
 const schema = a.schema({
-  Todo: a
+  User: a
     .model({
-      content: a.string(),
+      userId: a.id().required(),
+      email: a.email().required(),
+      emailVerified: a.boolean().default(false),
+      username: a.string().required(),
+      firstName: a.string(),
+      lastName: a.string(),
+      player_id: a.id(),
     })
-    .authorization((allow) => [allow.publicApiKey()]),
+    .identifier(['userId'])    
+    .authorization((allow) => [allow.owner()]),
+
+  Player_Profile: a
+    .model({
+      player_id: a.id().required(),
+      wins: a.integer().default(0),
+      losses: a.integer().default(0),
+      pot: a.integer().default(3000),
+    })
+    .identifier(['player_id'])
+    .authorization((allow) => [allow.owner()]),
 });
 
 export type Schema = ClientSchema<typeof schema>;
@@ -19,8 +30,8 @@ export type Schema = ClientSchema<typeof schema>;
 export const data = defineData({
   schema,
   authorizationModes: {
-    defaultAuthorizationMode: 'apiKey',
-    // API Key is used for a.allow.public() rules
+    // Owner-based rules should default to authenticated user pool auth.
+    defaultAuthorizationMode: 'userPool',
     apiKeyAuthorizationMode: {
       expiresInDays: 30,
     },

@@ -1,0 +1,25 @@
+<div class="main-content">
+  <div class="section-content section-content-p30">
+    <div class="container-fulid">
+      <!-- Show Amplify authenticator when not logged in -->
+      <div *ngIf="!isLoggedIn">
+        <amplify-authenticator>
+          <ng-template amplifySlot="authenticated" let-user="user" let-signOut="signOut">
+            <!-- This block renders briefly after sign-in; the service picks up the Hub event -->
+            <p>Welcome, {{ user?.username }}</p>
+          </ng-template>
+        </amplify-authenticator>
+      </div>
+
+      <!-- Show profile when logged in -->
+      <div *ngIf="isLoggedIn && userProfile">
+        <h2>Welcome, {{ userProfile.firstName || userProfile.email }}</h2>
+        <p><strong>Email:</strong> {{ userProfile.email }}</p>
+        <p *ngIf="userProfile.firstName"><strong>First Name:</strong> {{ userProfile.firstName }}</p>
+        <p *ngIf="userProfile.lastName"><strong>Last Name:</strong> {{ userProfile.lastName }}</p>
+        <p><strong>Email Verified:</strong> {{ userProfile.emailVerified ? 'Yes' : 'No' }}</p>
+        <button class="btn btn-danger" (click)="onSignOut()">Sign Out</button>
+      </div>
+    </div>
+  </div>
+</div>

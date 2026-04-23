@@ -2,9 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { BlackJackHelpService } from '../../services/black-jack-help.service';
-import { BlackJackGameService } from '../../services/black-jack-game.service';
-import { AuthenticationService } from '../../services/authentication.service';
-import { KeycloakProfile } from 'keycloak-js';
+import { AwsLoginService, AwsUserProfile } from '../../services/aws-login.service';
 import { Subject, takeUntil } from 'rxjs';
 import { PlayerProfileService } from '../../services/player-profile.service';
 
@@ -21,7 +19,7 @@ export class BlackJackHelpComponent implements OnInit, OnDestroy {
 
   private readonly destroy$ = new Subject<void>();
 
-  userProfile: KeycloakProfile | null = null;
+  userProfile: AwsUserProfile | null = null;
 
   isLoggedIn: boolean | null = null;
 
@@ -29,7 +27,7 @@ export class BlackJackHelpComponent implements OnInit, OnDestroy {
     private router: Router,
     private blackJackHelpService: BlackJackHelpService,
     private formBuilder: FormBuilder,
-    private authService: AuthenticationService,
+    private authService: AwsLoginService,
     private playerProfileService: PlayerProfileService,
   ) {}
 
@@ -49,7 +47,6 @@ export class BlackJackHelpComponent implements OnInit, OnDestroy {
 
   }
 
-  //add this to the srevice class and use it in a gaurd for this component
   async getUserProfile(): Promise<void> {
     this.authService.userProfile$
     .pipe(takeUntil(this.destroy$))
@@ -58,6 +55,7 @@ export class BlackJackHelpComponent implements OnInit, OnDestroy {
         this.userProfile = profile;
         this.isLoggedIn = true;
       } else {
+        this.userProfile = null;
         this.isLoggedIn = false;
       }
     });
@@ -74,7 +72,7 @@ export class BlackJackHelpComponent implements OnInit, OnDestroy {
   }
 
   login() {
-    this.authService.login();
+    this.router.navigate(['/aws-login']);
   }
 
   async onContinue() {
@@ -84,11 +82,11 @@ export class BlackJackHelpComponent implements OnInit, OnDestroy {
     ) {
 
       if (!this.isLoggedIn) {
-        this.router.navigate(['black-jack-game']);
+        this.router.navigate(['/black-jack-game']);
         return;
       } else {        
-        if (!(await this.playerProfileService.checkPlayerProfileExists(this.userProfile!.id!))) {
-            await this.playerProfileService.createPlayerProfile(this.userProfile!.id!);
+        if (!(await this.playerProfileService.checkPlayerProfileExists(this.userProfile!.userId))) {
+            await this.playerProfileService.createPlayerProfile(this.userProfile!.userId);
         }
         this.router.navigate(['black-jack-game']);
         return;

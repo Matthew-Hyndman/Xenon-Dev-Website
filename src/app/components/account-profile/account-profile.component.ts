@@ -1,6 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { AuthenticationService } from '../../services/authentication.service';
-import { KeycloakProfile } from 'keycloak-js';
+import { AwsLoginService, AwsUserProfile } from '../../services/aws-login.service';
 import {
   FormGroup,
   FormBuilder,
@@ -21,7 +20,7 @@ import {
   standalone: false,
 })
 export class AccountProfileComponent implements OnDestroy, OnInit {
-  protected user: KeycloakProfile | null = null;
+  protected user: AwsUserProfile | null = null;
   protected editMode: boolean = false;
   protected userForm: FormGroup;
 
@@ -32,7 +31,7 @@ export class AccountProfileComponent implements OnDestroy, OnInit {
   playerProfile: PlayerProfile | null = null;
 
   constructor(
-    private authService: AuthenticationService,
+    private authService: AwsLoginService,
     private playerProfileService: PlayerProfileService,
     private formBuilder: FormBuilder,
   ) {
@@ -53,7 +52,7 @@ export class AccountProfileComponent implements OnDestroy, OnInit {
     this.getUserDetails();
   }
 
-  setUserFormKeycloakProfile(userRep: {
+  setUserFormFromAwsProfile(userRep: {
     username?: string;
     email?: string;
     firstName?: string;
@@ -112,7 +111,7 @@ export class AccountProfileComponent implements OnDestroy, OnInit {
           // Subscribe to player profile updates
           const profileExists =
             await this.playerProfileService.checkPlayerProfileExists(
-              this.user!.id!,
+              this.user.userId,
             );
           if (profileExists) {
             this.playerProfileService.playerProfile$
@@ -168,21 +167,18 @@ export class AccountProfileComponent implements OnDestroy, OnInit {
         });
       }
 
-      await this.authService.updateUserProfile(userRep).then(async (status) => {
-        if (status === 200 || status === 204) {
-          this.setUserFormKeycloakProfile(userRep);
-          this.toggleEditMode();
-          if (shouldSendVerificationEmail) {
-            await this.authService.sendReverificationEmail(this.user?.id!);
-          }
-        } else {
-          if (typeof status !== 'undefined') {
-            alert(`Failed to update profile. response status: ${status}`);
-          } else {
-            alert('Failed to update profile due to unknown error.');
-          }
-        }
+      await this.authService.updateUserProfile({
+        email: userRep.email,
+        givenName: userRep.firstName,
+        familyName: userRep.lastName,
       });
+
+      this.setUserFormFromAwsProfile(userRep);
+      this.toggleEditMode();
+
+      if (shouldSendVerificationEmail) {
+        await this.authService.sendEmailVerificationCode();
+      }
     }
   }
 
@@ -325,14 +321,14 @@ export class AccountProfileComponent implements OnDestroy, OnInit {
     }).then(async (result) => {
       if (result.isConfirmed) {
         // Call the service to delete the account
-        await this.authService.deleteAccount(this.user!.id!).catch(async () => {
+        await this.authService.deleteAccount().catch(async () => {
           await Swal.fire(
             'Error!',
             'There was an error deleting your account.',
             'error',
           );
         });
-        this.authService.logout();
+        await this.authService.logout();
       }
     });
   }
@@ -343,7 +339,7 @@ export class AccountProfileComponent implements OnDestroy, OnInit {
    * function will handle re-verification.
    */
   reverifyEmail() {
-    this.authService.sendReverificationEmail(this.user?.id!);
+    void this.authService.sendEmailVerificationCode();
   }
 
   ngOnDestroy(): void {

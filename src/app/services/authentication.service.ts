@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import Keycloak, { KeycloakProfile } from 'keycloak-js';
 import { BehaviorSubject, Subscription, fromEvent, merge } from 'rxjs';
-import xenonDevConfig from '../config/xenon-dev-config';
+//import xenonDevConfig from '../config/xenon-dev-config';
 import { HttpClient } from '@angular/common/http';
 import Swal from 'sweetalert2';
 
@@ -12,12 +12,11 @@ export class AuthenticationService {
   private static readonly IDLE_WARNING_AFTER_MS = 3 * 60 * 1000;
   private static readonly IDLE_LOGOUT_AFTER_MS = 5 * 60 * 1000;
 
-  // Keycloak instance (provided by `provideKeycloak` in AppModule)
   constructor(
     private readonly keycloak: Keycloak,
     private httpClient: HttpClient,
   ) {
-    this.isLoggedIn$.subscribe((isLoggedIn) => {
+/*    this.isLoggedIn$.subscribe((isLoggedIn) => {
       if (isLoggedIn) {
         this.startIdleMonitor();
       } else {
@@ -25,11 +24,11 @@ export class AuthenticationService {
       }
     });
 
-    void this.init();
+    void this.init();*/
   }
 
   // null = not yet checked, true/false = known state
-  private readonly _isLoggedIn$ = new BehaviorSubject<boolean | null>(null);
+  /*private readonly _isLoggedIn$ = new BehaviorSubject<boolean | null>(null);
   public readonly isLoggedIn$ = this._isLoggedIn$.asObservable();
 
   private readonly _userProfile$ = new BehaviorSubject<KeycloakProfile | null>(
@@ -163,18 +162,18 @@ export class AuthenticationService {
     } catch (err) {
       console.error('Frontend failed to update user profile', err);
     }
-  }
+  }*/
 
-  private startIdleMonitor(): void {
+  /*private startIdleMonitor(): void {
     if (typeof document === 'undefined') {
       return;
     }
 
-    if (!this.activitySub) {
+    if (!this.activitySub) {*/
       /* merge and fromEvent is deprecated in RxJS 7, 
       consider using fromEventPattern or other 
       alternatives */
-      this.activitySub = merge(
+      /*this.activitySub = merge(
         fromEvent(document, 'keydown'),
         fromEvent(document, 'touchstart'),
         fromEvent(document, 'scroll'),
@@ -330,13 +329,13 @@ export class AuthenticationService {
       );
     }
     return Promise.resolve();
-  }
+  }*/
 
   /**
    * This only for when you want to send another verification email
    * @param userID - the ID of the user to send the verification email to.   
    */
-  async sendReverificationEmail(userID: string): Promise<void> {
+  /*async sendReverificationEmail(userID: string): Promise<void> {
     const kc: any = this.keycloak as any;
     const url = `${kc.authServerUrl}/admin/realms/${kc.realm}/users/${userID}/execute-actions-email`;
     await fetch(url, {
@@ -369,13 +368,13 @@ export class AuthenticationService {
         text: 'Failed to send verification email. Please try again later.\nError: ' + err.message,
       });
     });
-  }
+  }*/
 }
-
+/*
 interface UserRepresentation {
   username?: string;
   email?: string;
   firstName?: string;
   lastName?: string;
   emailVerified?: boolean | undefined;
-}
+}*/

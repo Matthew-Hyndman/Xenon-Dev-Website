@@ -1,4 +1,4 @@
-import { APP_INITIALIZER, ApplicationConfig, NgModule } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   BrowserModule,
@@ -14,18 +14,16 @@ import { SiteInfoComponent } from './components/site-info/site-info.component';
 import { BlackJackHelpComponent } from './components/black-jack-help/black-jack-help.component';
 import { BlackJackGameComponent } from './components/black-jack-game/black-jack-game.component';
 import { NoDoubleClickDirective } from './directives/no-double-click.directive';
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import {  
-  customBearerTokenInterceptor,
-  CUSTOM_BEARER_TOKEN_INTERCEPTOR_CONFIG,
-  provideKeycloak,
-  ProvideKeycloakOptions,
-} from 'keycloak-angular';
-import xenonDevConfig from './config/xenon-dev-config';
+import { provideHttpClient } from '@angular/common/http';
+//import xenonDevConfig from './config/xenon-dev-config';
 import { AccountProfileComponent } from './components/account-profile/account-profile.component';
 import { LeaderboardComponent } from './components/leaderboard/leaderboard.component';
 import { NgbModule, NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
 import { BlogComponent } from './components/blog/blog.component';
+import { AwsLoginComponent } from './components/aws-login/aws-login.component';
+
+import { AmplifyAuthenticatorModule } from '@aws-amplify/ui-angular';
+
 
 @NgModule({
   declarations: [
@@ -38,6 +36,7 @@ import { BlogComponent } from './components/blog/blog.component';
     AccountProfileComponent,
     LeaderboardComponent,
     BlogComponent,
+    AwsLoginComponent,
   ],
   imports: [
     CommonModule,
@@ -48,47 +47,11 @@ import { BlogComponent } from './components/blog/blog.component';
     AppRoutingModule,
     NgbModule,
     NgbPaginationModule,
-    RouterModule.forRoot(routes, { anchorScrolling: 'enabled', scrollPositionRestoration: 'enabled'}),
+    AmplifyAuthenticatorModule,
+    RouterModule.forRoot(routes, { anchorScrolling: 'enabled', scrollPositionRestoration: 'enabled'}),    
   ],
   providers: [    
-    // Register the HttpClient and the new functional Keycloak interceptor
-    provideHttpClient(withInterceptors([customBearerTokenInterceptor])),
-    // Configure the custom interceptor to skip adding the bearer for static assets / silent-check file
-    {
-      provide: CUSTOM_BEARER_TOKEN_INTERCEPTOR_CONFIG,
-      useValue: [
-        {
-          shouldAddToken: async (req: Request, next: any, keycloak: any) => {
-            const url = req.url ?? '';
-            // exclude static assets and the silent check file
-            if (url.includes('/assets') || url.includes('silent-check-sso.html')) {
-              return false;
-            }
-            return true;
-          },
-        },
-      ],
-    },
-    provideKeycloak({
-      config: {
-        url: xenonDevConfig.keycloak.url,
-        realm: xenonDevConfig.keycloak.realm,
-        clientId: xenonDevConfig.keycloak.clientId,
-      },
-      initOptions: {
-        onLoad: 'check-sso',
-        silentCheckSsoRedirectUri: window.location.origin + '/assets/silent-check-sso.html',
-        pkceMethod: 'S256',
-        flow: 'standard',
-        enableLogging: true,
-        checkLoginIframe: false,
-        responseMode: 'fragment',
-        redirectUri: window.location.origin + '/landing',
-        useNonce: false,
-      },
-      loadUserProfileAtStartUp: false,
-      bearerExcludedUrls: ['/assets', '/silent-check-sso.html'],
-    } as ProvideKeycloakOptions),
+    provideHttpClient(),
   ],
   bootstrap: [AppComponent],
 })
