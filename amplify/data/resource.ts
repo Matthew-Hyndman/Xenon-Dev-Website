@@ -14,7 +14,7 @@ const schema = a.schema({
     .identifier(['userId'])    
     .authorization((allow) => [allow.owner()]),
 
-  Player_Profile: a
+  PlayerProfile: a
     .model({
       player_id: a.id().required(),
       wins: a.integer().default(0),
@@ -30,11 +30,8 @@ export type Schema = ClientSchema<typeof schema>;
 export const data = defineData({
   schema,
   authorizationModes: {
-    // Owner-based rules should default to authenticated user pool auth.
+    // All models use owner-based auth, so userPool is the only mode needed.
     defaultAuthorizationMode: 'userPool',
-    apiKeyAuthorizationMode: {
-      expiresInDays: 30,
-    },
   },
 });
 

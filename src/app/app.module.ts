@@ -48,7 +48,7 @@ import { AmplifyAuthenticatorModule } from '@aws-amplify/ui-angular';
     NgbModule,
     NgbPaginationModule,
     AmplifyAuthenticatorModule,
-    RouterModule.forRoot(routes, { anchorScrolling: 'enabled', scrollPositionRestoration: 'enabled'}),    
+    RouterModule.forRoot(routes, { anchorScrolling: 'enabled', scrollPositionRestoration: 'enabled'}), 
   ],
   providers: [    
     provideHttpClient(),
