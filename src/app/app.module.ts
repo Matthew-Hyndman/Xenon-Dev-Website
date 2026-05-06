@@ -23,6 +23,7 @@ import { BlogComponent } from './components/blog/blog.component';
 import { AwsLoginComponent } from './components/aws-login/aws-login.component';
 
 import { AmplifyAuthenticatorModule } from '@aws-amplify/ui-angular';
+//import { AuthConfigModule } from './auth/auth-config.module';
 
 
 @NgModule({
@@ -43,12 +44,11 @@ import { AmplifyAuthenticatorModule } from '@aws-amplify/ui-angular';
     BrowserModule,
     FormsModule,
     ReactiveFormsModule,
-    //KeycloakAngularModule,
     AppRoutingModule,
     NgbModule,
     NgbPaginationModule,
     AmplifyAuthenticatorModule,
-    RouterModule.forRoot(routes, { anchorScrolling: 'enabled', scrollPositionRestoration: 'enabled'}), 
+    RouterModule.forRoot(routes, { anchorScrolling: 'enabled', scrollPositionRestoration: 'enabled'}),
   ],
   providers: [    
     provideHttpClient(),

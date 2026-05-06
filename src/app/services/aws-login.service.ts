@@ -16,8 +16,11 @@ import {
   fetchAuthSession,
   AuthUser,
   FetchUserAttributesOutput,
+  updateUserAttribute,
 } from 'aws-amplify/auth';
 import { Hub } from 'aws-amplify/utils';
+import { routes } from '../app-routing.module';
+import { Router } from '@angular/router';
 
 export interface AwsUserProfile {
   userId: string;
@@ -39,7 +42,7 @@ export class AwsLoginService {
   private readonly _userProfile$ = new BehaviorSubject<AwsUserProfile | null>(null);
   public readonly userProfile$ = this._userProfile$.asObservable();
 
-  constructor() {
+  constructor(private routes: Router) {
     this.listenToAuthEvents();
     void this.checkCurrentUser();
   }
@@ -49,6 +52,7 @@ export class AwsLoginService {
     Hub.listen('auth', async ({ payload }) => {
       switch (payload.event) {
         case 'signedIn':
+          this._isLoggedIn$.next(true);
           await this.refreshSession();
           break;
         case 'signedOut':
@@ -168,11 +172,13 @@ export class AwsLoginService {
 
   /** Update user profile attributes */
   async updateUserProfile(attributes: {
+    username?: string;
     givenName?: string;
     familyName?: string;
     email?: string;
   }): Promise<void> {
     const userAttributes: Record<string, string> = {};
+    if (attributes.username !== undefined) userAttributes['preferred_username'] = attributes.username;
     if (attributes.givenName !== undefined) userAttributes['given_name'] = attributes.givenName;
     if (attributes.familyName !== undefined) userAttributes['family_name'] = attributes.familyName;
     if (attributes.email !== undefined) userAttributes['email'] = attributes.email;
@@ -191,6 +197,13 @@ export class AwsLoginService {
     await deleteUser();
     this._isLoggedIn$.next(false);
     this._userProfile$.next(null);
+    this.routes.navigate(['/landing']);
+  }
+
+  async deletePlayerProfileRealtion(): Promise<void> {
+    const userAttributes: Record<string, string> = {};
+    userAttributes['custom:player_id'] = '';
+    await updateUserAttributes({ userAttributes });
   }
 
   /** Force-refresh the user profile from Cognito */

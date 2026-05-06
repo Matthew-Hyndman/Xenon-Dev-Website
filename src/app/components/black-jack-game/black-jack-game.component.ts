@@ -9,7 +9,7 @@ import Swal from 'sweetalert2';
 import { Subject, takeUntil } from 'rxjs';
 import {
   PlayerProfile,
-  PlayerProfileService,
+  PlayerProfileService
 } from '../../services/player-profile.service';
 import { AwsLoginService } from '../../services/aws-login.service';
 
@@ -19,7 +19,7 @@ const MAX_HAND_VALUE = 21;
   selector: 'app-black-jack-game',
   templateUrl: './black-jack-game.component.html',
   styleUrl: './black-jack-game.component.css',
-  standalone: false,
+  standalone: false
 })
 export class BlackJackGameComponent implements OnInit, OnDestroy {
   deck!: Deck;
@@ -50,7 +50,7 @@ export class BlackJackGameComponent implements OnInit, OnDestroy {
   constructor(
     private authenticationService: AwsLoginService,
     private blackJackGameService: BlackJackGameService,
-    private playerProfileService: PlayerProfileService,
+    private playerProfileService: PlayerProfileService
   ) {}
 
   ngOnDestroy(): void {
@@ -61,8 +61,7 @@ export class BlackJackGameComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.populatePlayerProfileIfExists();
 
-    this.useDealerCardRevealDelay =
-      this.blackJackGameService.getDealerTimerToggle();
+    this.useDealerCardRevealDelay = this.blackJackGameService.getDealerTimerToggle();
 
     this.startNewGame();
   }
@@ -85,7 +84,7 @@ export class BlackJackGameComponent implements OnInit, OnDestroy {
       if (this.isLoggedIn) {
         this.playerProfileService.updatePlayerProfile(
           this.playerProfile!.player_id!,
-          this.playerProfile!,
+          this.playerProfile!
         );
       }
       this.dealerHand.emptyHand();
@@ -111,12 +110,12 @@ export class BlackJackGameComponent implements OnInit, OnDestroy {
         inputAttributes: {
           min: '0',
           max: String(this.pot),
-          step: '1',
+          step: '1'
         },
         didOpen: () => {
           const inputRange = Swal.getInput()!;
           const inputNumber = Swal.getPopup()!.querySelector(
-            '#range-value',
+            '#range-value'
           ) as HTMLInputElement;
 
           Swal.getPopup()!.querySelector('output')!.style.display = 'none';
@@ -137,8 +136,8 @@ export class BlackJackGameComponent implements OnInit, OnDestroy {
         },
         confirmButtonText: 'Place Bet',
         showCancelButton: true,
-        cancelButtonText: 'I am not betting',
-      }).then((result) => {
+        cancelButtonText: 'I am not betting'
+      }).then(result => {
         this.useBettingSystem = result.isConfirmed;
         console.log(`useBettingSystem: [${this.useBettingSystem}]`);
         if (result.isConfirmed) {
@@ -161,19 +160,19 @@ export class BlackJackGameComponent implements OnInit, OnDestroy {
     try {
       theHand.addCard(newCard);
       console.log(
-        `${theHand.handName} picked: [${newCard.suit}][${newCard.value}][${newCard.imageUrl}]`,
+        `${theHand.handName} picked: [${newCard.suit}][${newCard.value}][${newCard.imageUrl}]`
       );
     } catch (error) {
       const errorFound = `${theHand.handName} Data:\nthe new Card [${String(
-        newCard.toString(),
+        newCard.toString()
       )}], \nHand Data:\n ${String(
-        theHand.toString(),
+        theHand.toString()
       )}\nerror message:\n${error}`;
       console.log(errorFound);
       Swal.fire({
         title: 'Error',
         icon: 'error',
-        text: errorFound,
+        text: errorFound
       });
     }
   }
@@ -196,7 +195,7 @@ export class BlackJackGameComponent implements OnInit, OnDestroy {
   }
 
   async sleep(milsec: number) {
-    return new Promise((resolve) => setTimeout(resolve, milsec));
+    return new Promise(resolve => setTimeout(resolve, milsec));
   }
 
   async stay() {
@@ -221,7 +220,7 @@ export class BlackJackGameComponent implements OnInit, OnDestroy {
         title: 'Draw!',
         text: `you scored: ${this.playerHand.handValue} | dealer scored: ${this.dealerHand.handValue}`,
         draggable: true,
-        didClose: () => {},
+        didClose: () => {}
       });
       if (this.useBettingSystem) {
         this.pot += this.bet;
@@ -263,7 +262,7 @@ export class BlackJackGameComponent implements OnInit, OnDestroy {
         text: `you scored: ${this.playerHand.handValue} | dealer scored: ${this.dealerHand.handValue}`,
         imageUrl: 'assets/images/trophy.png',
         draggable: true,
-        didClose: () => {},
+        didClose: () => {}
       });
       if (this.useBettingSystem) {
         let payout: number = 0;
@@ -296,7 +295,7 @@ export class BlackJackGameComponent implements OnInit, OnDestroy {
         text: `you scored: ${this.playerHand.handValue} | dealer scored: ${this.dealerHand.handValue}`,
         icon: 'error',
         draggable: true,
-        didClose: () => {},
+        didClose: () => {}
       });
       if (this.isDoublingDown) {
         this.pot -= this.bet;
@@ -337,38 +336,33 @@ export class BlackJackGameComponent implements OnInit, OnDestroy {
   }
 
   populatePlayerProfileIfExists() {
-    this.authenticationService.isLoggedIn$.subscribe((isLoggedIn) => {
+    this.authenticationService.isLoggedIn$.subscribe(isLoggedIn => {
       if (isLoggedIn) {
         this.isLoggedIn = isLoggedIn;
 
         this.authenticationService.userProfile$
           .pipe(takeUntil(this.destroy$))
-          .subscribe((userProfile) => {
-          this.playerHand = new Hand(userProfile?.username ?? 'Player');
-          this.dealerHand = new Hand('Dealer');
-        });
+          .subscribe(async userProfile => {
+            if (userProfile) {
+              this.playerHand = new Hand(userProfile?.username ?? 'Player');
+              this.dealerHand = new Hand('Dealer');
 
-        // get the player profile from the service
-        this.authenticationService.userProfile$
-          .pipe(takeUntil(this.destroy$))
-          .subscribe(async (userProfile) => {
-            if (!userProfile) {
-              return;
+              const exists = await this.playerProfileService.checkPlayerProfileExists(
+                userProfile!.userId,
+              );
+              if (!exists) {
+                return;
+              }
+
+              this.playerProfileService.playerProfile$
+                .pipe(takeUntil(this.destroy$))
+                .subscribe(profile => {
+                  this.playerProfile = profile;
+                  this.pot = profile?.pot ?? 3000;
+                  this.playerHand.wins = profile?.wins ?? 0;
+                  this.dealerHand.wins = profile?.losses ?? 0;
+                });
             }
-
-            const exists = await this.playerProfileService.checkPlayerProfileExists(userProfile.userId);
-            if (!exists) {
-              return;
-            }
-
-            this.playerProfileService.playerProfile$
-              .pipe(takeUntil(this.destroy$))
-              .subscribe((profile) => {
-                this.playerProfile = profile;
-                this.pot = profile?.pot ?? 3000;
-                this.playerHand.wins = profile?.wins ?? 0;
-                this.dealerHand.wins = profile?.losses ?? 0;
-              });
           });
       } else {
         this.isLoggedIn = false;

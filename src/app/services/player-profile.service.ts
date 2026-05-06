@@ -1,29 +1,43 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, catchError, of, firstValueFrom } from 'rxjs';
+import {
+  BehaviorSubject,
+  Observable,
+  catchError,
+  of,
+  firstValueFrom
+} from 'rxjs';
 import { tap } from 'rxjs/operators';
 import xenonDevConfig from '../config/xenon-dev-config';
 import { AwsLoginService } from './aws-login.service';
+import { generateClient } from 'aws-amplify/data';
+import { updateUserAttributes } from 'aws-amplify/auth';
+import { Schema } from '../../../amplify/data/resource';
+import { a } from '@aws-amplify/backend';
 
 export interface PlayerProfile {
-  player_id?: number;
+  player_id?: string;
   losses?: number;
   pot?: number;
   wins?: number;
 }
 
+const client = generateClient<Schema>();
+
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class PlayerProfileService {
   private readonly httpClient = inject(HttpClient);
   private readonly awsLoginService = inject(AwsLoginService);
   private readonly playerProfileCache = new Map<string, PlayerProfile>();
   private readonly profileChecked$ = new BehaviorSubject<Map<string, boolean>>(
-    new Map(),
+    new Map()
   );
 
-  private readonly _playerProfile$ = new BehaviorSubject<PlayerProfile | null>(null);
+  private readonly _playerProfile$ = new BehaviorSubject<PlayerProfile | null>(
+    null
+  );
   public readonly playerProfile$ = this._playerProfile$.asObservable();
 
   /**
@@ -33,18 +47,20 @@ export class PlayerProfileService {
   async checkPlayerProfileExists(userId: string): Promise<boolean> {
     // Check cache first
     const cache = this.profileChecked$.value;
-    if (cache.has(userId)) {
+    /*if (cache.has(userId)) {
       return cache.get(userId) || false;
-    }
+    }*/
+
+    const playerId = this.awsLoginService.getUserProfile()?.attributes['custom:player_id'] as string;
 
     try {
-      const profile = await this.getPlayerProfile(userId);
+      const profile = await this.getPlayerProfile(userId, playerId);
       const exists = profile !== null;
 
       // Update cache
-      cache.set(userId, exists);
+      cache.set(playerId, exists);
       this.profileChecked$.next(cache);
-      
+
       if (exists) {
         // Update player profile observable
         this._playerProfile$.next(profile);
@@ -53,7 +69,7 @@ export class PlayerProfileService {
       return exists;
     } catch (error) {
       // Profile doesn't exist
-      cache.set(userId, false);
+      cache.set(playerId, false);
       this.profileChecked$.next(cache);
       return false;
     }
@@ -63,40 +79,27 @@ export class PlayerProfileService {
    * Retrieve player profile by user ID
    * Returns null if profile doesn't exist (404 error)
    */
-  async getPlayerProfile(userId: string): Promise<PlayerProfile | null> {
+  async getPlayerProfile(userId: string, playerId: string): Promise<PlayerProfile | null> {
     // Check in-memory cache first
-    if (this.playerProfileCache.has(userId)) {
+    /*if (this.playerProfileCache.has(userId)) {
       return this.playerProfileCache.get(userId)!;
-    }
-
-    const token = await this.getRequiredAccessToken();
-
-    const profile = await firstValueFrom(
-      this.httpClient
-        .get<PlayerProfile>(
-          `${xenonDevConfig.SpringAPIServer.url}/api/player/getPlayerDetails/${userId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        )
-        .pipe(
-          tap((result) => {
-            console.log('Fetched player profile:', result);
-          }),
-          catchError((error) => {
-            if (error.status === 404) {
-              console.info('Player profile not found for user');
-              return of(null);
-            } else {
-              console.error('Error fetching player profile:', error);
-              throw error;
-            }
-          }),
-        ),
+    }*/
+    let profile: PlayerProfile | null = null;
+    await client.models.PlayerProfile.get({ player_id: playerId }).then(
+      response => {
+        if (response?.data) {
+        console.log(`retrived`, response);                
+        profile = {
+          player_id: response?.data?.player_id,
+          losses: response?.data?.losses as number,
+          pot: response?.data?.pot as number,
+          wins: response?.data?.wins as number
+        };
+      } else {
+        console.log(`No playerprofile found`);
+      }
+      }
     );
-
     if (profile) {
       // Cache the result
       this.playerProfileCache.set(userId, profile);
@@ -112,98 +115,69 @@ export class PlayerProfileService {
     const playerProfile: PlayerProfile = {
       pot: 3000,
       wins: 0,
-      losses: 0,
+      losses: 0
     };
 
-    const token = await this.getRequiredAccessToken();
+    const player_Profile_id: string = crypto.randomUUID(); // Generate a unique ID for the player profile
 
-    return this.httpClient
-      .post<PlayerProfile>(
-        `${xenonDevConfig.SpringAPIServer.url}/api/player/createPlayer/${userId}`,
-        playerProfile,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      )
-      .pipe(
-        tap((response) => {
-          // Invalidate cache after creation
-          this.playerProfileCache.delete(userId);
-          const cache = this.profileChecked$.value;
-          cache.delete(userId);
-          this.profileChecked$.next(cache);
-          this.playerProfileCache.set(userId, response);
-          this._playerProfile$.next(response);
-        }),
-        catchError((error) => {
-          console.error('Error creating player profile:', error);
-          throw error;
-        }),
-      )
-      .subscribe();
+    const userAttributes: Record<string, string> = {};
+    userAttributes['custom:player_id'] = player_Profile_id;
+    await updateUserAttributes({ userAttributes });
+
+    client.models.PlayerProfile.create({
+      player_id: player_Profile_id,
+      ...playerProfile
+    }).then(() => {
+      // Invalidate cache after creation
+      this.playerProfileCache.delete(userId);
+      const cache = this.profileChecked$.value;
+      cache.delete(userId);
+      this.profileChecked$.next(cache);
+      this.playerProfileCache.set(userId, playerProfile);
+      this._playerProfile$.next(playerProfile);
+    });
   }
 
   /**
    * reset player profile to default values
    */
-  async resetPlayerProfile(profile_id: number) {
-    const token = await this.getRequiredAccessToken();
-    this.httpClient
-      .get<PlayerProfile>(
-        `${xenonDevConfig.SpringAPIServer.url}/api/player/resetPlayer/${profile_id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      )
-      .subscribe({
-        next: (restPlayerProfile) => {
-          console.log('Player profile reset successfully:', restPlayerProfile);
-          // Invalidate cache after reset
-          this.playerProfileCache.delete(profile_id.toString());
-          const cache = this.profileChecked$.value;
-          cache.delete(profile_id.toString());
-          this.profileChecked$.next(cache);
-          this.playerProfileCache.set(profile_id.toString(), restPlayerProfile);
-          this._playerProfile$.next(restPlayerProfile);
-        },
-        error: (error) => {
-          console.error('Error resetting player profile:', error);
-        },
+  async resetPlayerProfile(player_id: string) {
+    const playerProfile: PlayerProfile = {      
+      pot: 3000,
+      wins: 0,
+      losses: 0
+    };
+
+    client.models.PlayerProfile.update({
+      player_id,
+      ...playerProfile
+    })
+      .then(updatedProfile => {
+        console.log('Player profile reset successfully:', updatedProfile);
+        // Invalidate cache after reset
+        this.playerProfileCache.delete(player_id);
+        const cache = this.profileChecked$.value;
+        cache.delete(player_id);
+        this.profileChecked$.next(cache);
+        playerProfile.player_id = player_id; // Ensure player_id is set in the profile
+        this.playerProfileCache.set(player_id, playerProfile);
+        this._playerProfile$.next(playerProfile);
+      })
+      .catch(error => {
+        console.error('Error resetting player profile:', error);
       });
   }
 
   /**
    * Delete player profile by Player ID
    */
-  async deletePlayerProfile(profile_id: number) {
-    const token = await this.getRequiredAccessToken();
-    this.httpClient
-      .delete(
-        `${xenonDevConfig.SpringAPIServer.url}/api/player/deletePlayer/${profile_id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      )
-      .subscribe({
-        next: () => {
-          console.log('Player profile deleted successfully');
-          // Invalidate cache after deletion
-          this.playerProfileCache.delete(profile_id.toString());
-          const cache = this.profileChecked$.value;
-          cache.delete(profile_id.toString());
-          this.profileChecked$.next(cache);
-        },
-        error: (error) => {
-          console.error('Error deleting player profile:', error);
-        },
-      });
+  async deletePlayerProfile(player_id: string) {
+    client.models.PlayerProfile.delete({ player_id }).then(() => {
+      this.awsLoginService.deletePlayerProfileRealtion();
+      // Clear player profile cache on deletion
+      this.clearCache(player_id);
+      this._playerProfile$.next(null);
+    });
   }
 
   /**
@@ -221,26 +195,14 @@ export class PlayerProfileService {
     }
   }
 
-  async updatePlayerProfile(profile_id: number, thePlayerProfile: PlayerProfile) {
-    const token = await this.getRequiredAccessToken();
-    this.httpClient
-      .patch(
-        `${xenonDevConfig.SpringAPIServer.url}/api/player/updatePlayer/${profile_id}`,
-        thePlayerProfile,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      )
-      .subscribe({
-        next: (response) => {
-          console.log('Player profile updated successfully:', response);
-        },
-        error: (error) => {
-          console.error('Error updating player profile:', error);
-        },
-      });
+  async updatePlayerProfile(profile_id: string, thePlayerProfile: PlayerProfile) {
+    
+    client.models.PlayerProfile.update({
+      player_id: profile_id,
+      ...thePlayerProfile
+    })
+    .then(() => console.log('Player profile updated successfully'))
+    .catch(error => console.error('Error updating player profile:', error));        
   }
 
   /**

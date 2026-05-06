@@ -31,7 +31,7 @@ export class AccountProfileComponent implements OnDestroy, OnInit {
   playerProfile: PlayerProfile | null = null;
 
   constructor(
-    private authService: AwsLoginService,
+    private awsLoginService: AwsLoginService,
     private playerProfileService: PlayerProfileService,
     private formBuilder: FormBuilder,
   ) {
@@ -91,7 +91,7 @@ export class AccountProfileComponent implements OnDestroy, OnInit {
   }
 
   async getUserDetails(): Promise<void> {
-    this.authService.userProfile$
+    this.awsLoginService.userProfile$
       .pipe(takeUntil(this.destroy$))
       .subscribe(async (user) => {
         this.user = user;
@@ -167,7 +167,8 @@ export class AccountProfileComponent implements OnDestroy, OnInit {
         });
       }
 
-      await this.authService.updateUserProfile({
+      await this.awsLoginService.updateUserProfile({
+        username: userRep.username,
         email: userRep.email,
         givenName: userRep.firstName,
         familyName: userRep.lastName,
@@ -177,7 +178,7 @@ export class AccountProfileComponent implements OnDestroy, OnInit {
       this.toggleEditMode();
 
       if (shouldSendVerificationEmail) {
-        await this.authService.sendEmailVerificationCode();
+        await this.awsLoginService.sendEmailVerificationCode();
       }
     }
   }
@@ -231,12 +232,12 @@ export class AccountProfileComponent implements OnDestroy, OnInit {
     }).then((result) => {
       if (result.isConfirmed) {
         // Call the service to reset the player profile
-        const profileId = this.playerProfile?.player_id;
+        const profileId = this.user?.attributes['custom:player_id'] as string;
         this.playerProfileService
-          .resetPlayerProfile(profileId!)
+          .resetPlayerProfile(profileId)
           .then(() => {
-            this.playerProfile = {
-              player_id: profileId!,
+            this.playerProfile = {     
+              player_id: profileId,         
               pot: 3000,
               wins: 0,
               losses: 0,
@@ -321,14 +322,14 @@ export class AccountProfileComponent implements OnDestroy, OnInit {
     }).then(async (result) => {
       if (result.isConfirmed) {
         // Call the service to delete the account
-        await this.authService.deleteAccount().catch(async () => {
+        await this.awsLoginService.deleteAccount().catch(async () => {
           await Swal.fire(
             'Error!',
             'There was an error deleting your account.',
             'error',
           );
         });
-        await this.authService.logout();
+        await this.awsLoginService.logout();
       }
     });
   }
@@ -339,7 +340,7 @@ export class AccountProfileComponent implements OnDestroy, OnInit {
    * function will handle re-verification.
    */
   reverifyEmail() {
-    void this.authService.sendEmailVerificationCode();
+    void this.awsLoginService.sendEmailVerificationCode();
   }
 
   ngOnDestroy(): void {
