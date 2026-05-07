@@ -16,11 +16,11 @@ import {
   fetchAuthSession,
   AuthUser,
   FetchUserAttributesOutput,
-  updateUserAttribute,
 } from 'aws-amplify/auth';
 import { Hub } from 'aws-amplify/utils';
-import { routes } from '../app-routing.module';
 import { Router } from '@angular/router';
+import { Schema } from '../../../amplify/data/resource';
+import { generateClient } from 'aws-amplify/api';
 
 export interface AwsUserProfile {
   userId: string;
@@ -32,6 +32,8 @@ export interface AwsUserProfile {
   attributes: FetchUserAttributesOutput;
 }
 
+const client = generateClient<Schema>();
+
 @Injectable({
   providedIn: 'root',
 })
@@ -42,7 +44,9 @@ export class AwsLoginService {
   private readonly _userProfile$ = new BehaviorSubject<AwsUserProfile | null>(null);
   public readonly userProfile$ = this._userProfile$.asObservable();
 
-  constructor(private routes: Router) {
+  constructor(
+    private routes: Router,
+  ) {
     this.listenToAuthEvents();
     void this.checkCurrentUser();
   }
@@ -194,9 +198,15 @@ export class AwsLoginService {
 
   /** Delete the current user's account */
   async deleteAccount(): Promise<void> {
+    const playerId = this._userProfile$.value?.attributes['custom:player_id'];
+    if (playerId) {
+      this.deletePlayerProfileRealtion();
+      await client.models.PlayerProfile.delete({ player_id: playerId });      
+    }
     await deleteUser();
     this._isLoggedIn$.next(false);
     this._userProfile$.next(null);
+    await signOut();
     this.routes.navigate(['/landing']);
   }
 

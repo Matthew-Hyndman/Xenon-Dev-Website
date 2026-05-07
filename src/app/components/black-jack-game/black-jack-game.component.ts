@@ -58,12 +58,13 @@ export class BlackJackGameComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  ngOnInit(): void {
-    this.populatePlayerProfileIfExists();
+  async ngOnInit(): Promise<void> {
+    await this.populatePlayerProfileIfExists();
 
     this.useDealerCardRevealDelay = this.blackJackGameService.getDealerTimerToggle();
 
     this.startNewGame();
+  
   }
 
   async startNewGame() {
@@ -335,7 +336,7 @@ export class BlackJackGameComponent implements OnInit, OnDestroy {
     return value;
   }
 
-  populatePlayerProfileIfExists() {
+  async populatePlayerProfileIfExists(): Promise<void> {
     this.authenticationService.isLoggedIn$.subscribe(isLoggedIn => {
       if (isLoggedIn) {
         this.isLoggedIn = isLoggedIn;
@@ -347,11 +348,14 @@ export class BlackJackGameComponent implements OnInit, OnDestroy {
               this.playerHand = new Hand(userProfile?.username ?? 'Player');
               this.dealerHand = new Hand('Dealer');
 
+
+              //add the player Profile creation here
+
               const exists = await this.playerProfileService.checkPlayerProfileExists(
                 userProfile!.userId,
               );
               if (!exists) {
-                return;
+                this.playerProfileService.createPlayerProfile(userProfile!.userId);
               }
 
               this.playerProfileService.playerProfile$

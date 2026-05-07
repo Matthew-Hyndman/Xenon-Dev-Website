@@ -1,16 +1,24 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  Validators
+} from '@angular/forms';
 import { Router } from '@angular/router';
 import { BlackJackHelpService } from '../../services/black-jack-help.service';
-import { AwsLoginService, AwsUserProfile } from '../../services/aws-login.service';
+import {
+  AwsLoginService,
+  AwsUserProfile
+} from '../../services/aws-login.service';
 import { Subject, takeUntil } from 'rxjs';
 import { PlayerProfileService } from '../../services/player-profile.service';
 
 @Component({
-    selector: 'app-black-jack-help',
-    templateUrl: './black-jack-help.component.html',
-    styleUrl: './black-jack-help.component.css',
-    standalone: false
+  selector: 'app-black-jack-help',
+  templateUrl: './black-jack-help.component.html',
+  styleUrl: './black-jack-help.component.css',
+  standalone: false
 })
 export class BlackJackHelpComponent implements OnInit, OnDestroy {
   showErrorMessage = false;
@@ -28,7 +36,7 @@ export class BlackJackHelpComponent implements OnInit, OnDestroy {
     private blackJackHelpService: BlackJackHelpService,
     private formBuilder: FormBuilder,
     private authService: AwsLoginService,
-    private playerProfileService: PlayerProfileService,
+    private playerProfileService: PlayerProfileService
   ) {}
 
   ngOnDestroy(): void {
@@ -40,34 +48,37 @@ export class BlackJackHelpComponent implements OnInit, OnDestroy {
     this.blackJackHelpFromGroup = this.formBuilder.group({
       blackJackHelpChildFromGroup: this.formBuilder.group({
         disclaimer: new FormControl(false, [Validators.requiredTrue])
-      }),
+      })
     });
 
     this.getUserProfile();
-
   }
 
   async getUserProfile(): Promise<void> {
     this.authService.userProfile$
-    .pipe(takeUntil(this.destroy$))
-    .subscribe(profile => {
-      if(profile) {
-        this.userProfile = profile;
-        this.isLoggedIn = true;
-      } else {
-        this.userProfile = null;
-        this.isLoggedIn = false;
-      }
-    });
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(profile => {
+        if (profile) {
+          this.userProfile = profile;
+          this.isLoggedIn = true;
+        } else {
+          this.userProfile = null;
+          this.isLoggedIn = false;
+        }
+      });
   }
 
   get disclaimer() {
-    return this.blackJackHelpFromGroup.get('blackJackHelpChildFromGroup.disclaimer');
+    return this.blackJackHelpFromGroup.get(
+      'blackJackHelpChildFromGroup.disclaimer'
+    );
   }
 
   setIsAgreedToTermsAndConditions(event: any) {
     let accepted = event.target.checked;
-    this.blackJackHelpFromGroup.setValue({blackJackHelpChildFromGroup: {disclaimer: accepted }});
+    this.blackJackHelpFromGroup.setValue({
+      blackJackHelpChildFromGroup: { disclaimer: accepted }
+    });
     this.blackJackHelpService.setHasUserAgreedToDisclamer(accepted);
   }
 
@@ -80,18 +91,7 @@ export class BlackJackHelpComponent implements OnInit, OnDestroy {
       this.blackJackHelpService.isHasUserAgreedToDisclaimerTrue() &&
       this.disclaimer?.value
     ) {
-
-      if (!this.isLoggedIn) {
-        this.router.navigate(['/black-jack-game']);
-        return;
-      } else {        
-        if (!(await this.playerProfileService.checkPlayerProfileExists(this.userProfile!.userId))) {
-            await this.playerProfileService.createPlayerProfile(this.userProfile!.userId);
-        }
-        this.router.navigate(['black-jack-game']);
-        return;
-      }
-
+      this.router.navigate(['/black-jack-game']);
     } else {
       this.showErrorMessage = true;
     }
