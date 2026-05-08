@@ -11,12 +11,13 @@ import { tap } from 'rxjs/operators';
 import xenonDevConfig from '../config/xenon-dev-config';
 import { AwsLoginService } from './aws-login.service';
 import { generateClient } from 'aws-amplify/data';
-import { updateUserAttributes } from 'aws-amplify/auth';
+import { updateUserAttributes, getCurrentUser } from 'aws-amplify/auth';
 import { Schema } from '../../../amplify/data/resource';
 import { a } from '@aws-amplify/backend';
 
 export interface PlayerProfile {
   player_id?: string;
+  username?: string;
   losses?: number;
   pot?: number;
   wins?: number;
@@ -112,7 +113,7 @@ export class PlayerProfileService {
    * Create a new player profile
    */
   async createPlayerProfile(userId: string) {
-    const playerProfile: PlayerProfile = {
+    const playerProfile: PlayerProfile = {      
       pot: 3000,
       wins: 0,
       losses: 0
@@ -126,6 +127,7 @@ export class PlayerProfileService {
 
     client.models.PlayerProfile.create({
       player_id: player_Profile_id,
+      username: (await getCurrentUser()).username,
       ...playerProfile
     }).then(() => {
       // Invalidate cache after creation
