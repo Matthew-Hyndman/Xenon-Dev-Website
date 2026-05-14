@@ -4,66 +4,29 @@ backend:
   phases:
     build:
       commands:
-        - echo "Skipping backend deployment"
+        - echo "deploying backend sandbox environment"
+        - npx @aws-amplify/backend-cli sandbox
 frontend:
   phases:
     preBuild:
       commands:
         # Clear Amplify cache
-        - rm -rf .amplify
+        #- rm -rf .amplify
 
         # Install dependencies with legacy peer deps support
-        - npm install --legacy-peer-deps
-
-        # Default to prod if BUILD_ENV is not set on Amplify branch
-        - export BUILD_ENV=${BUILD_ENV:-prod}
+        - npm install #--legacy-peer-deps
 
         # Runtime config file for the selected build environment
-        - |
-          if [ "$BUILD_ENV" = "prod" ]; then
-            cat > src/assets/config.prod.json <<EOF
-          {
-            "keycloak": {
-              "url": "${AWS_PROD_KEYCLOAK_URL}",
-              "realm": "${AWS_PROD_KEYCLOAK_REALM}",
-              "clientId": "${AWS_PROD_KEYCLOAK_CLIENT_ID}"
-            },
-            "SpringAPIServer": {
-              "url": "${AWS_PROD_SPRING_API_URL}"
-            }
-          }
-          EOF
-          elif [ "$BUILD_ENV" = "dev" ]; then
-            cat > src/assets/config.dev.json <<EOF
-          {
-            "keycloak": {
-              "url": "${AWS_DEV_KEYCLOAK_URL}",
-              "realm": "${AWS_DEV_KEYCLOAK_REALM}",
-              "clientId": "${AWS_DEV_KEYCLOAK_CLIENT_ID}"
-            },
-            "SpringAPIServer": {
-              "url": "${AWS_DEV_SPRING_API_URL}"
-            }
-          }
-          EOF
-          else
-            echo "Unsupported BUILD_ENV=$BUILD_ENV. Use dev or prod."
-            exit 1
-          fi
+
 
         - npx ng version
     build:
       commands:
-        # Aggressive memory limits for large build
-        #- export NODE_OPTIONS="--max_old_space_size=4096 --max-semi-space-size=1024"
-        #- export NG_BUILD_MAX_WORKERS=1
-        #- npx ng build --configuration=production --source-map=false --poll=2000
-
         # the dev build commands
-        - npm run build:${BUILD_ENV}
+        - npm run build
     postBuild:
       commands:
-        - echo "Build complete for BUILD_ENV=${BUILD_ENV}"
+        - echo "Build complete"
 
   artifacts:
     # Angular 19 puts browser output under dist/<name>/browser

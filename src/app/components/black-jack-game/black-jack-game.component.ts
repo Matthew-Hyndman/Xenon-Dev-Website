@@ -64,7 +64,6 @@ export class BlackJackGameComponent implements OnInit, OnDestroy {
     this.useDealerCardRevealDelay = this.blackJackGameService.getDealerTimerToggle();
 
     this.startNewGame();
-  
   }
 
   async startNewGame() {
@@ -348,23 +347,36 @@ export class BlackJackGameComponent implements OnInit, OnDestroy {
               this.playerHand = new Hand(userProfile?.username ?? 'Player');
               this.dealerHand = new Hand('Dealer');
 
-
               //add the player Profile creation here
 
               const exists = await this.playerProfileService.checkPlayerProfileExists(
-                userProfile!.userId,
+                userProfile!.userId
               );
               if (!exists) {
-                this.playerProfileService.createPlayerProfile(userProfile!.userId);
+                this.playerProfile = {
+                  player_id:
+                    (await this.playerProfileService.createPlayerProfile(
+                      userProfile!.userId
+                    )) ?? 'error_creating_profile'
+                };
               }
+
+              const DEFAULT_POT = 3000;
+              const DEFAULT_WINS = 0;
+              const DEFAULT_LOSSES = 0;
 
               this.playerProfileService.playerProfile$
                 .pipe(takeUntil(this.destroy$))
                 .subscribe(profile => {
-                  this.playerProfile = profile;
-                  this.pot = profile?.pot ?? 3000;
-                  this.playerHand.wins = profile?.wins ?? 0;
-                  this.dealerHand.wins = profile?.losses ?? 0;
+                  this.playerProfile = { 
+                    player_id: profile?.player_id ?? this.playerProfile?.player_id,
+                    pot: profile?.pot ?? DEFAULT_POT,
+                    wins: profile?.wins ?? DEFAULT_WINS,
+                    losses: profile?.losses ?? DEFAULT_LOSSES,
+                   };
+                  this.pot = profile?.pot ?? DEFAULT_POT;
+                  this.playerHand.wins = profile?.wins ?? DEFAULT_WINS;
+                  this.dealerHand.wins = profile?.losses ?? DEFAULT_LOSSES;
                 });
             }
           });

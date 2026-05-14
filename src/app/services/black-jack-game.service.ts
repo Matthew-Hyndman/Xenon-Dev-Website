@@ -1,5 +1,4 @@
 import { inject, Injectable, PLATFORM_ID } from '@angular/core';
-import { KeycloakProfile } from 'keycloak-js';
 import { Hand } from '../common/hand';
 import xenonDevConfig from '../config/xenon-dev-config';
 import { HttpClient } from '@angular/common/http';
