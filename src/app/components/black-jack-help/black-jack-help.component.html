@@ -1,8 +1,24 @@
 <div class="main-content">
   <div class="section-content section-content-p30">
-    <div class="container-fulid">
+    <div class="container-fulid" *ngIf="isLoggedIn !== null; else loading">
       <h1>Black Jack rules and disclaimer</h1>
       <h3>Rules</h3>
+      @if (!isLoggedIn) {
+        <ngb-alert [type]="'info'" [dismissible]="false">
+          <strong>Please Note:</strong><br />
+          You can play this game without logging in, but you will not be able to
+          save your progress (wins, losses, and pot amount). <br />
+          If you do login or register, you will get the additional benefits of
+          having your progress saved and being able to view it on the
+          leaderboards! <br />
+          The following information is required to register an account: <br />
+          - A valid email address <br />
+          - A password <br />
+          - A username <br />
+          - First and last name<br />
+          <a class="btn btn-info" (click)="login()">Login or Register Now</a>
+        </ngb-alert>
+      }
       <p><strong>Objective</strong></p>
 
       <p>
@@ -75,31 +91,31 @@
 
       <p><strong>Tips:</strong></p>
       <ul></ul>
-      <p class="desktop-text" style="text-align: center;">
-        You can view a card’s value by hovering over it with your cursor <br>
+      <p class="desktop-text" style="text-align: center">
+        You can view a card’s value by hovering over it with your cursor <br />
         Hover over The Card!
       </p>
-      <p class="mobile-text" style="text-align: center;">
-        You can view a card’s value by pressing it <br>
+      <p class="mobile-text" style="text-align: center">
+        You can view a card’s value by pressing it <br />
         Press The Card!
       </p>
-      <div class="card-entity" style="display: flex; justify-self: center;">
-            <div class="card-inner">
-              <img
-                class="card-front"
-                src="assets/images/cards/Default_Deck/DimKing.png"
-                alt="value: 10"
-              />
-              <div class="card-back">
-                <img
-                  class="card-back-image"
-                  src="assets/images/card-tool-tip.png"
-                  alt="card-tool-tip"
-                />
-                <p>Value 10</p>
-              </div>
-            </div>
+      <div class="card-entity" style="display: flex; justify-self: center">
+        <div class="card-inner">
+          <img
+            class="card-front"
+            src="assets/images/cards/Default_Deck/DimKing.png"
+            alt="value: 10"
+          />
+          <div class="card-back">
+            <img
+              class="card-back-image"
+              src="assets/images/card-tool-tip.png"
+              alt="card-tool-tip"
+            />
+            <p>Value 10</p>
           </div>
+        </div>
+      </div>
       <hr />
       <br />
       <h3>Liability Disclaimer:</h3>
@@ -148,6 +164,16 @@
           or update the game's rules and regulations at any time. Players are
           responsible for staying informed about any changes.
         </p>
+        @if (this.userProfile) {
+          <p>
+            8. <strong>Player Profile Creation</strong> After agreeing to this
+            disclaimer, a player profile will be created for your account. The
+            relevant information to be stored: <br />
+            - Pot (number of tokens the player has) <br />
+            - Wins (number of games won by the player) <br />
+            - Losses (number of games lost by the player) <br />
+          </p>
+        }
         <p>
           By participating in this blackjack game, you acknowledge that you have
           read, understood, and agreed to this liability disclaimer and the
@@ -170,13 +196,17 @@
               </span>
             </label>
             @if (showErrorMessage) {
-            <div class="row alert alert-danger mt-1">
-              You must tick the check box to Continue to the game
-            </div>
+              <div class="row alert alert-danger mt-1">
+                You must tick the check box to Continue to the game
+              </div>
             }
 
             <div class="row">
-              <button type="submit" class="btn btn-info" style="max-width: 100px;">
+              <button
+                type="submit"
+                class="btn btn-info"
+                style="max-width: 100px"
+              >
                 Continue
               </button>
             </div>
@@ -184,5 +214,11 @@
         </form>
       </div>
     </div>
+    <ng-template #loading>
+      <!-- From Uiverse.io by dovatgabriel -->
+      <div style="display: flex; justify-content: center; align-items: center">
+        <div class="spinner"></div>
+      </div>
+    </ng-template>
   </div>
 </div>

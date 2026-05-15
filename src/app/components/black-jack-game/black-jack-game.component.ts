@@ -1,23 +1,27 @@
-import { Component, OnInit} from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 
 import { Deck } from './game-objects/deck';
 import { Hand } from '../../common/hand';
-import { Router } from '@angular/router';
-import { BlackJackHelpService } from '../../services/black-jack-help.service';
-import { BlckJackGameService } from '../../services/blck-jack-game.service';
+import { BlackJackGameService } from '../../services/black-jack-game.service';
 import { Card } from '../../common/card';
 
 import Swal from 'sweetalert2';
+import { Subject, takeUntil } from 'rxjs';
+import {
+  PlayerProfile,
+  PlayerProfileService
+} from '../../services/player-profile.service';
+import { AwsLoginService } from '../../services/aws-login.service';
 
 const MAX_HAND_VALUE = 21;
 
 @Component({
-    selector: 'app-black-jack-game',
-    templateUrl: './black-jack-game.component.html',
-    styleUrl: './black-jack-game.component.css',
-    standalone: false
+  selector: 'app-black-jack-game',
+  templateUrl: './black-jack-game.component.html',
+  styleUrl: './black-jack-game.component.css',
+  standalone: false
 })
-export class BlackJackGameComponent implements OnInit {
+export class BlackJackGameComponent implements OnInit, OnDestroy {
   deck!: Deck;
   dealerHand!: Hand;
   playerHand!: Hand;
@@ -37,23 +41,29 @@ export class BlackJackGameComponent implements OnInit {
   pot: number = 0;
   bet: number = 0;
 
+  private playerProfile: PlayerProfile | null = null;
+
+  private readonly destroy$ = new Subject<void>();
+
+  isLoggedIn: boolean | null = false;
+
   constructor(
-    private router: Router,
-    private blackJackHelpService: BlackJackHelpService,
-    private blackJackGameService: BlckJackGameService
+    private authenticationService: AwsLoginService,
+    private blackJackGameService: BlackJackGameService,
+    private playerProfileService: PlayerProfileService
   ) {}
 
-  ngOnInit(): void {
-    let theDataIsTrue =
-      this.blackJackHelpService.isHasUserAgreedToDisclaimerTrue();
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
-      this.useDealerCardRevealDelay = this.blackJackGameService.getDealerTimerToggle();
+  async ngOnInit(): Promise<void> {
+    await this.populatePlayerProfileIfExists();
 
-    if (theDataIsTrue) {
-      this.startNewGame();
-    } else {
-      this.router.navigate(['black-jack-help']);
-    }
+    this.useDealerCardRevealDelay = this.blackJackGameService.getDealerTimerToggle();
+
+    this.startNewGame();
   }
 
   async startNewGame() {
@@ -65,10 +75,18 @@ export class BlackJackGameComponent implements OnInit {
     }
 
     if (this.isFirstGame) {
-      this.dealerHand = new Hand('Dealer');
-      this.playerHand = new Hand('Player');
+      if (!this.isLoggedIn) {
+        this.playerHand = new Hand('Player');
+        this.dealerHand = new Hand('Dealer');
+      }
       this.isFirstGame = false;
     } else {
+      if (this.isLoggedIn) {
+        this.playerProfileService.updatePlayerProfile(
+          this.playerProfile!.player_id!,
+          this.playerProfile!
+        );
+      }
       this.dealerHand.emptyHand();
       this.playerHand.emptyHand();
     }
@@ -92,7 +110,7 @@ export class BlackJackGameComponent implements OnInit {
         inputAttributes: {
           min: '0',
           max: String(this.pot),
-          step: '1',
+          step: '1'
         },
         didOpen: () => {
           const inputRange = Swal.getInput()!;
@@ -118,8 +136,8 @@ export class BlackJackGameComponent implements OnInit {
         },
         confirmButtonText: 'Place Bet',
         showCancelButton: true,
-        cancelButtonText: 'I am not betting',
-      }).then((result) => {
+        cancelButtonText: 'I am not betting'
+      }).then(result => {
         this.useBettingSystem = result.isConfirmed;
         console.log(`useBettingSystem: [${this.useBettingSystem}]`);
         if (result.isConfirmed) {
@@ -135,7 +153,6 @@ export class BlackJackGameComponent implements OnInit {
 
     //pick on card for the player
     this.addToHand(this.playerHand);
-
   }
 
   addToHand(theHand: Hand) {
@@ -155,7 +172,7 @@ export class BlackJackGameComponent implements OnInit {
       Swal.fire({
         title: 'Error',
         icon: 'error',
-        text: errorFound,
+        text: errorFound
       });
     }
   }
@@ -178,7 +195,7 @@ export class BlackJackGameComponent implements OnInit {
   }
 
   async sleep(milsec: number) {
-    return new Promise((resolve) => setTimeout(resolve, milsec));
+    return new Promise(resolve => setTimeout(resolve, milsec));
   }
 
   async stay() {
@@ -187,7 +204,7 @@ export class BlackJackGameComponent implements OnInit {
     do {
       this.addToHand(this.dealerHand);
       dealerScore = this.dealerHand.handValue;
-      if(this.useDealerCardRevealDelay){
+      if (this.useDealerCardRevealDelay) {
         await this.sleep(1250);
       }
       if (this.hasScoreExceededMaxValue(dealerScore)) {
@@ -203,7 +220,7 @@ export class BlackJackGameComponent implements OnInit {
         title: 'Draw!',
         text: `you scored: ${this.playerHand.handValue} | dealer scored: ${this.dealerHand.handValue}`,
         draggable: true,
-        didClose: () => {},
+        didClose: () => {}
       });
       if (this.useBettingSystem) {
         this.pot += this.bet;
@@ -229,7 +246,9 @@ export class BlackJackGameComponent implements OnInit {
   async Bust(theHand: Hand) {
     if (theHand.handName === 'Dealer') {
       this.playerHand.wins += 1;
-
+      if (this.isLoggedIn) {
+        this.playerProfile!.wins! += 1;
+      }
       let winType = '';
 
       if (this.isHandBlackJack(this.playerHand)) {
@@ -243,7 +262,7 @@ export class BlackJackGameComponent implements OnInit {
         text: `you scored: ${this.playerHand.handValue} | dealer scored: ${this.dealerHand.handValue}`,
         imageUrl: 'assets/images/trophy.png',
         draggable: true,
-        didClose: () => {},
+        didClose: () => {}
       });
       if (this.useBettingSystem) {
         let payout: number = 0;
@@ -259,6 +278,9 @@ export class BlackJackGameComponent implements OnInit {
         this.pot += payout;
       }
     } else {
+      if (this.isLoggedIn) {
+        this.playerProfile!.losses! += 1;
+      }
       this.dealerHand.wins += 1;
       let lossType = '';
 
@@ -273,13 +295,16 @@ export class BlackJackGameComponent implements OnInit {
         text: `you scored: ${this.playerHand.handValue} | dealer scored: ${this.dealerHand.handValue}`,
         icon: 'error',
         draggable: true,
-        didClose: () => {},
+        didClose: () => {}
       });
       if (this.isDoublingDown) {
         this.pot -= this.bet;
       }
     }
     this.handThatWentBust = theHand;
+    if (this.isLoggedIn) {
+      this.playerProfile!.pot! = this.pot;
+    }
     this.startNewGame();
   }
 
@@ -288,7 +313,7 @@ export class BlackJackGameComponent implements OnInit {
     this.startNewGame();
   }
 
-  isDealerCardDelayEnabled(event: any){
+  isDealerCardDelayEnabled(event: any) {
     this.useDealerCardRevealDelay = event.target.checked;
     this.blackJackGameService.setDealerTimerToggle(event.target.checked);
   }
@@ -309,5 +334,55 @@ export class BlackJackGameComponent implements OnInit {
 
     return value;
   }
-  
+
+  async populatePlayerProfileIfExists(): Promise<void> {
+    this.authenticationService.isLoggedIn$.subscribe(isLoggedIn => {
+      if (isLoggedIn) {
+        this.isLoggedIn = isLoggedIn;
+
+        this.authenticationService.userProfile$
+          .pipe(takeUntil(this.destroy$))
+          .subscribe(async userProfile => {
+            if (userProfile) {
+              this.playerHand = new Hand(userProfile?.username ?? 'Player');
+              this.dealerHand = new Hand('Dealer');
+
+              //add the player Profile creation here
+
+              const exists = await this.playerProfileService.checkPlayerProfileExists(
+                userProfile!.userId
+              );
+              if (!exists) {
+                this.playerProfile = {
+                  player_id:
+                    (await this.playerProfileService.createPlayerProfile(
+                      userProfile!.userId
+                    )) ?? 'error_creating_profile'
+                };
+              }
+
+              const DEFAULT_POT = 3000;
+              const DEFAULT_WINS = 0;
+              const DEFAULT_LOSSES = 0;
+
+              this.playerProfileService.playerProfile$
+                .pipe(takeUntil(this.destroy$))
+                .subscribe(profile => {
+                  this.playerProfile = { 
+                    player_id: profile?.player_id ?? this.playerProfile?.player_id,
+                    pot: profile?.pot ?? DEFAULT_POT,
+                    wins: profile?.wins ?? DEFAULT_WINS,
+                    losses: profile?.losses ?? DEFAULT_LOSSES,
+                   };
+                  this.pot = profile?.pot ?? DEFAULT_POT;
+                  this.playerHand.wins = profile?.wins ?? DEFAULT_WINS;
+                  this.dealerHand.wins = profile?.losses ?? DEFAULT_LOSSES;
+                });
+            }
+          });
+      } else {
+        this.isLoggedIn = false;
+      }
+    });
+  }
 }

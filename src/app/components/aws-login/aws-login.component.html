@@ -1,0 +1,168 @@
+<div class="main-content">
+  <div class="section-content section-content-p30">
+    <div class="container-fulid center">
+      <!-- Show Amplify authenticator when not logged in -->
+      <div *ngIf="!isLoggedIn">
+        <div class="box">
+        <amplify-authenticator class="center">
+            <ng-template amplifySlot="header" class="center">
+              <img
+                src="assets\images\logo-title.png"
+                alt="title"
+                class="title-img"                
+              />
+            </ng-template>
+
+            <ng-template amplifySlot="sign-in-header" class="center">
+              <h3
+                class="amplify-heading"
+                style="padding: var(--amplify-space-xl) 0 0 var(--amplify-space-xl)"
+              >
+                Sign in to your account
+              </h3>
+            </ng-template>
+
+            <ng-template amplifySlot="sign-in-footer">
+              <div style="text-align: center">
+                <button
+                  class="amplify-button amplify-field-group__control"
+                  data-fullwidth="false"
+                  data-size="small"
+                  data-variation="link"
+                  type="button"
+                  style="font-weight: normal"
+                >
+                  Reset Password
+                </button>
+              </div>
+            </ng-template>
+
+            <ng-template amplifySlot="sign-up-header">
+              <h3
+                class="amplify-heading"
+                style="padding: var(--amplify-space-xl) 0 0 var(--amplify-space-xl)"
+              >
+                Create a new account
+              </h3>
+            </ng-template>
+
+            <ng-template amplifySlot="sign-up-footer">
+              <div style="text-align: center">
+                <!--(click)="awsLoginService.login()"-->
+                <button class="amplify-button amplify-field-group__control"
+                  data-fullwidth="false" data-size="small" data-variation="link"
+                  type="button" style="font-weight: normal" > Back to Sign In
+                  
+                </button>
+              </div>
+            </ng-template>            
+
+            <ng-template amplifySlot="confirm-sign-up-header">
+              <h3
+                class="amplify-heading"
+                style="padding: var(--amplify-space-xl) 0 0 var(--amplify-space-xl)"
+              >
+                Enter Information:
+              </h3>
+            </ng-template>
+
+            <ng-template amplifySlot="confirm-sign-up-footer">
+              <div>Footer Information</div>
+            </ng-template>
+
+            <ng-template amplifySlot="setup-totp-header">
+              <h3
+                class="amplify-heading"
+                style="padding: var(--amplify-space-xl) 0 0 var(--amplify-space-xl)"
+              >
+                Enter Information:
+              </h3>
+            </ng-template>
+
+            <ng-template amplifySlot="setup-totp-footer">
+              <div>Footer Information</div>
+            </ng-template>
+
+            <ng-template amplifySlot="confirm-sign-in-header">
+              <h3
+                class="amplify-heading"
+                style="padding: var(--amplify-space-xl) 0 0 var(--amplify-space-xl)"
+              >
+                Enter Information:
+              </h3>
+            </ng-template>
+
+            <ng-template amplifySlot="confirm-sign-in-footer">
+              <div>Footer Information</div>
+            </ng-template>
+
+            <ng-template amplifySlot="forgot-password-header">
+              <h3
+                class="amplify-heading"
+                style="padding: var(--amplify-space-xl) 0 0 var(--amplify-space-xl)"
+              >
+                Enter Information:
+              </h3>
+            </ng-template>
+
+            <ng-template amplifySlot="forgot-password-footer">
+              <div>Footer Information</div>
+            </ng-template>
+
+            <ng-template amplifySlot="confirm-reset-password-header">
+              <h3
+                class="amplify-heading"
+                style="padding: var(--amplify-space-xl) 0 0 var(--amplify-space-xl)"
+              >
+                Enter Information:
+              </h3>
+            </ng-template>
+
+            <ng-template amplifySlot="select-mfa-type-header">
+              <h3 class="amplify-heading">Select Desired MFA Type</h3>
+            </ng-template>
+
+            <ng-template amplifySlot="select-mfa-type-footer">
+              <div>Footer Information</div>
+            </ng-template>
+
+            <ng-template amplifySlot="setup-email-header">
+              <h3 class="amplify-heading">Email MFA Setup</h3>
+            </ng-template>
+
+            <ng-template amplifySlot="setup-email-footer">
+              <div>Footer Information</div>
+            </ng-template>
+
+            <ng-template
+              amplifySlot="authenticated"
+              let-user="user"
+              let-signOut="signOut"
+            >
+              <h2>Welcome, {{ user.username }}!</h2>
+              <button (click)="signOut()">Sign Out</button>
+            </ng-template>
+          
+        </amplify-authenticator>
+      </div>
+      </div>
+
+      <!-- Show profile when logged in -->
+      <div *ngIf="isLoggedIn && userProfile">
+        <h2>Welcome, {{ userProfile.firstName || userProfile.email }}</h2>
+        <p><strong>Email:</strong> {{ userProfile.email }}</p>
+        <p *ngIf="userProfile.firstName">
+          <strong>First Name:</strong> {{ userProfile.firstName }}
+        </p>
+        <p *ngIf="userProfile.lastName">
+          <strong>Last Name:</strong> {{ userProfile.lastName }}
+        </p>
+        <p>
+          <strong>Email Verified:</strong>
+          {{ userProfile.emailVerified ? "Yes" : "No" }}
+        </p>
+        <button class="btn btn-danger" (click)="onSignOut()">Sign Out</button>
+      </div>
+    </div>
+  </div>
+</div>
