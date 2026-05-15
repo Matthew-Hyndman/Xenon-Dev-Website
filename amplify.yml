@@ -4,29 +4,36 @@ backend:
   phases:
     build:
       commands:
-        - echo "Skipping backend deployment for now"
+        - echo "deploying backend"
+        - npx ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
 frontend:
   phases:
     preBuild:
       commands:
         # Clear Amplify cache
-        - rm -rf .amplify
+        #- rm -rf .amplify
 
         # Install dependencies with legacy peer deps support
-        - npm install --legacy-peer-deps
-        
+        - npm install #--legacy-peer-deps
+
+        # Runtime config file for the selected build environment
+
+
         - npx ng version
     build:
       commands:
-        # Aggressive memory limits for large build
-        - export NODE_OPTIONS="--max_old_space_size=4096 --max-semi-space-size=1024"
-        - export NG_BUILD_MAX_WORKERS=1
-        - npx ng build --configuration=production --source-map=false --poll=2000
+        # the dev build commands
+        - npm run build
+    postBuild:
+      commands:
+        - echo "Build complete"
+        - du -sh dist/amplify-angular-template/browser
+
   artifacts:
     # Angular 19 puts browser output under dist/<name>/browser
     baseDirectory: dist/amplify-angular-template/browser
     files:
-      - '**/*'
+      - "**/*"
   cache:
     paths:
       - node_modules/**/*

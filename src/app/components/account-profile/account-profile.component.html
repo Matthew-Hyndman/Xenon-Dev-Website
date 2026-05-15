@@ -1,0 +1,332 @@
+<div class="main-content">
+  <div class="section-content section-content-p30">
+    <div class="container-fulid" *ngIf="user; else loading">
+      <h1>Your Profile</h1>
+      @if (!isUserEmailVerified) {
+        <ngb-alert [dismissible]="false">
+          Your email is unverified. To resend verification email
+          <button class="btn btn-info" (click)="reverifyEmail()">
+            click here
+          </button></ngb-alert
+        >
+      }
+      <div class="col">
+        <div class="row">
+          <div class="table-format mb-3">
+            <form [formGroup]="userForm">
+              <table>
+                <thead>
+                  <tr>
+                    <th class="form-header-title">Account Details</th>
+                    <th></th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Username -->
+                  <tr>
+                    <td>
+                      <strong>Username:</strong>
+                    </td>
+                    @if (!editMode) {
+                      <td>
+                        {{ user!.username }}
+                      </td>
+                      <td></td>
+                    } @else {
+                      <td>
+                        <input
+                          class="xenon-profile-form-input"
+                          type="text"
+                          formControlName="username"
+                        />
+                        <!-- Error message -->
+                        <div
+                          *ngIf="
+                            userForm.get('username')?.invalid &&
+                            userForm.get('username')?.touched
+                          "
+                          class="form-error-message"
+                        >
+                          <small
+                            *ngIf="
+                              userForm.get('username')?.errors?.['required']
+                            "
+                            >Username is required.</small
+                          >
+                        </div>
+                      </td>
+                      <td>
+                        <button
+                          type="button"
+                          class="xenon-profile-form-revert-button"
+                          (click)="revertUsername()"
+                          tooltip="Revert Username"
+                        >
+                          <i
+                            class="fa-solid fa-arrow-rotate-left"
+                            style="color: white"
+                          ></i>
+                        </button>
+                      </td>
+                    }
+                  </tr>
+
+                  <!-- Email -->
+                  <tr>
+                    <td>
+                      <strong>Email:</strong>
+                    </td>
+                    @if (!editMode) {
+                      <td>{{ user!.email }}</td>
+                      <td></td>
+                    } @else {
+                      <td>
+                        <input
+                          class="xenon-profile-form-input"
+                          type="email"
+                          formControlName="email"
+                        />
+                        <!-- Error message -->
+                        <div
+                          *ngIf="
+                            userForm.get('email')?.invalid &&
+                            userForm.get('email')?.touched
+                          "
+                          class="form-error-message"
+                        >
+                          <small
+                            *ngIf="userForm.get('email')?.errors?.['required']"
+                            >Email is required.</small
+                          >
+                          <small
+                            *ngIf="userForm.get('email')?.errors?.['email']"
+                            >Invalid email format.</small
+                          >
+                        </div>
+                      </td>
+                      <td>
+                        <button
+                          type="button"
+                          class="xenon-profile-form-revert-button"
+                          (click)="revertEmail()"
+                          tooltip="Revert Email"
+                        >
+                          <i
+                            class="fa-solid fa-arrow-rotate-left"
+                            style="color: white"
+                          ></i>
+                        </button>
+                      </td>
+                    }
+                  </tr>
+
+                  <!-- Name -->
+                  @if (!editMode) {
+                    <tr>
+                      <td>
+                        <strong>Name:</strong>
+                      </td>
+                      <td>{{ user!.firstName }} {{ user!.lastName }}</td>
+                      <td></td>
+                    </tr>
+                  } @else {
+                    <tr>
+                      <td>
+                        <strong>First Name:</strong>
+                      </td>
+                      <td>
+                        <input
+                          class="xenon-profile-form-input"
+                          type="text"
+                          formControlName="firstName"
+                        />
+                        <!-- Error message -->
+                        <div
+                          *ngIf="
+                            userForm.get('firstName')?.invalid &&
+                            userForm.get('firstName')?.touched
+                          "
+                          class="form-error-message"
+                        >
+                          <small
+                            *ngIf="
+                              userForm.get('firstName')?.errors?.['required']
+                            "
+                            >First Name is required.</small
+                          >
+                        </div>
+                      </td>
+                      <td>
+                        <button
+                          type="button"
+                          class="xenon-profile-form-revert-button"
+                          (click)="revertFirstname()"
+                          tooltip="Revert First Name"
+                        >
+                          <i
+                            class="fa-solid fa-arrow-rotate-left"
+                            style="color: white"
+                          ></i>
+                        </button>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td>
+                        <strong>Last Name:</strong>
+                      </td>
+                      <td>
+                        <input
+                          class="xenon-profile-form-input"
+                          type="text"
+                          formControlName="lastName"
+                        />
+                        <!-- Error message -->
+                        <div
+                          *ngIf="
+                            userForm.get('lastName')?.invalid &&
+                            userForm.get('lastName')?.touched
+                          "
+                          class="form-error-message"
+                        >
+                          <small
+                            *ngIf="
+                              userForm.get('lastName')?.errors?.['required']
+                            "
+                            >Last Name is required.</small
+                          >
+                        </div>
+                      </td>
+                      <td>
+                        <button
+                          type="button"
+                          class="xenon-profile-form-revert-button"
+                          (click)="revertLastname()"
+                          tooltip="Revert Last Name"
+                        >
+                          <i
+                            class="fa-solid fa-arrow-rotate-left"
+                            style="color: white"
+                          ></i>
+                        </button>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </form>
+            <!-- only visible when loading -->
+            <ng-template #loading>
+              <tr>
+                <td colspan="2"><p>Loading user details...</p></td>
+              </tr>
+            </ng-template>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <!-- buttons -->
+            <div class="form-buttons mb-2">
+              @if (editMode) {
+                <button class="btn btn-info" type="button" (click)="revert()">
+                  Revert
+                </button>
+                <button class="btn btn-info" type="button" (click)="save()">
+                  Save
+                </button>
+              } @else {
+                <button
+                  class="btn btn-info"
+                  type="button"
+                  (click)="toggleEditMode()"
+                >
+                  Edit
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+        @if (playerProfile) {
+          <div class="row">
+            <div class="col">
+              <div class="table-format mb-3">
+                <table>
+                  <thead>
+                    <tr>
+                      <th class="form-header-title">Player Profile</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <strong>Player Profile ID</strong>
+                      </td>
+                      <td>{{ playerProfile!.player_id }}</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Wins</strong></td>
+                      <td>{{ playerProfile!.wins }}</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Losses</strong></td>
+                      <td>{{ playerProfile!.losses }}</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Pot</strong></td>
+                      <td>{{ playerProfile!.pot }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="form-buttons mb-3">
+            <button
+              class="btn btn-info"
+              type="button"
+              (click)="resetPlayerProfile()"
+            >
+              Reset Player Profile Data
+            </button>
+            <br />
+            <button
+              class="btn btn-info"
+              type="button"
+              (click)="deletePlayerProfile()"
+            >
+              Delete Player Profile
+            </button>
+          </div>
+        } @else {
+          <ngb-alert [type]="'info'" [dismissible]="false">
+            <strong>Info:</strong><br />
+            You do not have a player profile yet. A player profile will be
+            created when you play the Black Jack game. The player profile stores
+            your wins, losses and pot.
+          </ngb-alert>
+        }
+
+        <div class="row danger-box mt-2">
+          <div class="col">
+            <h3>Danger Zone</h3>
+            <p>
+              Warning: Deleting your Account is irreversible. Please proceed
+              with caution
+              <button class="btn btn-info" (click)="deleteAccount()">
+                Delete Account
+              </button>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <ng-template #loading>
+      <!-- From Uiverse.io by dovatgabriel -->
+      <div style="display: flex; justify-content: center; align-items: center">
+        <div class="spinner"></div>
+      </div>
+    </ng-template>
+  </div>
+</div>

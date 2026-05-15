@@ -3,6 +3,13 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "type": "java",
+      "name": "BackendServerWebsiteApplication",
+      "request": "launch",
+      "mainClass": "com.xenon_dev.backend_server_website.BackendServerWebsiteApplication",
+      "projectName": "backend-server-website"
+    },
+    {
       "name": "ng serve",
       "type": "chrome",
       "request": "launch",

@@ -1,55 +1,101 @@
 import { Component, HostListener } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
 //import { TodosComponent } from './todos/todos.component';
-import { Amplify } from 'aws-amplify';
-//import outputs from '../../amplify_outputs.json';
-import {
-  AmplifyAuthenticatorModule,
-  AuthenticatorService,
-} from '@aws-amplify/ui-angular';
-import { MiniNavMenuComponent } from './components/mini-nav-menu/mini-nav-menu.component';
 import { NavLinks } from './common/nav-links';
 import { LinkObj } from './common/link-obj';
-import { routes } from './app-routing.module';
-import { LandingComponent } from './components/landing/landing.component';
-//import { a } from '@aws-amplify/backend';
-
-//Amplify.configure(outputs);
+import { AwsLoginService } from './services/aws-login.service';
+import { Router } from '@angular/router';
 
 @Component({
-    selector: 'app-root',
-    templateUrl: './app.component.html',
-    styleUrl: './app.component.css',
-    standalone: false
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrl: './app.component.css',
+  standalone: false,
+  //imports: [RouterOutlet, /*TodosComponent, AmplifyAuthenticatorModule,*/ MiniNavMenuComponent],
 })
 export class AppComponent {
-  shouldShowMobileNav: boolean = false;
-
   title = 'Xenon-Dev';
   links!: LinkObj[];
 
-  constructor(private navLinks: NavLinks) {
+  protected shouldShowMobileNav: boolean = false;
+  protected isLoggedInToSession: boolean = false;
+
+  private loggedInNavLinksEnabled: boolean = false;
+
+  constructor(
+    private router: Router,
+    private navLinks: NavLinks,
+    private awsLoginService: AwsLoginService,
+  ) {
     this.links = this.navLinks.links;
+    this.isLoggedInCheck();
+  }
+
+  toggleLoggedInLinks() {
+    this.loggedInNavLinksEnabled = !this.loggedInNavLinksEnabled;
+    this.setLoggedInLinksEnabled(this.loggedInNavLinksEnabled);
+  }
+
+  private setLoggedInLinksEnabled(isLoggedIn: boolean) {
+    this.navLinks.links.forEach((link) => {
+      if (link.name === 'Profile' || link.name === 'Logout') {
+        link.enable = isLoggedIn;
+      } else if (link.name === 'Login') {
+        link.enable = !isLoggedIn;
+      }
+    });
+    this.loggedInNavLinksEnabled = isLoggedIn;
   }
 
   toggleMobileNav() {
     this.shouldShowMobileNav = !this.shouldShowMobileNav;
   }
 
-  setShouldShowMobileNavToFalse(){
+  setShouldShowMobileNavToFalse() {
     this.shouldShowMobileNav = false;
   }
 
   @HostListener('document:scroll', ['$event'])
-    onDocumentMousewheelEvent(event: any){
-      if (this.shouldShowMobileNav) {
-        this.shouldShowMobileNav = false;
-      }
+  onDocumentMousewheelEvent(event: any) {
+    if (this.shouldShowMobileNav) {
+      this.shouldShowMobileNav = false;
     }
+  }
 
-  /*title = 'amplify-angular-template';
+  async login() {
+    await this.router.navigate(['/aws-login']);
+  }
 
-  constructor(public authenticator: AuthenticatorService) {
-    Amplify.configure(outputs);
-  }*/
+  async logout() {
+    await this.awsLoginService.logout();
+    await this.router.navigate(['/landing']);
+  }
+
+  isLoggedInCheck() {
+    try {
+      this.awsLoginService.isLoggedIn$.subscribe((result) => {
+        this.isLoggedInToSession = result ?? false;
+        this.setLoggedInLinksEnabled(this.isLoggedInToSession);
+      });
+    } catch (error) {
+      console.error('Could not read if session is created: ', error);
+    }
+  }
+
+  /**
+   * This method should ONLY be used in HTML click events.
+   * Sets the mobile navigation link click behavior.
+   */
+  setMobileNavLinkClick(link: LinkObj) {
+    switch (link.name) {
+      case 'Login':
+        this.login();
+        break;
+      case 'Logout':
+        this.logout();
+        break;
+      default:
+        this.router.navigate([link.path]);        
+        this.setShouldShowMobileNavToFalse();
+    }
+  }
 }

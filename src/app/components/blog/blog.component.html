@@ -1,0 +1,1962 @@
+<div class="main-content">
+  <div class="section-content section-content-p30">
+    <div class="container-fulid">
+      <h1>Blog</h1>
+
+      <!-- Phase 1 -->
+      <h2>Phase 1 completed</h2>
+      <p>
+        Phase 1 was where it all started. The objective was straightforward:
+        build a functional, publicly deployed frontend that demonstrated real
+        engineering decisions rather than a throw-away prototype. In this phase,
+        I focused on establishing a solid foundation — learning how to deploy an
+        Angular application through AWS Amplify, getting to grips with the
+        Angular framework itself, and applying disciplined HTML, CSS,
+        TypeScript, and JavaScript practices throughout. The entries below
+        document the key tools and topics I worked through, the problems I
+        encountered, and the decisions that shaped the production site you are
+        reading now.
+      </p>
+
+      <!-- AWS Amplify -->
+      <div class="blog-accordion" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="blog-accordion-header">
+              AWS Amplify
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="blog-accordion-body">
+                <p>
+                  Choosing a deployment platform for Phase 1 required something
+                  that could handle a CI/CD pipeline without requiring a
+                  dedicated DevOps background to configure from scratch. AWS
+                  Amplify was the clear choice: it integrates directly with a
+                  GitHub repository, automatically rebuilds and deploys on every
+                  push to a tracked branch, and handles HTTPS, CDN distribution,
+                  and custom domain configuration out of the box.
+                </p>
+                <p>
+                  Given that I had never used a hosting platform before, the
+                  setup process was a significant learning experience. The
+                  Amplify console walks you through connecting a repository,
+                  selecting a branch to track, and configuring the build
+                  settings. The defaults are a reasonable starting point, but
+                  they required several adjustments to work with the Angular
+                  project structure and build process. And at this point, I had
+                  not yet learned the principle of paying close attention to
+                  configuration details — which meant that the first few builds
+                  failed unexpectedly.
+                </p>
+                <p>
+                  The setup process itself surfaced an important principle early
+                  on: the environment you deploy to is rarely identical to your
+                  local development environment. Node version mismatches and
+                  missing environment-specific settings caused the first several
+                  builds to fail before the pipeline was stable. Resolving this
+                  required pinning the Node version explicitly inside
+                  <code>amplify.yml</code> and aligning the build command with
+                  the Angular production configuration. Once those details were
+                  locked in, every subsequent push to the tracked branch
+                  deployed automatically without manual intervention — which is
+                  precisely the value of a well-configured pipeline.
+                </p>
+                <p>
+                  Amplify also introduced me to the concept of separating branch
+                  environments. The <strong>main</strong> branch maps to the
+                  public-facing production site, while the
+                  <strong>Dev</strong> branch maps to a private preview
+                  environment — a pattern that was later formalised as part of
+                  the branching strategy described in the Phase 2 entry on
+                  GitHub team management tools.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- amplify.yml -->
+      <div class="blog-accordion mt-2" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="blog-accordion-header">
+              amplify.yml
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="blog-accordion-body">
+                <p>
+                  <code>amplify.yml</code> is the build specification file that
+                  tells AWS Amplify exactly how to install, build, and package
+                  the application during each deployment. Without it, Amplify
+                  falls back to auto-detected defaults — which are rarely
+                  correct for a project with specific Node version requirements
+                  or custom build flags.
+                </p>
+                <p>
+                  The version I arrived at after several failed builds looks
+                  like this:
+                </p>
+                <pre class="blog-code-block">
+                  <code class="language-yaml">
+                  version: 1
+                  frontend:
+                    phases:
+                      preBuild:
+                        commands:
+                          - nvm use 20         # pin node version to match local dev
+                          - npm ci             # clean install — reproducible builds
+                      build:
+                        commands:
+                          - npm run build      # runs ng build --configuration production
+                    artifacts:
+                      baseDirectory: dist/amplify-angular-template-test/browser
+                      files:
+                        - '**/*'
+                    cache:
+                      paths:
+                        - node_modules/**/*   # cache dependencies between builds
+                </code>
+              </pre>
+                <p>
+                  A few things are worth highlighting here. Using
+                  <code>npm ci</code> rather than
+                  <code>npm install</code> ensures that every build installs
+                  dependencies exactly as specified in
+                  <code>package-lock.json</code>, eliminating the risk of a
+                  dependency version drifting between deploys. The
+                  <code>baseDirectory</code> must point to the exact output
+                  folder Angular generates — getting this wrong produces a
+                  deployment that serves a blank page with no obvious error in
+                  the Amplify console. These were the kind of small but critical
+                  details that Phase 1 taught me to pay close attention to.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sweet Alert 2 -->
+      <div class="blog-accordion mt-2" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="blog-accordion-header">
+              Sweet Alert 2
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="blog-accordion-body">
+                <p>
+                  The native browser <code>alert()</code>,
+                  <code>confirm()</code>, and <code>prompt()</code> dialogs are
+                  functional but visually inconsistent with a polished frontend.
+                  SweetAlert2 replaces them with fully customisable, animated
+                  modal dialogs that can be styled to match the rest of the
+                  application. Integrating it into the Angular project was
+                  straightforward via NPM:
+                </p>
+                <pre class="blog-code-block">
+                  <code class="language-bash">
+                  npm install sweetalert2
+                </code>
+              </pre>
+                <p>
+                  From there, calling a dialog is a single import and a
+                  promise-based API call:
+                </p>
+                <pre class="blog-code-block">
+                  <code class="language-typescript">
+                  import Swal from 'sweetalert2';
+
+                  Swal.fire({{ '{' }}
+                    title: 'Are you sure?',
+                    text: 'This action cannot be undone.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, proceed',
+                    cancelButtonText: 'Cancel'
+                  {{ '}' }}).then((result) => {{ '{' }}
+                    if (result.isConfirmed) {{ '{' }}
+                      // handle confirmation
+                    {{ '}' }}
+                  {{ '}' }});
+                </code>
+              </pre>
+                <p>
+                  Beyond aesthetics, SweetAlert2 encourages better UX habits.
+                  Replacing a raw <code>confirm()</code> with a styled dialog
+                  that clearly names the action being confirmed reduces the
+                  chance of a user dismissing a destructive prompt without
+                  reading it. It is a small detail, but it reflects the broader
+                  principle that production-quality UX is built from many small
+                  deliberate decisions.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HTML -->
+      <div class="blog-accordion mt-2" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="blog-accordion-header">
+              HTML
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="blog-accordion-body">
+                <p>
+                  HTML forms the structural backbone of every page on this site.
+                  While it is tempting to treat HTML as trivial — it is, after
+                  all, the starting point for most web developers — writing
+                  clean, semantic HTML has a measurable impact on accessibility,
+                  SEO, and the long-term maintainability of a project. Phase 1
+                  reinforced a discipline of reaching for the correct semantic
+                  element rather than defaulting to
+                  <code>&lt;div&gt;</code> for everything.
+                </p>
+                <p>
+                  In an Angular context, HTML templates also carry
+                  framework-specific responsibility. Data binding, event
+                  handling, structural directives, and component composition all
+                  live in the template layer. Getting comfortable with Angular's
+                  template syntax — particularly the distinction between
+                  property binding <code>[property]</code>, event binding
+                  <code>(event)</code>, and two-way binding
+                  <code>[(ngModel)]</code> — was an early focus that paid
+                  dividends throughout the rest of the phase.
+                </p>
+                <p>
+                  One pattern that proved especially useful was decomposing
+                  pages into small, focused components with clear input and
+                  output contracts. This keeps individual templates short and
+                  readable, and it mirrors the separation of concerns principle
+                  that applies equally on the backend.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CSS – Animations -->
+      <div class="blog-accordion mt-2" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="blog-accordion-header">
+              CSS – Animations
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="blog-accordion-body">
+                <p>
+                  Animations are one of the areas where a site's perceived
+                  quality is most immediately felt. An abrupt transition between
+                  states — a button that changes colour in a single frame, a
+                  panel that appears instantaneously — reads as unfinished.
+                  Thoughtfully applied CSS animations and transitions smooth
+                  those state changes and give the interface a sense of
+                  responsiveness and physicality.
+                </p>
+                <p>
+                  The approach used throughout this project relies primarily on
+                  CSS
+                  <code>transition</code> for hover states and simple property
+                  changes, and <code>&#64;keyframes</code> for entrance and
+                  loading animations:
+                </p>
+                <pre class="blog-code-block">
+                  <code class="language-css">
+                  /* Smooth hover transition on nav links */
+                  .nav-link {{ '{' }}
+                    color: var(--text-secondary);
+                    transition: color 0.2s ease, border-bottom 0.2s ease;
+                  {{ '}' }}
+
+                  .nav-link:hover {{ '{' }}
+                    color: var(--accent);
+                    border-bottom: 2px solid var(--accent);
+                  {{ '}' }}
+
+                  /* Entrance animation for page content */
+                  &#64;keyframes fadeSlideIn {{ '{' }}
+                    from {{ '{' }}
+                      opacity: 0;
+                      transform: translateY(12px);
+                    {{ '}' }}
+                    to {{ '{' }}
+                      opacity: 1;
+                      transform: translateY(0);
+                    {{ '}' }}
+                  {{ '}' }}
+
+                  .main-content {{ '{' }}
+                    animation: fadeSlideIn 0.35s ease forwards;
+                  {{ '}' }}
+                </code>
+              </pre>
+                <p>
+                  One discipline that Phase 1 established early was restraint.
+                  Animation should serve the user, not distract them. Every
+                  animation in this project has a duration of 0.35 seconds or
+                  less for interactive elements, and entrance animations are
+                  used sparingly — only where they reinforce the structure of
+                  the content rather than simply adding visual noise.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CSS – Layout -->
+      <div class="blog-accordion mt-2" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="blog-accordion-header">
+              CSS – Layout
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="blog-accordion-body">
+                <p>
+                  Layout is the most consequential CSS decision in any project.
+                  Getting it wrong produces pages that break on certain screen
+                  sizes, require excessive overrides to adjust, and become
+                  increasingly difficult to maintain as the component tree
+                  grows. Phase 1 established a consistent layout system built on
+                  CSS Flexbox and Grid, with a clear convention for when to use
+                  each.
+                </p>
+                <p>
+                  Flexbox handles one-dimensional alignment — navigation bars,
+                  card rows, and any component where items need to be
+                  distributed along a single axis. Grid handles two-dimensional
+                  page structure — the overall page shell, multi-column content
+                  areas, and responsive section arrangements. Keeping this
+                  distinction consistent throughout the codebase prevents the
+                  situation where layout rules fight each other and produce
+                  unpredictable results at certain viewport sizes.
+                </p>
+                <p>
+                  Responsive design was built in from the start rather than
+                  retrofitted. All layout breakpoints use relative units and
+                  <code>clamp()</code> where appropriate to allow fluid scaling
+                  between viewport sizes, reducing the number of explicit media
+                  queries needed to maintain a usable layout across devices. The
+                  result is a site that renders cleanly on both desktop and
+                  mobile without a separate mobile stylesheet.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- JavaScript -->
+      <div class="blog-accordion mt-2" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="blog-accordion-header">
+              JavaScript
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="blog-accordion-body">
+                <p>
+                  JavaScript underpins every interactive behaviour on the
+                  frontend. In an Angular project, most of that logic is written
+                  in TypeScript — but a solid grounding in the JavaScript
+                  runtime is still essential. Angular's compilation model,
+                  change detection, and asynchronous data flows all depend on
+                  JavaScript fundamentals that are easy to overlook when working
+                  exclusively at the framework level.
+                </p>
+                <p>
+                  Two areas received the most attention during Phase 1. The
+                  first was the event loop and asynchronous execution model —
+                  understanding why
+                  <code>Promise</code> callbacks and
+                  <code>async/await</code> behave differently from synchronous
+                  code, and how Angular's zone-based change detection interacts
+                  with asynchronous operations. The second was the module
+                  system: understanding the difference between ES modules and
+                  CommonJS, and how Angular's build pipeline resolves and
+                  bundles imports.
+                </p>
+                <p>
+                  Working through these fundamentals made debugging
+                  significantly more productive. Rather than treating unexpected
+                  behaviour as framework magic, having a mental model of the
+                  runtime made it possible to reason about what was actually
+                  happening — which is ultimately the difference between
+                  guessing at a fix and understanding why it works.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TypeScript -->
+      <div class="blog-accordion mt-2" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="blog-accordion-header">
+              TypeScript
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="blog-accordion-body">
+                <p>
+                  TypeScript is the language Angular is written in and the
+                  language this project uses throughout the frontend. The core
+                  value it provides over plain JavaScript is static typing — the
+                  ability to describe the shape of data at compile time rather
+                  than discovering type errors at runtime in a user's browser.
+                  The practical effect is that a large class of bugs is caught
+                  before the application is ever deployed.
+                </p>
+                <p>
+                  In Phase 1, the most immediate benefit was when working with
+                  API response shapes and component inputs. Defining an
+                  interface for each data structure the frontend handles means
+                  that typos in property names and incorrect assumptions about
+                  nullable fields are caught immediately by the compiler:
+                </p>
+                <pre class="blog-code-block">
+                  <code class="language-typescript">
+                  export interface NavLink {{ '{' }}
+                    label: string;
+                    route: string;
+                    icon?: string;          // optional — not all links have icons
+                    requiresAuth: boolean;
+                  {{ '}' }}
+
+                  // Any component consuming NavLink is guaranteed these properties exist.
+                  // Accessing navLink.rout (a typo) is a compile error, not a runtime one.
+                </code>
+              </pre>
+                <p>
+                  The <code>tsconfig.json</code> configuration was also tuned
+                  during this phase. Enabling <code>strict</code> mode enforces
+                  the most useful group of type-checking options in a single
+                  flag — including strict null checks, which prevent the common
+                  mistake of treating a potentially-undefined value as though it
+                  is always defined. These constraints add a small amount of
+                  friction during initial development but significantly reduce
+                  the time spent debugging production issues.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- angular.json -->
+      <div class="blog-accordion mt-2" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="blog-accordion-header">
+              angular.json
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="blog-accordion-body">
+                <p>
+                  <code>angular.json</code> is Angular's workspace configuration
+                  file. It defines build targets, asset paths, style inclusions,
+                  environment file mappings, and the configuration differences
+                  between development and production builds. Understanding it
+                  thoroughly — rather than treating it as boilerplate to leave
+                  untouched — was necessary early in Phase 1.
+                </p>
+                <p>
+                  The most consequential section is the
+                  <code>configurations</code> block inside the
+                  <code>build</code> target. This is where the production build
+                  is given its environment file substitution, output hashing
+                  (for cache-busting on deploy), and bundle budget limits that
+                  warn or fail the build if the output exceeds a defined
+                  threshold:
+                </p>
+                <pre class="blog-code-block">
+                  <code class="language-json">
+                  "configurations": {{ '{' }}
+                    "production": {{ '{' }}
+                      "fileReplacements": [
+                        {{ '{' }}
+                          "replace": "src/environments/environment.ts",
+                          "with": "src/environments/environment.prod.ts"
+                        {{ '}' }}
+                      ],
+                      "outputHashing": "all",
+                      "budgets": [
+                        {{ '{' }}
+                          "type": "initial",
+                          "maximumWarning": "500kB",
+                          "maximumError": "1MB"
+                        {{ '}' }}
+                      ]
+                    {{ '}' }}
+                  {{ '}' }}
+                </code>
+              </pre>
+                <p>
+                  The bundle budget configuration turned out to be directly
+                  useful: after adding a syntax highlighting library in Phase 2,
+                  the initial bundle exceeded the warning threshold. Because the
+                  budget was in place from Phase 1, the regression was surfaced
+                  at build time rather than discovered later through a slow user
+                  experience.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Jasmine -->
+      <div class="blog-accordion mt-2" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="blog-accordion-header">
+              Jasmine
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="blog-accordion-body">
+                <p>
+                  Jasmine is the testing framework Angular projects use by
+                  default for unit tests. It provides a behaviour-driven syntax
+                  that keeps tests readable and close to the language of
+                  requirements. Establishing a test suite early in Phase 1 was a
+                  deliberate decision — retrofitting tests onto an untested
+                  codebase is significantly harder than building the habit from
+                  the start.
+                </p>
+                <p>
+                  The core pattern used throughout the project follows the
+                  <strong>Arrange, Act, Assert</strong> structure: set up the
+                  state, perform the operation, then verify the outcome:
+                </p>
+                <pre class="blog-code-block">
+                  <code class="language-typescript">
+                  describe('NavLinks', () => {{ '{' }}
+
+                    it('should return only public links for an unauthenticated user', () => {{ '{' }}
+                      // Arrange
+                      const navLinks = new NavLinks();
+
+                      // Act
+                      const result = navLinks.getLinks(false);
+
+                      // Assert
+                      expect(result.every(link => !link.requiresAuth)).toBeTrue();
+                    {{ '}' }});
+
+                  {{ '}' }});
+                </code>
+              </pre>
+                <p>
+                  One lesson Phase 1 reinforced is that the value of a test
+                  suite is not simply having tests — it is having tests that
+                  actually fail when the code breaks. Writing tests that always
+                  pass regardless of implementation (for example, testing that a
+                  component renders without throwing, but nothing more) gives a
+                  false sense of coverage. Every test in this project is written
+                  to catch at least one specific regression.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NPM -->
+      <div class="blog-accordion mt-2" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="blog-accordion-header">
+              NPM
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="blog-accordion-body">
+                <p>
+                  NPM (Node Package Manager) is the dependency management tool
+                  for the Angular frontend. While it is straightforward to use
+                  at the surface level, understanding the distinction between
+                  its core concepts avoids a category of problems that tend to
+                  surface in CI/CD environments and collaborative codebases.
+                </p>
+                <p>
+                  The most important discipline established in Phase 1 was the
+                  difference between <code>npm install</code> and
+                  <code>npm ci</code>. <code>npm install</code> resolves and
+                  updates <code>package-lock.json</code> if it diverges from
+                  <code>package.json</code>, which introduces the risk of a
+                  dependency version changing silently between environments.
+                  <code>npm ci</code> installs strictly from the lockfile and
+                  fails if any discrepancy exists — making it the correct choice
+                  for build pipelines where reproducibility is mandatory. The
+                  same logic applies to separating
+                  <code>dependencies</code> from <code>devDependencies</code>:
+                  test frameworks and build tools belong in
+                  <code>devDependencies</code>
+                  to prevent them from being included in the production bundle.
+                </p>
+                <p>
+                  Keeping the dependency list lean is also an ongoing security
+                  practice. Every package added to the project is a potential
+                  attack surface. Running <code>npm audit</code> regularly and
+                  acting on high-severity findings before they accumulate was
+                  adopted as a habit during this phase — it is far easier to
+                  address vulnerabilities one at a time than to face a backlog
+                  of unresolved issues late in a project lifecycle.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <hr class="mb-3" />
+
+      <!-- Phase 2 -->
+      <h2>Phase 2 completed</h2>
+      <p>
+        Phase 2 marked the point where this project shifted from a simple
+        frontend build into a full-stack platform with production-grade
+        engineering practices. In this phase, I focused on backend integration,
+        authentication and authorisation, secure configuration management,
+        database design, and deployment-ready architecture. The entries below
+        capture the key systems I implemented/researched, the technical
+        challenges I ran into, and the practical lessons that shaped the current
+        direction of Xenon Dev.
+      </p>
+      <div class="blog-accordion" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="blog-accordion-header">
+              Github team management tools
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="blog-accordion-body">
+                <!--content here-->
+                <p>
+                  As the project evolved from a small into a more complex, multi
+                  layered system, I reached a point where informal tracking
+                  simply wasn’t sustainable. Progress became harder to monitor,
+                  and on several occasions I even duplicated work because I
+                  couldn’t easily locate previously implemented methods. It was
+                  a clear sign that the project had outgrown ad hoc
+                  organisation.
+                </p>
+                <img
+                  src="/assets/images/Dev_Log_imgs/Phase 2/Project-Size.PNG"
+                  alt="Project Size"
+                  class="blog-image"
+                />
+                <p>
+                  To address this, I introduced structured project management
+                  practices directly within GitHub. Creating issues and project
+                  boards transformed my workflow by giving me:
+                  <br />
+                  1. A reliable, transparent way to track progress and maintain
+                  momentum.
+                  <br />
+                  2. A space to apply the delivery discipline I developed at
+                  Alchemy Technology Services.
+                  <br />
+                  3. A foundation for a consistent, maintainable branching
+                  strategy.
+                </p>
+
+                <p>
+                  This shift significantly improved the quality and
+                  predictability of my development process. Below is the
+                  branching strategy currently used in the project, reflecting
+                  the level of rigour I apply to code quality:
+                </p>
+
+                <img
+                  src="/assets/images/Dev_Log_imgs/Phase 2/Branch-Strategy.PNG"
+                  alt="Branch Strategy"
+                  class="blog-image"
+                />
+
+                <p>
+                  <strong>main</strong> – The production branch. Only code that
+                  has been tested multiple times makes it here. It is linked to
+                  AWS and deployed using CI/CD pipelines.
+                </p>
+                <p>
+                  <strong>Dev</strong> – The last line of defence. Like main, it
+                  is linked to AWS and deployed via CI/CD, but the hosted site
+                  is not public-facing — it exists strictly for development and
+                  QA testing. Any feature destined for production is validated
+                  here first.
+                </p>
+                <p>
+                  <strong>dependency_updates</strong> – A dedicated branch for
+                  managing frequent framework updates (Angular and Spring Boot),
+                  ensuring they remain isolated and controlled.
+                </p>
+                <p>
+                  <strong>small-changes</strong> – Reserved for minor, low-risk
+                  changes that I want on production quickly without bypassing
+                  proper protocol.
+                </p>
+                <p>
+                  <strong>Backend-Integration</strong> – The branch I am
+                  currently working on. It has been a major focus for several
+                  months and has deepened my understanding of backend
+                  architecture, API design, and full‑stack integration.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="blog-accordion mt-2" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="blog-accordion-header">
+              Spring Security
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="blog-accordion-body">
+                <!--content here-->
+                <p>
+                  Spring Security was a complex topic to learn and wrap my head
+                  around, but it is incredibly powerful when used correctly. I
+                  first encountered it through a
+                  <a
+                    href="https://www.udemy.com/course/spring-hibernate-tutorial/"
+                    >Spring Boot course</a
+                  >
+                  on Udemy by Chad Darby — and as a side note, Chad is a
+                  fantastic instructor if you're looking to get into full-stack
+                  development. Highly recommended.
+                </p>
+                <p>
+                  The first learning curve was truly understanding what a filter
+                  chain is and what happens under the hood. A basic, bare-bones
+                  filter configuration would look something like this:
+                </p>
+                <pre class="blog-code-block">
+                  <code class="language-java">
+                  import org.springframework.context.annotation.Bean;
+                  import org.springframework.context.annotation.Configuration;
+                  import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+                  import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+                  import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+                  import org.springframework.security.web.SecurityFilterChain;
+
+                  &#64;Configuration // Marks this class as a source of bean definitions for the application context
+                  &#64;EnableWebSecurity // Enables Spring Security's web security support
+                  public class SecurityConfig {{ '{' }}
+
+                      &#64;Bean // Indicates that this method produces a bean to be managed by the Spring container
+                      public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {{ '{' }}
+
+                          http
+                              /* 
+                                ---------------------------------------------------------------
+                                  CSRF PROTECTION
+                                  Enabled by default. Protects state-changing requests (POST,
+                                  PUT, DELETE) from cross-site request forgery attacks by
+                                  requiring a hidden token in forms.
+                                  Disable only for stateless REST APIs (using JWTs, etc.).
+                                ---------------------------------------------------------------
+                              */ 
+                              .csrf(AbstractHttpConfigurer::disable)
+
+                              /*
+                                  ---------------------------------------------------------------
+                                    AUTHORIZATION RULES
+                                    Processed by FilterSecurityInterceptor (or, in modern Spring
+                                    Security, AuthorizationFilter) at the END of the chain.
+                                    Rules are evaluated top-to-bottom — put specific rules first.
+                                
+                                    AnonymousAuthenticationFilter runs just before this block:
+                                    if no auth has been set by the earlier filters, it assigns
+                                    an "anonymous" token so the principal is never null.
+                                  ---------------------------------------------------------------
+                              */
+                              .authorizeHttpRequests(requests -> requests
+                                  // Public pages — anyone (including anonymous) can access
+                                  .requestMatchers("/", "/welcome", "/css/**", "/js/**").permitAll()                
+
+                                  // Any authenticated user (not anonymous)
+                                  .anyRequest().authenticated()  
+                                  
+                              );            
+
+                          return http.build(); // build the SecurityFilterChain
+
+                          /*
+                              Note: We don't configure CorsConfiguration, implement role-based 
+                              access control, or any authentication, because those topics will be
+                              demonstrated in other sections.
+                          */
+                      {{ '}' }}
+                      
+                  {{ '}' }}                
+                </code>
+              </pre>
+                <p>
+                  On its own, the above configuration doesn't do a great deal.
+                  That said, these were the foundational concepts that gave me
+                  my first real foothold in both cybersecurity and Spring. But
+                  if Spring Security were limited to just that, it wouldn't have
+                  made it into this project. There is much more to it. Other key
+                  topics that fall under the Spring Security umbrella — and that
+                  are relevant to this project — include:
+                </p>
+                <p>
+                  <strong>Filter Chains</strong> – Filter chains with their own
+                  unique rules, responses, and behaviours.
+                  <br />
+                  <strong>CORS (Cross-Origin Resource Sharing)</strong> – An
+                  essential component for any site that takes security
+                  seriously.
+                  <br />
+                  <strong>JWT (JSON Web Token)</strong> – The first grant type I
+                  got to grips with.
+                  <br />
+                  <strong>Role Authorisation</strong> – Something I am still
+                  deepening my understanding of, but which will be put to use in
+                  this project.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="blog-accordion mt-2" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="blog-accordion-header">
+              Custom Filter Chains
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="blog-accordion-body">
+                <p>
+                  One of Spring Security's most valuable capabilities is the
+                  ability to define multiple, independent filter chains, each
+                  with distinct matchers, rules, and behavior. During this
+                  phase, I explored whether a custom filter was needed to
+                  address what I initially considered a security gap. At the
+                  time, I had recently improved my understanding of how bearer
+                  tokens relate to Keycloak sessions: the authorization code
+                  flow establishes authentication, and tokens are then presented
+                  on subsequent API requests. My concern was that I had not
+                  explicitly added backend token checks, so I investigated
+                  implementing manual validation inside a custom filter.
+                </p>
+                <pre class="blog-code-block">
+                  <code class="language-java">
+                  // 1. Create a custom filter by implementing the Filter interface
+                  &#64;Component
+                  public class CustomFilter implements Filter {{ '{' }}
+                  /* 
+                      Filter interface is a part of the Java Servlet API and is used to 
+                      perform filtering tasks on either the request to a resource, the 
+                      response from a resource, or both.
+                  */
+                      private final Keycloak_Service_Impl keycloakService;
+                      
+                      public CustomFilter(Keycloak_Service_Impl keycloakService) {{ '{' }}
+                          this.keycloakService = keycloakService;
+                      {{ '}' }}
+
+                      // doFilter method is where you implement the logic to validate the incoming request
+                      &#64;Override
+                      public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain)
+                              throws IOException, ServletException {{ '{' }}
+
+                          HttpServletRequest httpRequest = (HttpServletRequest) request;
+                          HttpServletResponse httpResponse = (HttpServletResponse) response;
+
+                          String token = httpRequest.getHeader("Token");
+
+                          // Validate the incoming request
+                          // If the token is missing or invalid, reject the request
+                          // note: the actual validation logic should be implemented in the Keycloak_Service_Impl class        
+                          if (token == null || !keycloakService.validateToken(token)) {{ '{' }}
+                              httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                              httpResponse.setContentType("application/json");
+                              httpResponse.getWriter().write("{{ '{' }}\"error\": \"Invalid or missing Token\"{{ '}' }}");
+                              return; // tells the filter to stop here and not to continue with the filter chain 
+                                      // (sends a 401 response back to the client)
+                          {{ '}' }}
+
+                          // Valid — pass the request along the filter chain
+                          filterChain.doFilter(request, response);
+                      {{ '}' }}
+                  {{ '}' }}
+                </code>
+              </pre>
+                <pre class="blog-code-block">
+                  <code class="language-java">
+                    // 2. Register it in the Security Config
+                    &#64;Configuration
+                    &#64;EnableWebSecurity
+                    public class SecurityConfig {{ '{' }}
+
+                        &#64;Autowired
+                        private CustomFilter customFilter;
+
+                        &#64;Bean
+                        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {{ '{' }}
+                            http
+                                .csrf(csrf -> csrf.disable())
+                                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+                                .addFilterBefore(customFilter, UsernamePasswordAuthenticationFilter.class);
+
+                            return http.build();
+                        {{ '}' }}
+                    {{ '}' }}
+
+                  </code>
+                </pre>
+                <p>
+                  In conclusion, this investigation clarified an important
+                  design principle: custom filters should be introduced only
+                  when they add clear value beyond the framework's built-in
+                  capabilities. For standard JWT validation with Keycloak,
+                  Spring Security's resource server support already provides the
+                  required request protection. This investigation still proved
+                  useful, as it strengthened my understanding of filter
+                  ordering, authentication flow, and when custom security
+                  components are genuinely justified.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CORS -->
+      <div class="blog-accordion mt-2" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="blog-accordion-header">
+              CORS
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="blog-accordion-body">
+                <p>
+                  Cross-Origin Resource Sharing (CORS) became a critical topic
+                  as soon as the frontend and backend began communicating across
+                  different origins. While I had encountered CORS previously,
+                  the practical implementation became clear only after debugging
+                  browser errors during local integration. By default, the
+                  browser's same-origin policy blocks requests from one origin
+                  (for example, <code>http://localhost:4200</code>) to another
+                  (for example, <code>http://localhost:8443/api</code>) unless
+                  the server explicitly returns the correct CORS headers.
+                </p>
+                <p>
+                  In Spring Security, CORS is processed before authentication
+                  filters. This ordering is essential because browsers send a
+                  <strong>preflight OPTIONS request</strong> before the actual
+                  request. That preflight must return 200 OK; if it is rejected
+                  with 401 Unauthorized, the browser blocks the call before the
+                  application logic is reached. The straightforward approach is
+                  to define <code>CorsConfiguration</code> in the security
+                  filter chain:
+                </p>
+                <pre class="blog-code-block">
+                  <code class="language-java">
+                  &#64;Bean
+                  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {{ '{' }}
+                      http
+                              .csrf(csrf -> csrf.disable())
+                              .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+
+                      CorsConfiguration corsConfig = new CorsConfiguration();
+
+                      // Allowed origins — lock this down to real domains in production
+                      corsConfig.setAllowedOrigins(List.of(
+                              "http://localhost:4200" // Angular dev server
+                      ));
+
+                      // HTTP methods the browser is allowed to use
+                      corsConfig.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+
+                      // Headers the browser may send (Authorization carries the JWT)
+                      corsConfig.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+
+                      // Allow the browser to read the Authorization header in responses
+                      corsConfig.setExposedHeaders(List.of("Authorization"));
+
+                      // Required when the frontend sends cookies or Authorization headers
+                      corsConfig.setAllowCredentials(true);
+
+                      // register the CORS configuration for all endpoints
+                      http.cors(cors -> cors.configurationSource(request -> corsConfig));
+
+                      return http.build();
+                  {{ '}' }}
+                
+                </code>
+              </pre>
+                <p>
+                  One early mistake was configuring
+                  <code>allowedOrigins("*")</code> together with
+                  <code>allowCredentials(true)</code>. These settings are
+                  incompatible: when credentials are enabled, browsers reject
+                  wildcard origins. The correct solution is to specify explicit
+                  trusted origins per environment. Establishing this pattern
+                  also improved how environment-specific configuration is
+                  managed across the project.
+                </p>
+                <p>
+                  Sensitive configuration is managed with environment variables,
+                  and local secrets are kept out of source control. This
+                  approach aligns with best practice by preventing accidental
+                  exposure of credentials and server configuration details.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- JWT -->
+      <div class="blog-accordion mt-2" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="blog-accordion-header">
+              JWT
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="blog-accordion-body">
+                <p>
+                  JSON Web Tokens (JWTs) are the mechanism the project uses to
+                  prove identity across the boundary between the Angular
+                  frontend, the Spring Boot API, and Keycloak. A JWT is a
+                  compact, URL-safe string made up of three Base64URL-encoded
+                  parts separated by dots: a <strong>header</strong> (algorithm
+                  metadata), a <strong>payload</strong> (claims about the user),
+                  and a <strong>signature</strong> (cryptographic proof that the
+                  token hasn't been tampered with).
+                </p>
+                <p>
+                  In this project, Keycloak issues the tokens. The Angular app
+                  obtains an access token after the user logs in and attaches it
+                  to every API request as a
+                  <code>Bearer</code> token in the
+                  <code>Authorization</code> header. The Spring Boot resource
+                  server then validates the token without contacting Keycloak on
+                  every request — it does this by fetching Keycloak's public
+                  keys from the JWKS endpoint once and caching them locally.
+                  Configuring the resource server requires only a single
+                  property pointing at the issuer URI:
+                </p>
+                <pre class="blog-code-block">
+                  <code class="language-ini">
+                  # application.properties
+                  spring.security.oauth2.resourceserver.jwt.issuer-uri=\
+                      http://localhost:8080/realms/Xenon-Dev-DEV-ENV
+
+                  # Spring auto-discovers the JWKS URI from the issuer's
+                  # OpenID Connect discovery document at:
+                  # {{ '{' }}issuer-uri{{ '}' }}/.well-known/openid-configuration
+                </code>
+              </pre>
+                <p>
+                  On the Spring side, enabling JWT validation in the filter
+                  chain is then just one line:
+                </p>
+                <pre class="blog-code-block">
+                  <code class="language-java">
+                  .oauth2ResourceServer(oauth2 -> oauth2
+                      .jwt(jwt -> jwt
+                          // Optional: customise how claims are mapped to Spring's
+                          // GrantedAuthority list (e.g. extracting Keycloak realm roles)
+                          .jwtAuthenticationConverter(keycloakJwtAuthenticationConverter())
+                      )
+                  )
+                </code>
+              </pre>
+                <p>
+                  One thing worth noting is that JWTs are
+                  <strong>stateless</strong>. The server never stores them —
+                  which means revoking a token before it expires requires extra
+                  work (a token blacklist or short expiry windows). For this
+                  project I settled on short-lived access tokens (5 minutes)
+                  combined with Keycloak's refresh token flow, which strikes a
+                  reasonable balance between security and usability.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Client Secret Management -->
+      <div class="blog-accordion mt-2" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="blog-accordion-header">
+              Client Secret Management
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="blog-accordion-body">
+                <p>
+                  A foundational principle of secure backend development is that
+                  <strong>secrets must never be embedded in source code</strong
+                  >. Despite how self-evident this may appear, it is a
+                  surprisingly common mistake to include a database password or
+                  API key directly in an
+                  <code>application.properties</code> file and commit it to
+                  version control. A deliberate configuration strategy was
+                  established from the outset of the Xenon Dev project to
+                  prevent this entirely.
+                </p>
+                <p>
+                  The approach is layered. In local development, sensitive
+                  values are stored in an
+                  <code>application-local.properties</code> file that is listed
+                  in <code>.gitignore</code> and excluded from all commits.
+                  Spring Boot is configured to activate the
+                  <code>local</code> profile automatically during development,
+                  resolving these values without requiring any modifications to
+                  tracked files. In deployed environments, credentials are
+                  provided exclusively as environment variables injected by AWS,
+                  keeping them entirely outside the repository:
+                </p>
+                <pre class="blog-code-block">
+                  <code class="language-ini">
+                  # application.properties (committed — no secrets here)
+                  spring.datasource.url=$&#123;DB_URL&#125;
+                  spring.datasource.username=$&#123;DB_USERNAME&#125;
+                  spring.datasource.password=$&#123;DB_PASSWORD&#125;
+
+                  keycloak.client-secret=$&#123;KEYCLOAK_CLIENT_SECRET&#125;                  
+
+                  # -----------------------------------------------------------
+                  # application-local.properties (git-ignored — secrets live here locally)
+                  # -----------------------------------------------------------
+                  # spring.datasource.url=jdbc:mysql://localhost:3306/xenon_dev
+                  # spring.datasource.username=root
+                  # spring.datasource.password=supersecret
+                  # keycloak.client-secret=abc123...
+                </code>
+              </pre>
+                <p>
+                  The Keycloak client secret warrants particular attention. In
+                  OAuth2, the <strong>client secret</strong> is the credential
+                  the backend presents to Keycloak when exchanging an
+                  authorisation code for a token, or when authenticating via the
+                  client credentials flow for service-to-service communication.
+                  Exposure of this value would allow an attacker to impersonate
+                  the backend application entirely. It is therefore treated with
+                  the same rigour as a database password: stored outside version
+                  control.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- REST API Design -->
+      <div class="blog-accordion mt-2" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="blog-accordion-header">
+              REST API Design
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="blog-accordion-body">
+                <p>
+                  Designing a robust REST API requires more rigor than it may
+                  initially appear. Early endpoint implementations were
+                  functional, but lacked consistency, were difficult to
+                  document, and introduced unnecessary complexity for the
+                  Angular frontend. Refactoring the API around established
+                  RESTful conventions significantly improved maintainability and
+                  long-term scalability.
+                </p>
+                <p>
+                  The core principle is that URLs represent
+                  <strong>resources</strong> (nouns), not actions (verbs). HTTP
+                  methods define the action semantics. The following example
+                  shows the controller structure used for the user resource in
+                  this project:
+                </p>
+                <pre class="blog-code-block">
+                  <code class="language-java">
+                  &#64;RestController
+                  &#64;RequestMapping("/api/users")
+                  public class UserController {{ '{' }}
+
+                      // GET /api/users          — list all users (paginated)
+                      &#64;GetMapping
+                      public Page&lt;UserDTO&gt; getUsers(Pageable pageable) {{ '{' }}
+                          return userService.findAll(pageable);
+                      {{ '}' }}
+
+                      // GET /api/users/&#123;id&#125;    — get a single user by ID
+                      &#64;GetMapping("/&#123;id&#125;")
+                      public UserDTO getUser(&#64;PathVariable Long id) {{ '{' }}
+                          return userService.findById(id);
+                      {{ '}' }}
+
+                      // POST /api/users         — create a new user
+                      &#64;PostMapping
+                      &#64;ResponseStatus(HttpStatus.CREATED) // 201 Created, not 200 OK
+                      public UserDTO createUser(&#64;RequestBody &#64;Valid CreateUserRequest request) {{ '{' }}
+                          return userService.create(request);
+                      {{ '}' }}
+
+                      // PUT /api/users/&#123;id&#125;    — replace a user (idempotent)
+                      &#64;PutMapping("/&#123;id&#125;")
+                      public UserDTO updateUser(&#64;PathVariable Long id,
+                                               &#64;RequestBody &#64;Valid UpdateUserRequest request) {{ '{' }}
+                          return userService.update(id, request);
+                      {{ '}' }}
+
+                      // DELETE /api/users/&#123;id&#125; — remove a user
+                      &#64;DeleteMapping("/&#123;id&#125;")
+                      &#64;ResponseStatus(HttpStatus.NO_CONTENT) // 204, no body
+                      public void deleteUser(&#64;PathVariable Long id) {{ '{' }}
+                          userService.delete(id);
+                      {{ '}' }}
+                  {{ '}' }}
+                </code>
+              </pre>
+                <p>
+                  Several conventions are applied consistently across the API:
+                  return DTOs rather than exposing JPA entities directly, use
+                  explicit and appropriate HTTP status codes (<code>201</code>
+                  for created resources, <code>204</code> for deletions, and
+                  <code>404</code> with a consistent error payload for missing
+                  resources) from the outset.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- REST API Debugging -->
+      <div class="blog-accordion mt-2" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="blog-accordion-header">
+              REST API Debugging
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="blog-accordion-body">
+                <p>
+                  Debugging a REST API involves a different mindset to debugging
+                  a monolithic application. The problem could be anywhere in the
+                  chain: the Angular HTTP client, the network, the Spring
+                  Security filter, the controller, the service, or the database.
+                  Over the course of building this project I built up a
+                  systematic approach to narrowing down where things are going
+                  wrong quickly.
+                </p>
+                <p>
+                  My primary tool is <strong>Postman</strong>. By firing
+                  requests directly at the API (bypassing the Angular app
+                  entirely), I can immediately eliminate the frontend as the
+                  source of the problem. Postman also handles OAuth2 flows
+                  natively, so I can obtain a real Keycloak token and attach it
+                  to requests without writing a single line of code.
+                </p>
+                <p>
+                  Another tool I use is the browser's built-in developer tools,
+                  particularly the Network tab. This allows me to inspect the
+                  raw HTTP requests and responses, including headers, status
+                  codes, and payloads. It's especially useful for debugging CORS
+                  issues, as I can see exactly which headers are being sent and
+                  received, and how the browser is interpreting them.
+                </p>
+                <img
+                  src="/assets/images/Dev_Log_imgs/Phase 2/browser-built-in-network-tab.png"
+                  alt="browser built-in network tab"
+                  class="blog-image"
+                />
+                <p>
+                  For Spring Security specifically, the most useful debugging
+                  property is
+                  <code>logging.level.org.springframework.security=TRACE</code>.
+                  This floods the console with output, but it shows exactly
+                  which filters ran, which ones voted, and why a request was
+                  ultimately permitted or denied. I only enable it locally when
+                  actively investigating a security-related issue — leaving it
+                  on in any other environment would be a confidentiality risk.
+                  Pairing this with the browser's Network tab to inspect the raw
+                  request and response headers gives a complete picture of what
+                  is happening at every layer.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- IAM Authorisation -->
+      <div class="blog-accordion mt-2" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="blog-accordion-header">
+              IAM Authorisation
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="blog-accordion-body">
+                <p>
+                  Identity and Access Management (IAM) is the discipline of
+                  deciding <em>who</em> can do <em>what</em> on
+                  <em>which</em> resource. In this project, IAM is implemented
+                  through a combination of Keycloak (which handles
+                  authentication and issues JWTs carrying identity claims) and
+                  Spring Security (which enforces authorisation rules on each
+                  endpoint based on those claims).
+                </p>
+                <p>
+                  The critical bridge between the two is the
+                  <strong>JWT authentication converter</strong>. Keycloak
+                  encodes the user's roles inside the token under a non-standard
+                  claim path (<code>realm_access.roles</code>), whereas Spring
+                  Security expects <code>GrantedAuthority</code> objects
+                  prefixed with <code>ROLE_</code>. Without a custom converter,
+                  Spring simply wouldn't see any roles in the token and would
+                  deny every role-restricted endpoint. The converter unwraps the
+                  Keycloak claim and maps it to Spring's format:
+                </p>
+                <pre class="blog-code-block">
+                  <code class="language-java">
+                  &#64;Component
+                  public class KeycloakJwtAuthenticationConverter
+                          implements Converter&lt;Jwt, AbstractAuthenticationToken&gt; {{ '{' }}
+
+                      private final JwtGrantedAuthoritiesConverter defaultConverter =
+                          new JwtGrantedAuthoritiesConverter();
+
+                      &#64;Override
+                      public AbstractAuthenticationToken convert(Jwt jwt) {{ '{' }}
+                          // Extract standard scopes (e.g. SCOPE_openid) via the default converter
+                          Collection&lt;GrantedAuthority&gt; authorities =
+                              new ArrayList&lt;&gt;(defaultConverter.convert(jwt));
+
+                          // Extract Keycloak realm roles from realm_access.roles
+                          Map&lt;String, Object&gt; realmAccess =
+                              jwt.getClaimAsMap("realm_access");
+
+                          if (realmAccess != null && realmAccess.containsKey("roles")) {{ '{' }}
+                              List&lt;?&gt; roles = (List&lt;?&gt;) realmAccess.get("roles");
+                              roles.stream()
+                                  .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+                                  .forEach(authorities::add);
+                          {{ '}' }}
+
+                          return new JwtAuthenticationToken(jwt, authorities,
+                              jwt.getClaimAsString("preferred_username"));
+                      {{ '}' }}
+                  {{ '}' }}
+                </code>
+              </pre>
+                <p>
+                  With this converter in place, the JWT arriving from Keycloak
+                  is fully understood by Spring Security. Downstream, the
+                  controller can use standard Spring annotations such as
+                  <code>&#64;PreAuthorize("hasRole('ADMIN')")</code> to enforce
+                  fine-grained access control, and the identity of the
+                  authenticated user is available anywhere in the request via
+                  the <code>SecurityContextHolder</code> — without any
+                  additional calls to Keycloak.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Role Authorisation -->
+      <div class="blog-accordion mt-2" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="blog-accordion-header">
+              Role Authorisation
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="blog-accordion-body">
+                <p>
+                  Role-based access control (RBAC) is the layer on top of
+                  authentication that answers the question: "this user is who
+                  they say they are — but are they <em>allowed</em> to perform
+                  this action?" In this project, roles are defined in Keycloak
+                  and embedded in the JWT, then enforced in Spring Security at
+                  both the HTTP layer (filter chain rules) and the method layer
+                  (<code>&#64;PreAuthorize</code> annotations).
+                </p>
+                <p>
+                  The project currently defines three roles:
+                  <strong>USER</strong> (standard authenticated user),
+                  <strong>MODERATOR</strong> (elevated read access and the
+                  ability to manage content), and <strong>ADMIN</strong> (full
+                  access including user management endpoints). Applying these
+                  rules at the filter chain level covers the coarse-grained
+                  cases, while <code>&#64;PreAuthorize</code> handles
+                  fine-grained method-level security:
+                </p>
+                <pre class="blog-code-block">
+                  <code class="language-java">
+                  // --- Filter chain (coarse-grained) ---
+                  .authorizeHttpRequests(auth -> auth
+                      .requestMatchers(HttpMethod.GET, "/api/**").hasAnyRole("USER", "MODERATOR", "ADMIN")
+                      .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                      .requestMatchers("/api/moderation/**").hasAnyRole("MODERATOR", "ADMIN")
+                      .anyRequest().authenticated()
+                  )
+
+                  // --- Method-level (fine-grained) ---
+                  &#64;Service
+                  public class UserManagementService {{ '{' }}
+
+                      // Only admins can delete users
+                      &#64;PreAuthorize("hasRole('ADMIN')")
+                      public void deleteUser(Long userId) {{ '{' }}
+                          userRepository.deleteById(userId);
+                      {{ '}' }}
+
+                      // A user can read their own profile; an admin can read any profile
+                      &#64;PreAuthorize("hasRole('ADMIN') or #username == authentication.name")
+                      public UserDTO getProfile(String username) {{ '{' }}
+                          return userRepository.findByUsername(username)
+                              .map(userMapper::toDTO)
+                              .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                      {{ '}' }}
+                  {{ '}' }}
+                </code>
+              </pre>
+                <p>
+                  The <code>&#64;PreAuthorize</code> expression on
+                  <code>getProfile</code> above demonstrates Spring's SpEL-based
+                  security expressions. The
+                  <code>#username == authentication.name</code> clause binds the
+                  method parameter to the currently authenticated principal — a
+                  clean way to enforce ownership rules without writing any
+                  conditional logic inside the method body itself. Enabling
+                  method security requires adding
+                  <code>&#64;EnableMethodSecurity</code> to the security
+                  configuration class.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Agent Task Management -->
+      <div class="blog-accordion mt-2" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="blog-accordion-header">
+              AI Agent Task Management
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="blog-accordion-body">
+                <p>
+                  During backend integration, I used GitHub Copilot to support
+                  low-complexity but high-effort tasks. A clear example was the
+                  <code>styles.css</code> file, which became significantly
+                  bloated after Phase 1 with unused and poorly organised classes
+                  and animations. While restructuring it was technically
+                  straightforward, completing it manually would have been
+                  time-consuming. To address this, I designed a prompt for a
+                  Copilot AI Agent to categorise classes and animations with
+                  scalability in mind, and to move unused CSS into a separate
+                  file for potential future reuse.
+                </p>
+                <p>
+                  The outcome aligned with the objective: classes and animations
+                  were reorganised into clear categories, and unused CSS was
+                  isolated into a dedicated file. This reduced maintenance
+                  overhead, saved substantial time, and allowed greater focus on
+                  higher-priority engineering work. It also demonstrated the
+                  practical value of AI agents for automating repetitive,
+                  operational tasks.
+                </p>
+                <img
+                  src="/assets/images/Dev_Log_imgs/Phase 2/styles-css.png"
+                  alt="picture of the completed task in the codebase"
+                  class="blog-image"
+                />
+                <p>
+                  In other scenarios, AI assistance has been most useful for
+                  generating relevant next-step suggestions, such as frontend
+                  fetch request scaffolding when implementing API calls.
+                  However, suggestions are never accepted uncritically. AI can
+                  be inaccurate in project-specific contexts, so each proposal
+                  is reviewed, validated, and assessed against architectural and
+                  performance requirements. When unfamiliar patterns or
+                  libraries are suggested, they are evaluated before adoption to
+                  ensure they improve the quality and efficiency of the project.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AWS SES -->
+      <div class="blog-accordion mt-2" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="blog-accordion-header">
+              AWS SES
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="blog-accordion-body">
+                <p>
+                  While configuring Keycloak SMTP (Simple Mail Transfer
+                  Protocol), it became clear that a dedicated email delivery
+                  service was required to handle outbound messages reliably.
+                  Because the site is hosted on AWS, AWS SES (Simple Email
+                  Service) was selected as the most suitable option. Setup was
+                  straightforward, particularly because the project domain
+                  (<code>xenon-dev.com</code>) was already managed through Route
+                  53. After creating an SES account, Keycloak SMTP was
+                  configured with the relevant credentials. Initial delivery
+                  failed because the SES account was in sandbox mode, which
+                  restricts recipient addresses. Once production access was
+                  approved, email delivery to unrestricted recipients functioned
+                  as expected.
+                </p>
+                <p>
+                  The default email formatting and tone were functional but did
+                  not meet the desired standard for user experience or brand
+                  presentation. To address this, a custom theme was implemented
+                  for Keycloak emails, with the same design approach extended to
+                  login-related pages for consistency.
+                </p>
+                <img
+                  src="/assets/images/Dev_Log_imgs/Phase 2/keycloak-email.png"
+                  alt="keycloak email example"
+                  class="blog-image"
+                />
+                <p>
+                  Theme customisation was implemented using FTL (FreeMarker
+                  Template Language), guided by Keycloak documentation. A new
+                  theme, <code>xenon-dev-theme</code>, was created by extending
+                  the base templates and updating email layouts to reflect Xenon
+                  Dev branding. This included refining colour usage and
+                  improving visual hierarchy for readability. The result was a
+                  substantially more polished presentation across all
+                  Keycloak-generated emails, improving both user experience and
+                  branding consistency.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- JPA Repo -->
+      <div class="blog-accordion mt-2" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="blog-accordion-header">
+              JPA Repository
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="blog-accordion-body">
+                <p>
+                  Spring Data JPA repositories were one of the features that
+                  made me genuinely appreciate the Spring ecosystem. At its
+                  simplest, a JPA repository is an interface that Spring
+                  implements at runtime — you declare the methods you need and
+                  Spring writes the SQL for you. No boilerplate, no manual
+                  connection management, no result-set mapping.
+                </p>
+                <p>
+                  <code>Player_ProfileRepo</code> is a good example of where the
+                  repository abstraction stays useful even when the query is no
+                  longer a simple entity lookup. The interface still extends
+                  <code>JpaRepository&lt;Player_Profile, Long&gt;</code>, so it
+                  inherits the standard CRUD methods, but it also adds a custom
+                  native query for the leaderboard endpoint:
+                </p>
+                <pre class="blog-code-block">
+                  <code class="language-java">
+                    &#64;RepositoryRestResource
+                    public interface Player_ProfileRepo extends JpaRepository&lt;Player_Profile, Long&gt; {{ '{' }}
+
+                      &#64;Query(
+                            value = "SELECT USERNAME, wins, losses, pot " +
+                                    "FROM accounts_with_player_profiles_view " +
+                                    "ORDER BY pot DESC, wins DESC",
+                            countQuery = "SELECT COUNT(*) FROM accounts_with_player_profiles_view",
+                          nativeQuery = true
+                      )
+                        Page&lt;Object[]&gt; getAccountsWithPlayerProfiles(Pageable pageable);
+                  {{ '}' }}
+                </code>
+              </pre>
+                <p>
+                  The key point here is that the leaderboard data does not come
+                  directly from a single JPA entity table. Instead, the query
+                  reads from <code>accounts_with_player_profiles_view</code>, a
+                  database view that already joins and shapes the account and
+                  player profile data into the exact projection needed by the
+                  frontend. That keeps the SQL centralised in one place and
+                  avoids repeating the same join logic across controllers or
+                  services.
+                </p>
+                <p>
+                  Returning <code>Page&lt;Object[]&gt;</code> rather than a full
+                  entity is a deliberate trade-off. The query only needs four
+                  columns for the leaderboard — username, wins, losses, and pot
+                  — so pulling back a raw projection is lighter than hydrating a
+                  full entity graph. The separate <code>countQuery</code> is
+                  also important: without it, Spring Data would not know how to
+                  calculate the total number of rows for pagination metadata. In
+                  practice, this gives the Angular frontend a leaderboard result
+                  set that is already sorted by pot first and wins second, while
+                  still supporting pageable API responses.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DTOs -->
+      <div class="blog-accordion mt-2" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="blog-accordion-header">
+              DTOs
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="blog-accordion-body">
+                <p>
+                  A Data Transfer Object (DTO) is a plain object whose sole
+                  purpose is to carry data between layers of the application. In
+                  the context of this project, DTOs sit between the JPA entities
+                  (which mirror the database schema) and the REST API (which
+                  defines the public contract). This separation solves several
+                  real problems at once: it prevents accidentally exposing
+                  sensitive fields, it decouples the API contract from the
+                  database schema, and it gives a natural place to put input
+                  validation annotations.
+                </p>
+                <p>
+                  In the leaderboard flow, DTOs are used as an output contract
+                  for aggregated data that does not map cleanly to a single JPA
+                  entity. The repository returns each row as
+                  <code>Object[]</code> from a native SQL view query, and the
+                  service maps those positional columns into a typed
+                  <code>Leader_Board_DTO</code> before returning the response:
+                </p>
+                <pre class="blog-code-block">
+                  <code class="language-java">
+                  &#64;Getter
+                  &#64;Setter
+                  &#64;AllArgsConstructor
+                  public class Leader_Board_DTO {{ '{' }}
+                      private String USERNAME;
+                      private int wins;
+                      private int losses;
+                      private int pot;
+                  {{ '}' }}
+
+                  &#64;Override
+                  public Page&lt;Leader_Board_DTO&gt; getAccountsWithPlayerProfiles_view(Pageable pageable) {{ '{' }}
+                      Page&lt;Object[]&gt; results = playerProfileRepo.getAccountsWithPlayerProfiles(pageable);
+                      return results.map(row -&gt; new Leader_Board_DTO(
+                          (String) row[0],
+                          (Integer) row[1],
+                          (Integer) row[2],
+                          (Integer) row[3]
+                      ));
+                  {{ '}' }}
+
+                  &#64;GetMapping("leaderboard")
+                  public ResponseEntity&lt;Page&lt;Leader_Board_DTO&gt;&gt; getleaderboard(
+                      &#64;RequestParam(defaultValue = "0") int page,
+                      &#64;RequestParam(defaultValue = "10") int size
+                  ) {{ '{' }}
+                      Pageable pageable = PageRequest.of(page, size);
+                      return ResponseEntity.ok(playerService.getAccountsWithPlayerProfiles_view(pageable));
+                  {{ '}' }}
+                </code>
+              </pre>
+                <p>
+                  This pattern keeps the native SQL details isolated to the
+                  repository and service, while the controller exposes a stable,
+                  paginated DTO response to the frontend. It also makes future
+                  refactoring safer: if the underlying view changes, the API
+                  contract can remain unchanged as long as the service mapping
+                  still builds the same DTO fields.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MySQL Views -->
+      <div class="blog-accordion mt-2" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="blog-accordion-header">
+              MySQL Views
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="blog-accordion-body">
+                <p>
+                  A MySQL view is a stored <code>SELECT</code> statement that
+                  acts like a virtual table. Querying a view looks identical to
+                  querying a real table, but the data is assembled on the fly
+                  from the underlying tables when the view is accessed. I
+                  introduced views in this project for two reasons: to simplify
+                  complex recurring queries that appeared in multiple places,
+                  and to provide a read-only, security-trimmed projection of
+                  data that could be exposed more freely than the raw tables.
+                </p>
+                <p>
+                  A practical example in this project is
+                  <code>accounts_with_player_profiles_view</code>, which powers
+                  the leaderboard endpoint. Instead of joining
+                  <code>user_entity</code> and <code>player_profile</code> in
+                  every repository query, the join is defined once in the view
+                  and reused as a stable read model:
+                </p>
+                <pre class="blog-code-block">
+                  <code class="language-sql">
+                  CREATE
+                      ALGORITHM = UNDEFINED
+                      DEFINER = `xenondev`&#64;`localhost`
+                      SQL SECURITY DEFINER
+                  VIEW `accounts_with_player_profiles_view` AS
+                  SELECT
+                      ue.USERNAME AS USERNAME,
+                      pp.wins     AS wins,
+                      pp.losses   AS losses,
+                      pp.pot      AS pot
+                  FROM user_entity ue
+                  JOIN player_profile pp
+                      ON ue.PLAYER_PROFILE_ID = pp.player_id;
+
+                  -- Consumed by the leaderboard repository query
+                  SELECT USERNAME, wins, losses, pot
+                  FROM accounts_with_player_profiles_view
+                  ORDER BY pot DESC, wins DESC;
+                </code>
+              </pre>
+                <p>
+                  On the Spring side, this view is queried through a native
+                  repository method that returns
+                  <code>Page&lt;Object[]&gt;</code>, then mapped in the service
+                  layer to <code>Leader_Board_DTO</code> for the API response.
+                  That keeps SQL shaping in the database, data access in the
+                  repository, and response shaping in the service. The result is
+                  a clean, paginated leaderboard payload with username, wins,
+                  losses, and pot already sorted in rank order.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MySQL Triggers -->
+      <div class="blog-accordion mt-2" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="blog-accordion-header">
+              MySQL Triggers
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="blog-accordion-body">
+                <p>
+                  A MySQL trigger is a piece of SQL that the database engine
+                  executes automatically in response to an <code>INSERT</code>,
+                  <code>UPDATE</code>, or <code>DELETE</code> on a specified
+                  table. Triggers enforce data integrity rules at the database
+                  level — meaning they fire regardless of which application,
+                  service, or tool modifies the data. This makes them a reliable
+                  safety net for invariants that must <em>always</em> hold.
+                </p>
+                <p>
+                  In this project, the trigger is used to keep related user and
+                  player-profile data consistent during hard deletes. The
+                  trigger runs <strong>before</strong> a row is deleted from
+                  <code>user_entity</code> and removes the linked
+                  <code>player_profile</code> row using the old
+                  <code>PLAYER_PROFILE_ID</code> value:
+                </p>
+                <pre class="blog-code-block">
+                  <code class="language-sql">
+                  CREATE DEFINER=`xenondev`&#64;`localhost`
+                  TRIGGER `xenondevdb`.`user_entity_BEFORE_DELETE`
+                  BEFORE DELETE ON `user_entity`
+                  FOR EACH ROW
+                  BEGIN
+                      DELETE FROM `xenondevdb`.`player_profile`
+                      WHERE OLD.PLAYER_PROFILE_ID = `player_profile`.`player_id`;
+                  END
+                </code>
+              </pre>
+                <p>
+                  The practical effect is application-level cascade cleanup at
+                  the database layer: deleting a user also deletes that user's
+                  profile record, preventing orphaned rows in
+                  <code>player_profile</code>. Because this logic runs in the
+                  database engine, it applies consistently no matter whether the
+                  delete originates from Spring, a script, or a direct SQL
+                  client.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Keycloak -->
+      <div class="blog-accordion mt-2" ngbAccordion>
+        <div ngbAccordionItem>
+          <div ngbAccordionHeader>
+            <button ngbAccordionButton class="blog-accordion-header">
+              Keycloak
+            </button>
+          </div>
+          <div ngbAccordionCollapse>
+            <div ngbAccordionBody>
+              <ng-template class="blog-accordion-body">
+                <p>
+                  Keycloak is the identity provider at the heart of the
+                  project's authentication architecture. It handles user
+                  registration, login, token issuance, token refresh, and logout
+                  — offloading all of that complexity from the application
+                  itself. Instead of building and maintaining a custom auth
+                  system (with all the security risks that entails), the Spring
+                  Boot backend acts purely as a resource server that trusts the
+                  JWTs that Keycloak signs.
+                </p>
+                <p>
+                  Setting up Keycloak for this project involved creating a
+                  <strong>realm</strong> (a namespace for users and clients),
+                  registering the Angular app and the Spring Boot API as
+                  separate <strong>clients</strong>, and defining the realm
+                  roles that map to the application's access control model. The
+                  Angular client uses the
+                  <strong>Authorization Code + PKCE</strong> flow — the most
+                  secure flow for public clients (browser apps that cannot
+                  safely store a client secret):
+                </p>
+                <pre class="blog-code-block">
+                  <code class="language-typescript">
+                  // xenon-dev-config.ts — Keycloak connection settings (Angular)
+                  export default {{ '{' }}
+                      keycloak: {{ '{' }}
+                          local: {{ '{' }}
+                              url:      'http://localhost:8080',
+                              realm:    'Xenon-Dev-DEV-ENV',
+                              clientId: 'xenon-dev-oauth2-client-dev-env-id'
+                              // No client secret — public PKCE client
+                          {{ '}' }}
+                      {{ '}' }}
+                  {{ '}' }};
+
+                  // keycloak.service.ts — initialise Keycloak before the Angular app bootstraps
+                  &#64;Injectable({{ '{' }} providedIn: 'root' {{ '}' }})
+                  export class KeycloakInitService {{ '{' }}
+
+                      constructor(private keycloak: KeycloakService) {{ '{' }}{{ '}' }}
+
+                      init(): Promise&lt;boolean&gt; {{ '{' }}
+                          return this.keycloak.init({{ '{' }}
+                              config: {{ '{' }}
+                                  url:      xenonDevConfig.keycloak.local.url,
+                                  realm:    xenonDevConfig.keycloak.local.realm,
+                                  clientId: xenonDevConfig.keycloak.local.clientId
+                              {{ '}' }},
+                              initOptions: {{ '{' }}
+                                  onLoad:              'check-sso',   // don't force login on every page load
+                                  silentCheckSsoRedirectUri:
+                                      window.location.origin + '/assets/silent-check-sso.html'
+                              {{ '}' }}
+                          {{ '}' }});
+                      {{ '}' }}
+                  {{ '}' }}
+                </code>
+              </pre>
+                <p>
+                  The <code>check-sso</code> init option means the app silently
+                  checks whether the user already has an active Keycloak session
+                  (via an iframe) rather than redirecting them to the login page
+                  immediately. This gives the app a smooth experience —
+                  logged-in users land on the page they requested, while
+                  unauthenticated users see the public content until they
+                  explicitly choose to log in. Protected routes are guarded by
+                  an Angular <code>CanActivate</code> guard that checks the
+                  Keycloak token and redirects to the Keycloak login page if the
+                  token is absent or expired.
+                </p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,33 @@
+.danger-box{
+    background: #ff0000;
+    background: linear-gradient(90deg, rgba(255, 0, 0, 1) 0%, rgba(179, 116, 116, 1) 50%, rgba(237, 83, 83, 1) 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 5px;
+}
+
+.form-header-title {
+    font-size: 1rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    text-align: left;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.btn {
+    height: 32px;
+    margin: 3px;
+}
+
+@media (max-width:991px) { 
+    .form-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    }   
+}

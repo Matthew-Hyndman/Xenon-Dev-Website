@@ -1,0 +1,10 @@
+{
+  "keycloak": {
+    "url": "${AWS_DEV_KEYCLOAK_URL}",
+    "realm": "${AWS_DEV_KEYCLOAK_REALM}",
+    "clientId": "${AWS_DEV_KEYCLOAK_CLIENT_ID}"
+  },
+  "SpringAPIServer": {
+    "url": "${AWS_DEV_SPRING_API_URL}"
+  }
+}
