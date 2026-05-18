@@ -4,8 +4,9 @@ backend:
   phases:
     build:
       commands:
-        - echo "deploying backend"
         - npm install --cache .npm --prefer-offline
+        - npm install @parcel/watcher --save-optional
+        - echo "deploying backend"
         - npx @aws-amplify/backend-cli pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
 frontend:
   phases:
@@ -18,7 +19,6 @@ frontend:
         #- npm install #--legacy-peer-deps
 
         # Runtime config file for the selected build environment
-
 
         - npx ng version
     build:
