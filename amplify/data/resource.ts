@@ -11,8 +11,8 @@ const schema = a.schema({
     })
     .identifier(['player_id'])
     .authorization((allow) => [
-      // Temporary phase-1 reset rule: allow API key access while Cognito is removed.
-      allow.publicApiKey(),
+      allow.owner(),
+      allow.authenticated().to(['read']),
     ]),
 });
 
@@ -21,11 +21,8 @@ export type Schema = ClientSchema<typeof schema>;
 export const data = defineData({
   schema,
   authorizationModes: {
-    // Temporary phase-1 reset mode: switch back to userPool after auth is recreated.
-    defaultAuthorizationMode: 'apiKey',
-    apiKeyAuthorizationMode: {
-      expiresInDays: 7,
-    },
+    // All models use owner-based auth, so userPool is the only mode needed.
+    defaultAuthorizationMode: 'userPool',
   },
 });
 
