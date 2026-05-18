@@ -8,6 +8,7 @@ backend:
         - npm install @parcel/watcher --save-optional
         - echo "deploying backend"
         - npx ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
+frontend:
   phases:
     preBuild:
       commands:
