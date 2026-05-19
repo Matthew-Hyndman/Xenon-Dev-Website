@@ -24,7 +24,7 @@ frontend:
     build:
       commands:
         # the dev build commands
-        - npm run build
+        - npm run build:--branch $AWS_BRANCH
     postBuild:
       commands:
         - echo "Build complete"
