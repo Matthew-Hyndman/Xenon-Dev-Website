@@ -23,8 +23,8 @@ frontend:
         - npx ng version
     build:
       commands:
-        # the dev build commands
-        - npm run build --branch $AWS_BRANCH
+        # the build commands
+        - npm run build
     postBuild:
       commands:
         - echo "Build complete"
