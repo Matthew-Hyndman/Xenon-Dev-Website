@@ -3,7 +3,7 @@
 #frontend
 keycloack-forms-theme
 src/app/config
-src/environments
+#src/environments
 package-lock.json
 
 #backend
