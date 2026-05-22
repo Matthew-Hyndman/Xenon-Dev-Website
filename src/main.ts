@@ -2,6 +2,7 @@
 
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import { Amplify } from 'aws-amplify';
+import { I18n } from 'aws-amplify/utils';
 import awsconfig from '../amplify_outputs.json';
 import { environment } from './environments/environment';
 
@@ -73,5 +74,22 @@ async function bootstrap(): Promise<void> {
 }
 
 Amplify.configure(awsconfig);
+
+I18n.putVocabulariesForLanguage('en', {
+  //credentials
+  'Preferred Username': 'Username',
+  'Enter your Preferred Username': 'Enter your Username',
+  'Given Name': 'First Name',
+  'Enter your Given Name': 'Enter your First Name',
+  'Family Name': 'Last Name',
+  'Enter your Family Name': 'Enter your Last Name',
+  //password requirements
+  'Password must have at least 8 characters': 'Be at least 8 characters long',
+  'Password must have upper case letters': 'Include at least one uppercase letter (A–Z)',
+  'Password must have lower case letters': 'Include at least one lowercase letter (a–z)',
+  'Password must have numbers': 'Include at least one number (0–9)',
+  'Password must have special characters': 'Include at least one special character (e.g., !@#$%^&*)',
+});
+I18n.setLanguage('en');
 
 bootstrap().catch((err) => console.error(err));

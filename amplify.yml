@@ -1,4 +1,3 @@
-#increment version by 1 with every new deployment
 version: 2
 backend:
   phases:
@@ -12,14 +11,6 @@ frontend:
   phases:
     preBuild:
       commands:
-        # Clear Amplify cache
-        #- rm -rf .amplify
-
-        # Install dependencies with legacy peer deps support
-        #- npm install #--legacy-peer-deps
-
-        # Runtime config file for the selected build environment
-
         - npx ng version
     build:
       commands:

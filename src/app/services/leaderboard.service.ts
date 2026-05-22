@@ -30,6 +30,7 @@ export class LeaderboardService {
 
     const nextToken = this.pageTokenCache.get(page);
     const result = await client.models.PlayerProfile.list({
+      
       limit: pageSize,
       nextToken,
     });
@@ -44,7 +45,7 @@ export class LeaderboardService {
       losses: profile.losses ?? 0,
       pot: profile.pot ?? 3000,
       username: profile.username,
-    }));
+    })).sort((a, b) => b.pot - a.pot); // Lazy Sort by pot descending
 
     return {
       content,

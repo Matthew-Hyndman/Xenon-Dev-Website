@@ -4,12 +4,13 @@ import { NavLinks } from './common/nav-links';
 import { LinkObj } from './common/link-obj';
 import { AwsLoginService } from './services/aws-login.service';
 import { Router } from '@angular/router';
+import { Hub } from 'aws-amplify/utils';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
-  standalone: false,
+  standalone: false
   //imports: [RouterOutlet, /*TodosComponent, AmplifyAuthenticatorModule,*/ MiniNavMenuComponent],
 })
 export class AppComponent {
@@ -24,10 +25,16 @@ export class AppComponent {
   constructor(
     private router: Router,
     private navLinks: NavLinks,
-    private awsLoginService: AwsLoginService,
+    private awsLoginService: AwsLoginService
   ) {
     this.links = this.navLinks.links;
     this.isLoggedInCheck();
+
+    Hub.listen('auth', ({ payload }) => {
+      if (payload.event === 'signedIn') {
+        this.router.navigate(['/landing']);
+      }
+    });
   }
 
   toggleLoggedInLinks() {
@@ -36,7 +43,7 @@ export class AppComponent {
   }
 
   private setLoggedInLinksEnabled(isLoggedIn: boolean) {
-    this.navLinks.links.forEach((link) => {
+    this.navLinks.links.forEach(link => {
       if (link.name === 'Profile' || link.name === 'Logout') {
         link.enable = isLoggedIn;
       } else if (link.name === 'Login') {
@@ -72,7 +79,7 @@ export class AppComponent {
 
   isLoggedInCheck() {
     try {
-      this.awsLoginService.isLoggedIn$.subscribe((result) => {
+      this.awsLoginService.isLoggedIn$.subscribe(result => {
         this.isLoggedInToSession = result ?? false;
         this.setLoggedInLinksEnabled(this.isLoggedInToSession);
       });
@@ -94,7 +101,7 @@ export class AppComponent {
         this.logout();
         break;
       default:
-        this.router.navigate([link.path]);        
+        this.router.navigate([link.path]);
         this.setShouldShowMobileNavToFalse();
     }
   }

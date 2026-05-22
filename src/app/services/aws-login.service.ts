@@ -108,7 +108,7 @@ export class AwsLoginService {
   }
 
   /** Sign in with email and password */
-  async login(email: string, password: string): Promise<{ isSignedIn: boolean; nextStep?: string }> {
+  /*async login(email: string, password: string): Promise<{ isSignedIn: boolean; nextStep?: string }> {
     const result = await signIn({ username: email, password });
     if (result.isSignedIn) {
       await this.refreshSession();
@@ -117,7 +117,7 @@ export class AwsLoginService {
       isSignedIn: result.isSignedIn,
       nextStep: result.nextStep?.signInStep,
     };
-  }
+  }*/
 
   /** Sign out the current user */
   async logout(): Promise<void> {
