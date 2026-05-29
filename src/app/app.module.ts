@@ -23,6 +23,7 @@ import { BlogComponent } from './components/blog/blog.component';
 import { AwsLoginComponent } from './components/aws-login/aws-login.component';
 
 import { AmplifyAuthenticatorModule } from '@aws-amplify/ui-angular';
+import { FreelanceComponent } from './components/freelance/freelance.component';
 //import { AuthConfigModule } from './auth/auth-config.module';
 
 
@@ -38,6 +39,7 @@ import { AmplifyAuthenticatorModule } from '@aws-amplify/ui-angular';
     LeaderboardComponent,
     BlogComponent,
     AwsLoginComponent,
+    FreelanceComponent,
   ],
   imports: [
     CommonModule,

@@ -12,6 +12,7 @@ import { blackJackHelpDisclaimerCheckedGuard } from './guards/black-jack-help-di
 import { LeaderboardComponent } from './components/leaderboard/leaderboard.component';
 import { BlogComponent } from './components/blog/blog.component';
 import { AwsLoginComponent } from './components/aws-login/aws-login.component';
+import { FreelanceComponent } from './components/freelance/freelance.component';
 
 export const routes: Routes = [
   { path: 'black-jack-game', component: BlackJackGameComponent, canActivate: [blackJackHelpDisclaimerCheckedGuard] },
@@ -21,6 +22,7 @@ export const routes: Routes = [
     blackJackHelpAuthenticationGuard,
     blackJackHelpDisclaimerCheckedGuard
   ] },
+  { path: 'freelance-info', component: FreelanceComponent },
   { path: 'site-info', component: SiteInfoComponent },
   { path: 'aws-login', component: AwsLoginComponent },
   { path: 'landing', component: LandingComponent },
