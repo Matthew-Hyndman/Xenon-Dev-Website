@@ -1,3 +1,8 @@
+<img
+  class="bg-img"
+  src="assets\images\background-img.jpg"
+  alt="background-image"
+/>
 <div class="main-content">
   <div class="section-content section-content-p30">
     <div class="container-fulid">
@@ -10,19 +15,420 @@
         from responsive frontends to secure backend APIs.
       </p>
 
-      <div class="Freelance-services">
-        <p>What I can help you with:</p>
+      <section
+        class="freelance-tab-box"
+        aria-label="Freelance service information"
+      >
+        <div class="tab-list" role="tablist" aria-label="Freelance tabs">
+          <button
+            *ngFor="let tab of tabs"
+            type="button"
+            class="tab-button"
+            role="tab"
+            [class.is-active]="activeTab === tab.id"
+            [attr.aria-selected]="activeTab === tab.id"
+            [attr.aria-controls]="tab.id + '-panel'"
+            [id]="tab.id + '-tab'"
+            (click)="setActiveTab(tab.id)"
+          >
+            <span class="tab-button__title">{{ tab.title }}</span>
+            <span class="tab-button__description">{{ tab.description }}</span>
+          </button>
+        </div>
 
-        <p>✔ Full-stack web application development</p>
+        <div
+          *ngIf="activeTab === 'services'"
+          class="tab-panel"
+          role="tabpanel"
+          id="services-panel"
+          aria-labelledby="services-tab"
+        >
+          <p class="tab-panel__lead">What I can help you with:</p>
 
-        <p>✔ REST API development (Spring Boot)</p>
+          <p>
+            <i class="fa-solid fa-code" style="color: rgb(53, 228, 76);"></i>
+            Full-stack web application development
+          </p>
 
-        <p>✔ Angular frontends (dashboards, admin panels, forms)</p>
+          <p>
+            <i class="fa-solid fa-cloud" style="color: rgb(223, 53, 228);"></i>
+            REST API development (Spring Boot)
+          </p>
 
-        <p>✔ Bug fixing and performance improvements</p>
+          <p>
+            <i
+              class="fa-solid fa-wand-magic-sparkles"
+              style="color: rgb(224, 228, 53);"
+            ></i>
+            Angular frontends (dashboards, admin panels, forms)
+          </p>
 
-        <p>✔ Database design and integration</p>
-      </div>
+          <p>
+            <i class="fa-solid fa-bug" style="color: rgb(228, 53, 53);"></i> Bug
+            fixing and performance improvements
+          </p>
+
+          <p>
+            <i class="fa-solid fa-database" style="color: rgb(47, 0, 204);"></i>
+            Database design and integration
+          </p>
+        </div>
+
+        <div
+          *ngIf="activeTab === 'stack'"
+          class="tab-panel"
+          role="tabpanel"
+          id="stack-panel"
+          aria-labelledby="stack-tab"
+        >
+          <p class="tab-panel__intro">
+            I build projects with a practical stack focused on maintainability,
+            performance, and clean integrations.
+          </p>
+
+          <div class="card-set">
+            <div class="card" style="background-color: #d12525;">
+              <img src="assets\images\angular-icon.png" alt="angular-logo" />
+              <div class="card__content">
+                <p class="card__title">Angular</p>
+                <p class="card__description">
+                  Frontend development framework that allows building dynamic
+                  and responsive web applications
+                </p>
+              </div>
+            </div>
+
+            <div class="card" style="background-color: #505050;">
+              <img
+                src="assets\images\spring-boot-logo.png"
+                alt="spring-boot-logo"
+              />
+              <div class="card__content">
+                <p class="card__title">Spring Boot</p>
+                <p class="card__description">
+                  Backend development framework for building robust and scalable
+                  web applications
+                </p>
+              </div>
+            </div>
+
+            <div class="card" style="background-color: #c23dc7;">
+              <img src="assets\images\REST-API-logo.png" alt="rest-api-logo" />
+              <div class="card__content">
+                <p class="card__title">REST APIs</p>
+                <p class="card__description">
+                  Integration for communication between frontend and backend
+                </p>
+              </div>
+            </div>
+
+            <div class="card" style="background-color: #23a138;">
+              <img src="assets\images\Database-logo.png" alt="database-logo" />
+              <div class="card__content">
+                <p class="card__title">MySQL</p>
+                <p class="card__description">
+                  Database management system for storing and retrieving data
+                </p>
+              </div>
+            </div>
+
+            <div class="card" style="background-color: #ffffff;">
+              <img src="assets\images\git-logo.png" alt="git-logo" />
+              <div class="card__content">
+                <p class="card__title">Git</p>
+                <p class="card__description">
+                  Version control system for tracking changes in source code
+                </p>
+              </div>
+            </div>
+
+            <div class="card" style="background-color: #1f8496;">
+              <img src="assets\images\keycloak.png" alt="keycloak-logo" />
+              <div class="card__content">
+                <p class="card__title">Keycloak</p>
+                <p class="card__description">
+                  Open-source identity and access management solution for
+                  securing applications
+                </p>
+              </div>
+            </div>
+
+            <div class="card" style="background-color: #8d6a1e;">
+              <img src="assets\images\aws-logo.png" alt="aws-logo" />
+              <div class="card__content">
+                <p class="card__title">AWS</p>
+                <p class="card__description">
+                  Amazon Web Services is a cloud computing service for building
+                  and deploying applications
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div
+          *ngIf="activeTab === 'wordpress'"
+          class="tab-panel"
+          role="tabpanel"
+          id="stack-panel"
+          aria-labelledby="stack-tab"
+        >
+          <p class="tab-panel__lead">
+            <i class="fa-solid fa-atom" style="color: rgb(53, 228, 76);"></i> Is
+            It Time to Future‑Proof Your Website? Move Beyond WordPress?
+            <i class="fa-solid fa-atom" style="color: rgb(53, 228, 76);"></i>
+          </p>
+          <p>
+            Many businesses started their online journey with WordPress—and for
+            good reason. It’s quick, flexible, and familiar. But as your
+            business grows, your website needs to evolve too. What if you could
+            keep the exact same look, images, and content...
+          </p>
+          <p>
+            <i
+              class="fa-solid fa-lightbulb"
+              style="color: rgb(228, 190, 53);"
+            ></i>
+            but power it with modern, high-performance technology?
+            <i
+              class="fa-solid fa-lightbulb"
+              style="color: rgb(228, 190, 53);"
+            ></i>
+          </p>
+
+          <p class="tab-panel__lead">
+            What I do
+          </p>
+          <p>
+            I rebuild your existing WordPress website using:
+          </p>
+          <ul>
+            <li>
+              Angular (front-end) – fast, responsive, modern user experience
+            </li>
+            <li>
+              Spring Boot (back-end) – powerful, secure, enterprise-grade
+              architecture
+            </li>
+          </ul>
+
+          <p>
+            <i class="fa-solid fa-check" style="color: rgb(53, 228, 76);"></i>
+            Same design
+          </p>
+          <p>
+            <i class="fa-solid fa-check" style="color: rgb(53, 228, 76);"></i>
+            Same content
+          </p>
+          <p>
+            <i class="fa-solid fa-check" style="color: rgb(53, 228, 76);"></i>
+            Completely upgraded technology underneath
+          </p>
+
+          <p class="tab-panel__lead">
+            Why Replace WordPress If Everything Looks the Same?
+          </p>
+          <p>
+            At first glance, it might seem like a technical change only—but
+            behind the scenes, the benefits are significant:
+          </p>
+
+          <p>
+            <i
+              class="fa-solid fa-bolt-lightning"
+              style="color: rgb(225, 214, 0);"
+            ></i>
+            1. Performance That Boosts Conversions
+            <i
+              class="fa-solid fa-bolt-lightning"
+              style="color: rgb(225, 214, 0);"
+            ></i>
+          </p>
+          <p>
+            WordPress sites often slow down over time due to plugins and themes.
+          </p>
+          <p>With Angular + Spring Boot:</p>
+          <ul>
+            <li>Faster Load Times</li>
+            <li>Smoother user Expreience</li>
+            <li>Higher engagement and converion rates</li>
+          </ul>
+          <p>
+            <i
+              class="fa-solid fa-shield-halved"
+              style="color: rgb(225, 0, 0);"
+            ></i>
+            2. Improved Security
+            <i
+              class="fa-solid fa-shield-halved"
+              style="color: rgb(225, 0, 0);"
+            ></i>
+          </p>
+          <p>WordPress is one of the most targeted platforms for attacks.</p>
+          <p>By switching:</p>
+          <ul>
+            <li>Reduced reliance on third-party plugins</li>
+            <li>Stronger backend control</li>
+            <li>Lower vulnerability exposure</li>
+          </ul>
+
+          <p>
+            <i
+              class="fa-solid fa-arrow-trend-up"
+              style="color: rgb(117, 255, 0);"
+            ></i>
+            3. Scalability for Growth
+            <i
+              class="fa-solid fa-arrow-trend-up"
+              style="color: rgb(117, 255, 0);"
+            ></i>
+          </p>
+          <p>Planning to add features like:</p>
+          <ul>
+            <li>Customer portals?</li>
+            <li>Booking systems?</li>
+            <li>Advanced integrations?</li>
+          </ul>
+          <p>
+            Modern architecture makes scaling seamless—without rebuilding again
+            later.
+          </p>
+
+          <p>
+            <i
+              class="fa-solid fa-gamepad"
+              style="color: rgb(190, 190, 190);"
+            ></i>
+            4. Full Control & Flexibility
+            <i
+              class="fa-solid fa-gamepad"
+              style="color: rgb(190, 190, 190);"
+            ></i>
+          </p>
+          <p>No plugin limitations. No working around theme restrictions.</p>
+          <p>You get:</p>
+          <ul>
+            <li>Custom-built features tailored to your needs</li>
+            <li>Cleaner, maintainable codebase</li>
+            <li>Freedom to innovate</li>
+          </ul>
+          <p>
+            <i
+              class="fa-solid fa-person-digging"
+              style="color: rgba(255, 0, 0, 0.61);"
+            ></i>
+            5. Lower Long-Term Maintenance Costs
+            <i
+              class="fa-solid fa-person-digging"
+              style="color: rgba(255, 0, 0, 0.61);"
+            ></i>
+          </p>
+          <p>While WordPress can seem cheaper upfront:</p>
+          <ul>
+            <li>Plugin updates</li>
+            <li>Compatibility issues</li>
+            <li>Security patches</li>
+          </ul>
+          <p>These all add hidden costs over time.</p>
+          <p>
+            A custom-built solution reduces ongoing friction and surprise
+            expenses.
+          </p>
+
+          <p>
+            <i class="fa-solid fa-award" style="color: rgb(255, 199, 0);"></i>
+            6. Professional, Enterprise-Level Foundation
+            <i class="fa-solid fa-award" style="color: rgb(255, 199, 0);"></i>
+          </p>
+          <p>Even if your site looks the same today, you're building on:</p>
+          <ul>
+            <li>Industry-standard frameworks</li>
+            <li>Better developer support</li>
+            <li>Future-ready infrastructure</li>
+          </ul>
+
+          <p class="tab-panel__lead">
+            <i
+              class="fa-solid fa-lightbulb fa-flip"
+              style="color: rgb(228, 190, 53);"
+            ></i>
+            Who Should Consider This?
+            <i
+              class="fa-solid fa-lightbulb fa-flip"
+              style="color: rgb(228, 190, 53);"
+            ></i>
+          </p>
+          <p>This upgrade is ideal if:</p>
+          <ul>
+            <li>Your website is <strong>to your business</strong></li>
+            <li>
+              You’re experiencing
+              <strong>performance or security issues</strong>
+            </li>
+            <li>You plan to <strong>scale or add functionality</strong></li>
+            <li>
+              You want to <strong>future-proof your digital presence</strong>
+            </li>
+          </ul>
+
+          <p class="tab-panel__lead">
+            <i class="fa-solid fa-brain" style="color: rgb(248, 129, 255);"></i>
+            Think of It Like This
+            <i class="fa-solid fa-brain" style="color: rgb(248, 129, 255);"></i>
+          </p>
+          <p>
+            You're not changing the house’s appearance—you’re rebuilding the
+            foundations with stronger materials.
+          </p>
+
+          <p>
+            <i
+              class="fa-solid fa-comment"
+              style="color: rgb(255, 255, 255);"
+            ></i>
+            Let's Talk
+            <i
+              class="fa-solid fa-comment"
+              style="color: rgb(255, 255, 255);"
+            ></i>
+          </p>
+          <p>If you want your website to:</p>
+          <ul>
+            <li>
+              Load faster
+              <i
+                class="fa-solid fa-bolt-lightning fa-shake"
+                style="color: rgb(225, 214, 0);"
+              ></i>
+            </li>
+            <li>
+              Scale easier
+              <i
+                class="fa-solid fa-arrow-trend-up fa-bounce"
+                style="color: rgb(117, 255, 0);"
+              ></i>
+            </li>
+            <li>
+              Stay secure
+              <i
+                class="fa-solid fa-shield-halved fa-flip"
+                style="color: rgb(225, 0, 0);"
+              ></i>
+            </li>
+            <li>
+              Be ready for the future
+              <i
+                class="fa-solid fa-atom fa-beat-fade"
+                style="color: rgb(53, 228, 76);"
+              ></i>
+            </li>
+          </ul>
+          <p>
+            Let’s discuss how we can transform your existing WordPress site into
+            a modern, high-performance platform
+          </p>
+        </div>
+      </section>
 
       <p>
         I focus on writing clean, maintainable code and delivering projects on
@@ -30,116 +436,10 @@
         bring your idea to life.
       </p>
 
-      <form>
-        <fieldset>
-          <legend>Tech stack:</legend>
-
-          <div class="card" style="background-color: #d12525;">
-            <img src="assets\images\angular-icon.png" alt="angular-logo" />
-            <div class="card__content">
-              <p class="card__title">Angular</p>
-              <p class="card__description">
-                Frontend development framework that allows building dynamic and
-                responsive web applications
-              </p>
-            </div>
-          </div>
-
-          <div class="card" style="background-color: #505050;">
-            <img
-              src="assets\images\spring-boot-logo.png"
-              alt="spring-boot-logo"
-            />
-            <div class="card__content">
-              <p class="card__title">Spring Boot</p>
-              <p class="card__description">
-                Backend development framework for building robust and scalable
-                web applications
-              </p>
-            </div>
-          </div>
-
-          <div class="card" style="background-color: #c23dc7;">
-            <img src="assets\images\REST-API-logo.png" alt="rest-api-logo" />
-            <div class="card__content">
-              <p class="card__title">REST APIs</p>
-              <p class="card__description">
-                Integration for communication between frontend and backend
-              </p>
-            </div>
-          </div>
-
-          <div class="card" style="background-color: #23a138;">
-            <img src="assets\images\Database-logo.png" alt="database-logo" />
-            <div class="card__content">
-              <p class="card__title">MySQL</p>
-              <p class="card__description">
-                Database management system for storing and retrieving data
-              </p>
-            </div>
-          </div>
-
-          <div class="card" style="background-color: #ffffff;">
-            <img src="assets\images\git-logo.png" alt="git-logo" />
-            <div class="card__content">
-              <p class="card__title">Git</p>
-              <p class="card__description">
-                Version control system for tracking changes in source code
-              </p>
-            </div>
-          </div>
-
-          <div class="card" style="background-color: #1f8496;">
-            <img src="assets\images\keycloak.png" alt="keycloak-logo" />
-            <div class="card__content">
-              <p class="card__title">Keycloak</p>
-              <p class="card__description">
-                Open-source identity and access management solution for securing
-                applications
-              </p>
-            </div>
-          </div>
-
-          <div class="card" style="background-color: #8d6a1e;">
-            <img src="assets\images\aws-logo.png" alt="aws-logo" />
-            <div class="card__content">
-              <p class="card__title">AWS</p>
-              <p class="card__description">
-                Amazon Web Services is a cloud computing service for building and deploying applications
-              </p>
-            </div>
-          </div>
-        </fieldset>
-      </form>
-
-      <p>
-        Angular - Frontend development framework that allows building dynamic
-        and responsive web applications
-      </p>
-
-      <p>
-        Spring Boot - Backend development framework for building robust and
-        scalable web applications
-      </p>
-
-      <p>
-        REST APIs - Integration for communication between frontend and backend
-      </p>
-
-      <p>
-        MySQL - Database management system for storing and retrieving data
-      </p>
-
-      <p>Git - Version control system for tracking changes in source code</p>
-
-      <p>
-        I’m currently building my freelance portfolio, so I’m highly motivated,
-        responsive, and committed to delivering great results.
-      </p>
-
-      <h2 class="mb-3">
+      <p class="process-panel__cta">
         Let’s work together — feel free to message me to discuss your project.
-      </h2>
+      </p>
+
       <hr />
     </div>
   </div>

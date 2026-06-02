@@ -101,8 +101,8 @@ export class AppComponent {
         this.logout();
         break;
       default:
-        this.router.navigate([link.path]);
-        this.setShouldShowMobileNavToFalse();
+        this.router.navigate([link.path]);        
     }
+    this.setShouldShowMobileNavToFalse();
   }
 }
