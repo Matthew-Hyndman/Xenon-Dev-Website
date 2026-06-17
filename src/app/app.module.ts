@@ -26,6 +26,7 @@ import { AmplifyAuthenticatorModule } from '@aws-amplify/ui-angular';
 import { FreelanceComponent } from './components/freelance/freelance.component';
 //import { AuthConfigModule } from './auth/auth-config.module';
 
+import { ForRecruitersAndEmployersComponent } from './components/for-recruiters-and-employers/for-recruiters-and-employers.component';
 
 @NgModule({
   declarations: [
@@ -40,6 +41,7 @@ import { FreelanceComponent } from './components/freelance/freelance.component';
     BlogComponent,
     AwsLoginComponent,
     FreelanceComponent,
+    ForRecruitersAndEmployersComponent,
   ],
   imports: [
     CommonModule,
