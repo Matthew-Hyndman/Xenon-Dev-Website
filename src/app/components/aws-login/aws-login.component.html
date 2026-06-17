@@ -1,0 +1,95 @@
+<div class="main-content">
+  <div class="section-content section-content-p30">
+    <div class="container-fulid center">
+      <!-- Show Amplify authenticator when not logged in -->
+      <div *ngIf="!isLoggedIn">
+        <div class="box">
+          <amplify-authenticator class="center">
+            <ng-template amplifySlot="header" class="center">
+              <img
+                src="assets\images\logo-title.png"
+                alt="title"
+                class="title-img"
+              />
+            </ng-template>
+
+            <ng-template amplifySlot="sign-in-header" class="center">
+              <h3
+                class="amplify-heading"
+                style="padding: var(--amplify-space-xl) 0 0 var(--amplify-space-xl)"
+              >
+                Sign in to your account
+              </h3>
+            </ng-template>
+
+            <ng-template amplifySlot="sign-up-header">
+              <h3
+                class="amplify-heading"
+                style="padding: var(--amplify-space-xl) 0 0 var(--amplify-space-xl)"
+              >
+                Create a new account
+              </h3>
+            </ng-template>
+
+            <ng-template amplifySlot="confirm-sign-up-header">
+              <h3
+                class="amplify-heading"
+                style="padding: var(--amplify-space-xl) 0 0 var(--amplify-space-xl)"
+              >
+                Enter Information:
+              </h3>
+            </ng-template>
+
+            <ng-template amplifySlot="setup-totp-header">
+              <h3
+                class="amplify-heading"
+                style="padding: var(--amplify-space-xl) 0 0 var(--amplify-space-xl)"
+              >
+                Enter Information:
+              </h3>
+            </ng-template>
+
+            <ng-template amplifySlot="confirm-sign-in-header">
+              <h3
+                class="amplify-heading"
+                style="padding: var(--amplify-space-xl) 0 0 var(--amplify-space-xl)"
+              >
+                Enter Information:
+              </h3>
+            </ng-template>
+
+            <ng-template amplifySlot="forgot-password-header">
+              <h3
+                class="amplify-heading"
+                style="padding: var(--amplify-space-xl) 0 0 var(--amplify-space-xl)"
+              >
+                Enter Information:
+              </h3>
+            </ng-template>
+
+            <ng-template amplifySlot="confirm-reset-password-header">
+              <h3
+                class="amplify-heading"
+                style="padding: var(--amplify-space-xl) 0 0 var(--amplify-space-xl)"
+              >
+                Enter Information:
+              </h3>
+            </ng-template>
+
+            <ng-template amplifySlot="select-mfa-type-header">
+              <h3 class="amplify-heading">Select Desired MFA Type</h3>
+            </ng-template>
+
+            <ng-template amplifySlot="setup-email-header">
+              <h3 class="amplify-heading">Email MFA Setup</h3>
+            </ng-template>
+
+            <ng-template amplifySlot="setup-email-footer">
+              <div>Footer Information</div>
+            </ng-template>
+          </amplify-authenticator>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

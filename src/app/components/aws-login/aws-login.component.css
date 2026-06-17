@@ -1,0 +1,116 @@
+
+
+amplify-authenticator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 50vh;
+    width: 100%;
+    color: #ffffff;
+}
+
+.center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    text-align: center;
+}
+
+.box {
+    width: min(92vw, 420px);
+    background-color: rgb(43, 44, 62);
+    border-radius: 10px;
+    position: relative;
+    padding: 22px 22px 18px;
+}
+
+.box::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, rgba(0, 238, 255, 1) 0%, rgba(70, 155, 176, 1) 28%, rgba(98, 83, 237, 1) 100%);
+    z-index: -1;
+    border-radius: 15px;
+    margin: -10px;
+}
+
+/* Match profile input look and add clear spacing between each form row. */
+:host ::ng-deep .amplify-field,
+:host ::ng-deep .amplify-passwordfield,
+:host ::ng-deep .amplify-flex.amplify-authenticator__form {
+    margin-bottom: 12px;
+}
+
+:host ::ng-deep .amplify-field__control,
+:host ::ng-deep .amplify-input,
+:host ::ng-deep .amplify-select,
+:host ::ng-deep .amplify-passwordfield__input {
+    width: 100%;
+    border-radius: 10px;
+    background: #f3f6fb;
+    box-shadow: -4px 4px 6px 0 rgba(0, 0, 0, 0.75) inset;
+    
+    min-height: 40px;
+    padding: 0 12px;
+    color: #1e1f2f;
+}
+
+:host ::ng-deep .amplify-button,
+:host ::ng-deep .amplify-tabs__item,
+button {
+    background: linear-gradient(#03a9f4, #205b8d);
+    color: #ffffff;
+    border: none;
+    margin-top: 6px;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: filter 0.2s ease-in-out;
+}
+
+:host ::ng-deep .amplify-button:hover,
+button:hover {
+    filter: brightness(1.1);
+}
+
+:host ::ng-deep .amplify-button--link {
+    margin-top: 10px;
+}
+
+:host ::ng-deep .amplify-authenticator__subtitle,
+:host ::ng-deep .amplify-tabs {
+    margin-bottom: 10px;
+}
+
+:host ::ng-deep .amplify-tabs__item {
+    margin: 3px;
+    padding: 5px 10px;
+}
+
+:host ::ng-deep .amplify-tabs__item:hover {
+  border: #f3f6fb 1px solid;
+}
+
+
+:host ::ng-deep .amplify-field-group__outer-end,
+:host ::ng-deep .amplify-icon {
+    display: none;
+}
+
+:host ::ng-deep .amplify-text--error {
+    background: #ff0000;
+    background: linear-gradient(90deg, rgba(255, 0, 0, 1) 0%, rgb(129, 83, 83) 50%, rgba(237, 83, 83, 1) 100%);
+    color: white;
+    padding: 3px;
+}
+
+@media (max-width: 768px) {
+    .box {
+        width: min(94vw, 420px);
+        padding: 20px 16px 14px;
+    }
+}

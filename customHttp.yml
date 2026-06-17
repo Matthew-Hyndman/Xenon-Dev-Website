@@ -1,0 +1,17 @@
+customHeaders:
+  - pattern: "**"
+    headers:
+      - key: "Strict-Transport-Security"
+        value: "max-age=31536000; includeSubDomains"
+      - key: "X-Frame-Options"
+        value: "DENY"
+      - key: "X-Content-Type-Options"
+        value: "nosniff"
+      - key: "Content-Security-Policy-Report-Only"
+        value: "default-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; frame-ancestors 'none'; script-src 'self' https://kit.fontawesome.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data: https://ka-f.fontawesome.com; connect-src 'self' https://*.amazonaws.com https://*.amazoncognito.com https://*.amplifyapp.com; frame-src 'self'; upgrade-insecure-requests"
+      - key: "Referrer-Policy"
+        value: "strict-origin-when-cross-origin"
+      - key: "Permissions-Policy"
+        value: "accelerometer=(), autoplay=(), camera=(), clipboard-read=(), clipboard-write=(), fullscreen=(), display-capture=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), serial=(), usb=(), xr-spatial-tracking=(), web-share=()"
+      - key: "Content-Security-Policy"
+        value: "default-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; frame-ancestors 'none'; script-src 'self' https://kit.fontawesome.com; style-src 'self' 'unsafe-inline' https://kit.fontawesome.com https://ka-f.fontawesome.com; img-src 'self' data: https:; font-src 'self' data: https://ka-f.fontawesome.com; connect-src 'self' https://catfact.ninja/fact https://ka-f.fontawesome.com https://*.amazonaws.com https://*.amazoncognito.com https://*.amplifyapp.com; frame-src 'self'; upgrade-insecure-requests"

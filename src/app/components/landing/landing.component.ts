@@ -1,23 +1,18 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { BlackJackHelpService } from '../../services/black-jack-help.service';
-import {
-  HttpClient,
-  HttpClientModule,
-  HttpHeaders,
-} from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthenticationService } from '../../services/authentication.service';
 import { firstValueFrom } from 'rxjs';
 
 @Component({
-    selector: 'app-landing',
-    //imports: [HttpClientModule],
-    templateUrl: './landing.component.html',
-    styleUrl: './landing.component.css',
-    standalone: false
+  selector: 'app-landing',
+  templateUrl: './landing.component.html',
+  styleUrl: './landing.component.css',
+  standalone: false,
 })
 export class LandingComponent implements OnInit {
-  private httpClient = inject(HttpClient)
-    protected isLoggedInToSession: boolean = false;
+  private httpClient = inject(HttpClient);
+  protected isLoggedInToSession: boolean = false;
   protected userName: string = '';
 
   blckJackGameRoute: string = '';
@@ -27,13 +22,13 @@ export class LandingComponent implements OnInit {
 
   constructor(
     private blackJackHelpService: BlackJackHelpService,
-    private authService: AuthenticationService
+    private authService: AuthenticationService,
   ) {}
 
   ngOnInit(): void {
     this.isLoggedInCheck();
 
-    if(this.isLoggedInToSession){
+    if (this.isLoggedInToSession) {
       this.getUserFullName();
     }
 
@@ -46,18 +41,19 @@ export class LandingComponent implements OnInit {
     }
   }
 
-  async getCatFact() {    
-    await firstValueFrom(this.httpClient
-      .get<any>(`https://catfact.ninja/fact`, {
+  async getCatFact() {
+    await firstValueFrom(
+      this.httpClient.get<any>(`https://catfact.ninja/fact`, {
         headers: this.headers,
-      })).then((response) => {
+      }),
+    )
+      .then((response) => {
         this.catFact = response;
         this.showCatFact = true;
-      }).catch((error) => {
+      })
+      .catch((error) => {
         console.error('Error fetching cat fact: ', error);
       });
-
-    
   }
 
   isLoggedInCheck() {
@@ -70,17 +66,20 @@ export class LandingComponent implements OnInit {
     }
   }
 
-  getUserFullName(){
-    try{
+  getUserFullName() {
+    try {
       this.authService.userProfile$.subscribe((user) => {
         this.userName = user?.firstName ?? '';
-        if (typeof(user?.lastName) !== undefined) {
-          this.userName += ' ' + user?.lastName
+        if (typeof user?.lastName !== undefined) {
+          this.userName += ' ' + user?.lastName;
         }
       });
     } catch (error) {
-      console.error('error retriving userName: ', error)
+      console.error('error retriving userName: ', error);
     }
   }
 
+  login() {
+    this.authService.login();
+  }
 }

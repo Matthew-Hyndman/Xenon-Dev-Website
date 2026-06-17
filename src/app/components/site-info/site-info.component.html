@@ -1,14 +1,25 @@
+<img
+  class="bg-img"
+  src="assets\images\background-img.jpg"
+  alt="background-image"
+/>
 <div class="main-content">
   <div class="section-content section-content-p30">
     <div class="container-fulid">
       <h1>About</h1>
       <h3>Welcome to my website!!!</h3>
 
+      <img
+        class="author-image mt-4"
+        src="assets\images\author.jpg"
+        alt="author image"
+        >
+
       <p>
         My name is Matthew Hyndman, and I am actively seeking a position as a
         Front-End/Full-stack Developer with an emphasis in Angular and Spring
         Boot. This website showcases my skills and knowledge, aimed at potential
-        employers with developer vacancies.
+        employers with developer vacancies or clients who want a new website.
       </p>
 
       <p>
@@ -17,7 +28,7 @@
         learning. This website not only showcases my dedication but also
         provides a dynamic platform to apply and refine my knowledge.
       </p>
-
+      
       <h3>My future plans for this Website</h3>
 
       <p>
@@ -36,110 +47,9 @@
       <hr />
       <div class="phase-description">
         <p>
-          <strong>Phase 1.5 (completed)</strong><br />
-          This phase is dedicated to fine-tuning user experience and ironing out
-          bugs that derived from phase 1. See the following updates made:
-        </p>
-        <div class="updates-on-mobile mb-3">
-          <ul>
-            <li>
-              <strong>Optimised HTML and CSS</strong> - Improved readability and
-              standardisation
-            </li>
-            <li>
-              <strong>General UI update</strong> - New background and buttons
-            </li>
-            <li>
-              <strong>Black Jack UX Overhaul</strong> - The Black Jack game UI
-              looked old and was still a bit difficult to understand, therefore
-              I added:
-              <ul>
-                <li>Card tooltips that reveal the card value</li>
-                <li>Reworked buttons and spacing</li>
-                <li>A dealer card reveal timer (just for suspense)</li>
-                <li>
-                  A toggle for the dealer card reveal timer (just in case it
-                  gets annoying)
-                </li>
-              </ul>
-            </li>
-            <li>
-              <strong>Toggle Dealer card reveal timer data stored</strong> -
-              When you change the toggle the preference it will be remembered
-              next time you visit the page (stored locally)
-            </li>
-            <li>
-              <strong>Black Jack bug fix</strong> - Black Jack had an issue with
-              the Ace card being pulled and did not change its value
-              accordingly. I utilised Jasmine unit testing to assist in finding
-              all possible bugs that could happen.
-            </li>
-          </ul>
-        </div>
-
-        <div class="table-fromat mb-3">
-          <table>
-            <thead>
-              <tr>
-                <th>Update</th>
-                <th>Notes</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Optimised HTML and CSS</td>
-                <td>Improved readability and standardisation</td>
-              </tr>
-              <tr>
-                <td>General UI update</td>
-                <td>New background and buttons</td>
-              </tr>
-              <tr>
-                <td>Black Jack UX Overhaul</td>
-                <td>
-                  The Black Jack game UI looked old and was still a bit
-                  difficult to understand, therefore I added:
-                  <ul>
-                    <li>Card tooltips that reveal the card value</li>
-                    <li>Reworked buttons and spacing</li>
-                    <li>A dealer card reveal timer (just for suspense)</li>
-                    <li>
-                      A toggle for the dealer card reveal timer (just in case it
-                      gets annoying)
-                    </li>
-                  </ul>
-                </td>
-              </tr>
-              <tr>
-                <td>Toggle Dealer card reveal timer data stored</td>
-                <td>
-                  When you change the toggle the preference it will be
-                  remembered next time you visit the page (stored locally)
-                </td>
-              </tr>
-              <tr>
-                <td>Black Jack bug fix</td>
-                <td>
-                  Black Jack had an issue with the Ace card being pulled and did
-                  not change its value accordingly. I utilised Jasmine unit
-                  testing to assist in finding all possible bugs that could
-                  happen.
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <p>
-          This update is only for correcting and applying new techniques I have
-          learned recently.
-        </p>
-      </div>
-      <hr />
-      <div class="phase-description">
-        <p>
           <strong>Phase 2 (Complete)</strong><br />
           <!--add progrress bar to detail your progress here-->
-          Upcoming: User accounts with security (Spring Boot and HTTPS),
+          User accounts with security (Spring Boot and HTTPS),
           Blackjack record keeping (track wins, losses, and pot amount, in a
           database), and a leaderboards feature. <br />
           <i>Services to be integrated:</i><br />
@@ -158,14 +68,31 @@
           user information, a sign-in system is essential. Keycloak is a
           suitable and free solution for implementing online sign-in security.
           <br />
+          I engineered a full backend using Spring Boot 3 REST API, integrating
+          a custom MySQL database with Keycloak SSO authentication — managing
+          schema security through a dedicated account and validating requests
+          via JWTs and origin checks. I initially deployed this on AWS via EC2
+          and RDS, but at ~$45/month this proved unsustainable, so I pivoted to
+          a serverless AWS-native stack using Cognito, Lambda, DynamoDB, and API
+          Gateway, achieving a comparable result at negligible cost.
+          <br />
+          Beyond the architecture shift, I developed CRUD endpoints to track
+          user-specific game data (wins, losses, and tokens), orchestrated a
+          major migration from Angular v17 to v19 while resolving complex
+          dependency conflicts, and proactively managed technical debt in
+          response to AWS policy changes such as the deprecation of Node.js 18.
+          Throughout, I prioritised reliability, security, and maintainability —
+          debugging integration errors systematically and monitoring for
+          supply-chain vulnerabilities across the project's dependencies.
+          <br />
         </p>
       </div>
       <hr />
       <div class="phase-description">
         <p>
           <strong>Phase 3</strong><br />
-          Future Development: A mock eCommerce shop with customer accounts
-          (managed by Auth-0), enabling the creation of mock transactions to
+          Future Development: A mock eCommerce shop with customer accounts,
+           enabling the creation of mock transactions to
           demonstrate a working payment process.<br />
           <i>Service to be integrated:</i><br />
           <a
@@ -176,8 +103,7 @@
               class="img-icon"
               src="assets\images\stripe_logo.png"
             /><br /><strong>Stripe (connected via REST API)</strong></a
-          ><br />
-          I will continually add new ideas to this page as the website evolves.
+          >
         </p>
       </div>
       <hr />
@@ -206,7 +132,6 @@
         </p>
       </div>
       <hr />
-
 
       <p>
         I can't wait to show you more of what I am capable of in the future! I

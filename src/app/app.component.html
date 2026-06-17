@@ -37,51 +37,30 @@
                   <!--nav buttons here-->
                   @for (link of links; track link) {
                   <li class="nav-item">
-                    @if (link.enable) {
-                      @if (link.name === "Login") {
-                      <a
-                        class="nav-link"
-                        (click)="login()"
-                        style="color: white"
-                        >{{ link.name }}</a>
-                      }
-                      @else if(link.name === "Logout") {
-                      <a
-                        class="nav-link"
-                        (click)="logout()"
-                        style="color: white"
-                        >{{ link.name }}</a>
-                      } 
-                      @else {
+                    @if (link.enable) { @if (link.name === "Login") {
+                    <a
+                      class="nav-link"
+                      (click)="login()"
+                      style="color: white"
+                      >{{ link.name }}</a
+                    >
+                    } @else if(link.name === "Logout") {
+                    <a
+                      class="nav-link"
+                      (click)="logout()"
+                      style="color: white"
+                      >{{ link.name }}</a
+                    >
+                    } @else {
                     <a
                       class="nav-link"
                       href="{{ link.path }}"
                       style="color: white"
                       >{{ link.name }}</a
                     >
-                      }
-                  }
+                    } }
                   </li>
-                  }
-                  
-                    <!--@if(!this.isLoggedInToSession) {
-                    <li class="nav-item">
-                      <a class="nav-link" (click)="login()" style="color: white"
-                        >Login</a
-                      >
-                    </li>
-                    } @else {
-                    <li class="nav-item">
-                      <a class="nav-link" href="/user-profile" style="color: white"
-                        >Profile</a
-                      >
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" (click)="logout()" style="color: white"
-                        >Logout</a
-                      >
-                    </li>
-                  }-->
+                  }              
                 </ul>
               </div>
             </nav>
@@ -96,12 +75,11 @@
             >
               <!--links here-->
               @for (link of links; track link.name; let isOdd = $odd, index =
-              $index) { 
-                @if(isOdd && link.enable) {
+              $index) { @if(isOdd && link.enable) {
               <a
                 class="mobile-navbar-link odd"
                 [style.animation-delay]="index * 0.2 + 's'"
-                style="animation-name: from-left"                
+                style="animation-name: from-left"
                 (click)="setMobileNavLinkClick(link)"
                 >{{ link.name }}</a
               >
@@ -109,7 +87,7 @@
               <a
                 class="mobile-navbar-link even"
                 [style.animation-delay]="index * 0.2 + 's'"
-                style="animation-name: from-right"                
+                style="animation-name: from-right"
                 (click)="setMobileNavLinkClick(link)"
                 >{{ link.name }}</a
               >
@@ -132,7 +110,7 @@
   <!-- ENDS PAGE CONTAINER -->
 
   <footer>
-    <p>Email: matthew&#64;xenon-dev.com</p>
+    <p style="margin: 0;">Email: matthew&#64;xenon-dev.com</p>
     <hr />
     <ul style="margin-bottom: 0%">
       <p>Social:</p>
@@ -143,7 +121,8 @@
       </li>
       <li>
         <a href="https://github.com/Matthew-Hyndman"
-        ><i class="fa-brands fa-github fa-2xl"></i></a>
+          ><i class="fa-brands fa-github fa-2xl"></i
+        ></a>
       </li>
       <hr />
       <p>Micro services / plug-ins used in the making of this website:</p>
@@ -169,7 +148,10 @@
       </li>
       <li>
         <a href="https://www.keycloak.org/">
-          <img src="assets/images/keycloak.png" alt="" style="height: 50px; width: 50px;"
+          <img
+            src="assets/images/keycloak.png"
+            alt=""
+            style="height: 50px; width: 50px;"
         /></a>
       </li>
       <hr />

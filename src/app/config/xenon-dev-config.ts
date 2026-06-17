@@ -9,6 +9,12 @@ type XenonDevConfig = {
   };
 };
 
+declare global {
+  interface Window {
+    __XENON_DEV_CONFIG__?: XenonDevConfig;
+  }
+}
+
 const fallbackConfig: XenonDevConfig = {
   keycloak: {
     url: 'http://localhost:8080',

@@ -76,3 +76,15 @@
   font-style: italic;
 }
 
+table {
+  max-width: 60%;
+}
+
+table, th, td {
+  border-collapse: collapse;
+  padding: 8px;  
+}
+
+th {
+  text-align: left;
+}

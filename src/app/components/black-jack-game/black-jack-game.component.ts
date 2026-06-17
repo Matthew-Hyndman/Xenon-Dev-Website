@@ -111,7 +111,7 @@ export class BlackJackGameComponent implements OnInit, OnDestroy {
         inputAttributes: {
           min: '0',
           max: String(this.pot),
-          step: '1',
+          step: '1'
         },
         didOpen: () => {
           const inputRange = Swal.getInput()!;
@@ -137,8 +137,8 @@ export class BlackJackGameComponent implements OnInit, OnDestroy {
         },
         confirmButtonText: 'Place Bet',
         showCancelButton: true,
-        cancelButtonText: 'I am not betting',
-      }).then((result) => {
+        cancelButtonText: 'I am not betting'
+      }).then(result => {
         this.useBettingSystem = result.isConfirmed;
         console.log(`useBettingSystem: [${this.useBettingSystem}]`);
         if (result.isConfirmed) {
@@ -173,7 +173,7 @@ export class BlackJackGameComponent implements OnInit, OnDestroy {
       Swal.fire({
         title: 'Error',
         icon: 'error',
-        text: errorFound,
+        text: errorFound
       });
     }
   }
@@ -196,7 +196,7 @@ export class BlackJackGameComponent implements OnInit, OnDestroy {
   }
 
   async sleep(milsec: number) {
-    return new Promise((resolve) => setTimeout(resolve, milsec));
+    return new Promise(resolve => setTimeout(resolve, milsec));
   }
 
   async stay() {
@@ -221,7 +221,7 @@ export class BlackJackGameComponent implements OnInit, OnDestroy {
         title: 'Draw!',
         text: `you scored: ${this.playerHand.handValue} | dealer scored: ${this.dealerHand.handValue}`,
         draggable: true,
-        didClose: () => {},
+        didClose: () => {}
       });
       if (this.useBettingSystem) {
         this.pot += this.bet;
@@ -263,7 +263,7 @@ export class BlackJackGameComponent implements OnInit, OnDestroy {
         text: `you scored: ${this.playerHand.handValue} | dealer scored: ${this.dealerHand.handValue}`,
         imageUrl: 'assets/images/trophy.png',
         draggable: true,
-        didClose: () => {},
+        didClose: () => {}
       });
       if (this.useBettingSystem) {
         let payout: number = 0;
@@ -296,7 +296,7 @@ export class BlackJackGameComponent implements OnInit, OnDestroy {
         text: `you scored: ${this.playerHand.handValue} | dealer scored: ${this.dealerHand.handValue}`,
         icon: 'error',
         draggable: true,
-        didClose: () => {},
+        didClose: () => {}
       });
       if (this.isDoublingDown) {
         this.pot -= this.bet;

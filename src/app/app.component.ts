@@ -97,7 +97,7 @@ export class AppComponent {
         break;
       default:
         this.router.navigate([link.path]);        
-        this.setShouldShowMobileNavToFalse();
     }
+    this.setShouldShowMobileNavToFalse();
   }
 }

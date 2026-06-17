@@ -1,5 +1,6 @@
-import { Injectable } from '@angular/core';
-import Keycloak, { KeycloakProfile } from 'keycloak-js';
+import { Injectable, inject } from '@angular/core';
+import Keycloak from 'keycloak-js';
+import { KeycloakProfile } from 'keycloak-js';
 import { BehaviorSubject, Subscription, fromEvent, merge } from 'rxjs';
 import xenonDevConfig from '../config/xenon-dev-config';
 import { HttpClient } from '@angular/common/http';
@@ -12,11 +13,14 @@ export class AuthenticationService {
   private static readonly IDLE_WARNING_AFTER_MS = 3 * 60 * 1000;
   private static readonly IDLE_LOGOUT_AFTER_MS = 5 * 60 * 1000;
 
+  // For testing purposes, set the idle warning and logout times to 10 seconds and 20 seconds respectively
+  //private static readonly IDLE_WARNING_AFTER_MS = 10000;
+  //private static readonly IDLE_LOGOUT_AFTER_MS = 20000;
+
+  private readonly keycloak = inject(Keycloak);
+
   // Keycloak instance (provided by `provideKeycloak` in AppModule)
-  constructor(
-    private readonly keycloak: Keycloak,
-    private httpClient: HttpClient,
-  ) {
+  constructor(private httpClient: HttpClient) {
     this.isLoggedIn$.subscribe((isLoggedIn) => {
       if (isLoggedIn) {
         this.startIdleMonitor();
@@ -40,7 +44,8 @@ export class AuthenticationService {
   private activitySub: Subscription | null = null;
   private idleWarningTimeoutId: ReturnType<typeof setTimeout> | null = null;
   private idleLogoutTimeoutId: ReturnType<typeof setTimeout> | null = null;
-  private warningCountdownIntervalId: ReturnType<typeof setInterval> | null = null;
+  private warningCountdownIntervalId: ReturnType<typeof setInterval> | null =
+    null;
   private idleWarningIsVisible = false;
 
   // constructor is defined above to inject Keycloak instance
@@ -62,7 +67,7 @@ export class AuthenticationService {
 
   public async login(): Promise<void> {
     try {
-      await this.keycloak.login();
+      await this.keycloak.login(); //login method does not seem to be reconised
       await this._isLoggedInCheck();
       if (this._isLoggedIn$.value) {
         await this.refreshUserProfile();
@@ -178,6 +183,8 @@ export class AuthenticationService {
         fromEvent(document, 'keydown'),
         fromEvent(document, 'touchstart'),
         fromEvent(document, 'scroll'),
+        fromEvent(document.body.children, 'mousemove'),
+        fromEvent(document.body.children, 'click'),
       ).subscribe(() => {
         this.handleUserActivity();
       });
@@ -301,16 +308,6 @@ export class AuthenticationService {
     if (Swal.isVisible()) {
       Swal.close();
     }
-
-    await Swal.fire({
-      icon: 'info',
-      title: 'Signed out due to inactivity',
-      text: 'For your security, you have been signed out after being idle for too long.',
-      allowOutsideClick: false,
-      allowEscapeKey: false,
-      confirmButtonText: 'OK',
-    });
-
     await this.logout();
   }
 
@@ -334,7 +331,7 @@ export class AuthenticationService {
 
   /**
    * This only for when you want to send another verification email
-   * @param userID - the ID of the user to send the verification email to.   
+   * @param userID - the ID of the user to send the verification email to.
    */
   async sendReverificationEmail(userID: string): Promise<void> {
     const kc: any = this.keycloak as any;
@@ -346,29 +343,38 @@ export class AuthenticationService {
         Authorization: `Bearer ${this.keycloak.token}`,
       },
       body: JSON.stringify(['VERIFY_EMAIL']),
-    }).then(async (response) => {
-      if (response.ok) {
-        await Swal.fire({
-          icon: 'success',
-          title: 'Verification Email Sent',
-          text: 'A new verification email has been sent to your email address.',
-        });
-      } else {
-        console.error('Failed to send verification email with status:', response.status);
+    })
+      .then(async (response) => {
+        if (response.ok) {
+          await Swal.fire({
+            icon: 'success',
+            title: 'Verification Email Sent',
+            text: 'A new verification email has been sent to your email address.',
+          });
+        } else {
+          console.error(
+            'Failed to send verification email with status:',
+            response.status,
+          );
+          await Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text:
+              'Failed to send verification email. Please try again later.\nStatus: ' +
+              response.status,
+          });
+        }
+      })
+      .catch(async (err) => {
+        console.error('Failed to send verification email', err);
         await Swal.fire({
           icon: 'error',
           title: 'Error',
-          text: 'Failed to send verification email. Please try again later.\nStatus: ' + response.status,
+          text:
+            'Failed to send verification email. Please try again later.\nError: ' +
+            err.message,
         });
-      }
-    }).catch(async (err) => {
-      console.error('Failed to send verification email', err);
-      await Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Failed to send verification email. Please try again later.\nError: ' + err.message,
       });
-    });
   }
 }
 

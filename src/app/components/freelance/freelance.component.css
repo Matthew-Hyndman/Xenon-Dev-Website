@@ -1,0 +1,250 @@
+li {
+    color: #fff;
+    font-size: 100%;
+    margin: 0 0 0 5rem;
+}
+
+.bg-img {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 80%;
+    object-fit: cover;
+    -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.5) 0%, transparent 100%);
+    mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.5) 0%, transparent 100%);
+    z-index: 0;
+
+}
+
+
+
+.freelance-tab-box {
+    width: min(100%, 980px);
+    margin: 1.5rem auto 2rem;
+    padding: 1rem;
+    border-radius: 1rem;
+    background: linear-gradient(145deg, rgba(11, 25, 46, 0.9) 0%, rgba(20, 71, 98, 0.88) 48%, rgba(45, 108, 136, 0.85) 100%);
+    box-shadow: 0 18px 35px rgba(0, 0, 0, 0.28);
+}
+
+.tab-list {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.tab-button {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.35rem;
+    width: 100%;
+    min-height: 92px;
+    padding: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 0.85rem;
+    background: rgba(255, 255, 255, 0.08);
+    color: #f5fbff;
+    text-align: left;
+    cursor: pointer;
+    transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tab-button:hover,
+.tab-button:focus-visible {
+    transform: translateY(-2px);
+    border-color: rgba(140, 227, 255, 0.8);
+    background: rgba(255, 255, 255, 0.14);
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.18);
+    outline: none;
+}
+
+.tab-button.is-active {
+    border-color: #8ce3ff;
+    background: linear-gradient(135deg, rgba(0, 238, 255, 0.24) 0%, rgba(98, 83, 237, 0.24) 100%);
+}
+
+.tab-button__title {
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.tab-button__description {
+    font-size: 0.9rem;
+    line-height: 1.35;
+    color: rgba(245, 251, 255, 0.78);
+}
+
+.tab-panel {
+    border-radius: 0.9rem;
+    padding: 1rem;
+    background: radial-gradient(circle, rgba(0, 238, 255, 0.384) 0%, rgba(70, 155, 176, 0.88) 28%, rgba(98, 83, 237, 0.85) 100%);
+
+    p {
+        padding-left: 0;
+        padding-right: 0;
+    }
+}
+
+.tab-panel__lead,
+.tab-panel__intro,
+.process-panel__cta {
+    font-weight: 600;
+}
+
+.tab-panel__intro,
+.process-panel {
+    max-width: 760px;
+    margin: 0 auto;
+}
+
+.process-panel {
+    display: grid;
+    gap: 0.9rem;
+    text-align: center;
+}
+
+.card-set {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* From Uiverse.io by gharsh11032000 */
+.card {
+    position: relative;
+    width: 300px;
+    height: 200px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    margin: 1rem;
+}
+
+.card img {
+    width: 98px;
+    fill: #333;
+    transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 16px rgba(255, 255, 255, 0.2);
+}
+
+.card__content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+    background: linear-gradient(90deg, rgba(0, 238, 255, 1) 0%, rgba(70, 155, 176, 1) 28%, rgba(98, 83, 237, 1) 100%);
+    transform: rotateX(-90deg);
+    transform-origin: bottom;
+    transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.card:hover .card__content {
+    transform: rotateX(0deg);
+}
+
+.card__title {
+    margin: 0;
+    font-size: 24px;
+    color: #000000;
+    font-weight: 700;
+}
+
+.card:hover svg {
+    scale: 0;
+}
+
+.card__description {
+    margin: 10px 0 0;
+    font-size: 14px;
+    color: #000000;
+    line-height: 1.4;
+}
+
+.card::after {
+    content: "Hover for details";
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 999px;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.45);
+    letter-spacing: 0.2px;
+    animation: hintPulse 1.8s ease-out 2;
+}
+
+.card:hover::after,
+.card:focus-within::after {
+    opacity: 0;
+    transform: translateY(-4px);
+    transition: 0.25s ease;
+}
+
+.card:focus-within .card__content,
+.card:hover .card__content {
+    transform: rotateX(0deg);
+}
+
+@keyframes hintPulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.06);
+    }
+}
+
+@media (max-width: 768px) {
+    .freelance-tab-box {
+        padding: 0.85rem;
+    }
+
+    .tab-list {
+        grid-template-columns: 1fr;
+    }
+
+    .tab-button {
+        min-height: auto;
+    }
+
+    .card-set {
+        max-width: 100%;
+        width: 90%;
+        flex-direction: column;
+    }
+
+    .card {
+        max-width: 100%;
+    }
+
+    .card::after {
+        content: "Tap for details";
+    }
+
+    .Freelance-services {
+        width: 90%;
+    }
+
+    li {
+        margin: 0 0 0 2rem;
+    }
+}

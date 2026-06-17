@@ -26,6 +26,7 @@ import { AccountProfileComponent } from './components/account-profile/account-pr
 import { LeaderboardComponent } from './components/leaderboard/leaderboard.component';
 import { NgbModule, NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
 import { BlogComponent } from './components/blog/blog.component';
+import { FreelanceComponent } from './components/freelance/freelance.component';
 
 @NgModule({
   declarations: [
@@ -38,6 +39,7 @@ import { BlogComponent } from './components/blog/blog.component';
     AccountProfileComponent,
     LeaderboardComponent,
     BlogComponent,
+    FreelanceComponent,
   ],
   imports: [
     CommonModule,

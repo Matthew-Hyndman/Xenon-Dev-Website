@@ -1,14 +1,21 @@
-#increment version by 1 with every new deployment
 version: 2
 backend:
   phases:
     build:
       commands:
+<<<<<<< HEAD
         - echo "Skipping backend deployment"
+=======
+        - npm install --cache .npm --prefer-offline
+        - npm install @parcel/watcher --save-optional
+        - echo "deploying backend"
+        - npx ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
+>>>>>>> b008035c32b9dc4f856201d0c4985cb8421051fa
 frontend:
   phases:
     preBuild:
       commands:
+<<<<<<< HEAD
         # Clear Amplify cache
         - rm -rf .amplify
 
@@ -64,6 +71,17 @@ frontend:
     postBuild:
       commands:
         - echo "Build complete for BUILD_ENV=${BUILD_ENV}"
+=======
+        - npx ng version
+    build:
+      commands:
+        # the build commands
+        - npm run build:$AWS_BRANCH
+    postBuild:
+      commands:
+        - echo "Build complete"
+        - du -sh dist/amplify-angular-template/browser
+>>>>>>> b008035c32b9dc4f856201d0c4985cb8421051fa
 
   artifacts:
     # Angular 19 puts browser output under dist/<name>/browser

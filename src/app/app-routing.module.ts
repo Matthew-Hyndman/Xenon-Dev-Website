@@ -7,10 +7,11 @@ import { NgModule } from '@angular/core';
 
 import { AccountProfileComponent } from './components/account-profile/account-profile.component';
 import { keycloakGuard } from './guards/keycloak.guard';
-import {blackJackHelpAuthenticationGuard } from './guards/black-jack-help-authentication.guard';
+import { blackJackHelpAuthenticationGuard } from './guards/black-jack-help-authentication.guard';
 import { blackJackHelpDisclaimerCheckedGuard } from './guards/black-jack-help-disclaimer-checked.guard';
 import { LeaderboardComponent } from './components/leaderboard/leaderboard.component';
 import { BlogComponent } from './components/blog/blog.component';
+import { FreelanceComponent } from './components/freelance/freelance.component';
 
 export const routes: Routes = [
   { path: 'black-jack-game', component: BlackJackGameComponent, canActivate: [blackJackHelpDisclaimerCheckedGuard] },
@@ -21,6 +22,7 @@ export const routes: Routes = [
     blackJackHelpDisclaimerCheckedGuard
   ] },
   { path: 'site-info', component: SiteInfoComponent },
+  { path: 'freelance-info', component: FreelanceComponent },
   { path: 'landing', component: LandingComponent },
   { path: 'blog', component: BlogComponent },
   { path: 'user-profile', component: AccountProfileComponent, canActivate: [keycloakGuard] },

@@ -3,13 +3,16 @@
 #frontend
 keycloack-forms-theme
 src/app/config
-src/environments
+#src/environments
 package-lock.json
 
 #backend
 Backend/backend-server-website/SQL_Script
-Backend/backend-server-website/src/main/resources/application.properties
-Backend/backend-server-website/target/classes/application.properties
+# Backend/backend-server-website/src/main/resources/application.properties
+# Backend/backend-server-website/target/classes/application.properties
+
+# docker
+docker/*
 
 # Compiled output
 /dist
