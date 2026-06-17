@@ -12,6 +12,7 @@ import { blackJackHelpDisclaimerCheckedGuard } from './guards/black-jack-help-di
 import { LeaderboardComponent } from './components/leaderboard/leaderboard.component';
 import { BlogComponent } from './components/blog/blog.component';
 import { FreelanceComponent } from './components/freelance/freelance.component';
+import { ForRecruitersAndEmployersComponent } from './components/for-recruiters-and-employers/for-recruiters-and-employers.component';
 
 export const routes: Routes = [
   { path: 'black-jack-game', component: BlackJackGameComponent, canActivate: [blackJackHelpDisclaimerCheckedGuard] },
@@ -22,6 +23,7 @@ export const routes: Routes = [
     blackJackHelpDisclaimerCheckedGuard
   ] },
   { path: 'site-info', component: SiteInfoComponent },
+  { path: 'for-recruiters-and-employers', component: ForRecruitersAndEmployersComponent },
   { path: 'freelance-info', component: FreelanceComponent },
   { path: 'landing', component: LandingComponent },
   { path: 'blog', component: BlogComponent },

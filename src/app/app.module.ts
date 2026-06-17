@@ -27,6 +27,7 @@ import { LeaderboardComponent } from './components/leaderboard/leaderboard.compo
 import { NgbModule, NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
 import { BlogComponent } from './components/blog/blog.component';
 import { FreelanceComponent } from './components/freelance/freelance.component';
+import { ForRecruitersAndEmployersComponent } from './components/for-recruiters-and-employers/for-recruiters-and-employers.component';
 
 @NgModule({
   declarations: [
@@ -40,6 +41,7 @@ import { FreelanceComponent } from './components/freelance/freelance.component';
     LeaderboardComponent,
     BlogComponent,
     FreelanceComponent,
+    ForRecruitersAndEmployersComponent,
   ],
   imports: [
     CommonModule,
