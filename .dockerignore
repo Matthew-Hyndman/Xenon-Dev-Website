@@ -1,0 +1,17 @@
+.git
+.gitignore
+.vscode
+.angular
+.amplify
+node_modules
+dist
+coverage
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+Dockerfile*
+docker-compose*.yml
+Backend/**/target
+Backend/**/.mvn
+Backend/**/mvnw
+Backend/**/mvnw.cmd

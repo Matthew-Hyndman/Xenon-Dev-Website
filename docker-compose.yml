@@ -1,0 +1,68 @@
+services:
+  frontend:        
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: xenon-frontend
+    ports:
+      - "127.0.0.1:4200:80"
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: ./Backend/backend-server-website
+      dockerfile: Dockerfile
+    container_name: xenon-backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/Xenon-Dev-DB?characterEncoding=UTF-8&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+      SPRING_DATASOURCE_USERNAME: Xenon-Dev-Admin
+      SPRING_DATASOURCE_PASSWORD: Xenon-Dev64!
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://host.docker.internal:8080/realms/Xenon-Dev-DEV-ENV
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://host.docker.internal:8080/realms/Xenon-Dev-DEV-ENV/protocol/openid-connect/certs
+      KEYCLOAK_URI: http://host.docker.internal:8080
+      ALLOWED_ORIGINS: http://frontend:4200, http://keycloak:8080 # Update this to include the frontend and keycloak services
+    ports:
+      - "127.0.0.1:8443:8443"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: xenon-postgres
+    environment:
+      POSTGRES_DB: Xenon-Dev-DB
+      POSTGRES_USER: Xenon-Dev-Admin
+      POSTGRES_PASSWORD: Xenon-Dev64!
+    ports:
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U Xenon-Dev-Admin -d Xenon-Dev-DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - xenon-postgres-data:/var/lib/postgresql/data
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: xenon-keycloak
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/Xenon-Dev-DB?characterEncoding=UTF-8&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      KC_DB_USERNAME: Xenon-Dev-Admin
+      KC_DB_PASSWORD: Xenon-Dev64!
+
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+    command: start-dev --http-port=8080
+    ports:
+      - "127.0.0.1:8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  xenon-postgres-data:
