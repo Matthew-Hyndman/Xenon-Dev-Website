@@ -1,2 +1,2 @@
 FROM postgres:18.4-alpine
-COPY PostgreSQL/Xenon-Dev-DB.sql /docker-entrypoint-initdb.d/   
+COPY PostgreSQL/postgresql-init-docker-script.sql /docker-entrypoint-initdb.d/

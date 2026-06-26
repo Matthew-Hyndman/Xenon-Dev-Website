@@ -50,10 +50,10 @@ services:
         condition: service_healthy
 
   postgres:
-    image: postgres:18.4-alpine
-    #build:
-    #  context: ./Backend/backend-server-website/SQL_Script
-    #  dockerfile: Dockerfile-db
+    #image: postgres:18.4-alpine
+    build:
+      context: ./Backend/backend-server-website/SQL_Script
+      dockerfile: Dockerfile-db
     container_name: xenon-postgres
     environment:
       POSTGRES_DB: Xenon-Dev-DB
@@ -74,7 +74,7 @@ services:
     container_name: xenon-keycloak
     environment:
       KC_DB: postgres
-      KC_DB_URL: jdbc:postgresql://postgres:5432/Xenon-Dev-DB?characterEncoding=UTF-8&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      KC_DB_URL: "jdbc:postgresql://postgres:5432/Xenon-Dev-DB"
       KC_DB_USERNAME: Xenon-Dev-Admin
       KC_DB_PASSWORD: Xenon-Dev64!
 
@@ -82,7 +82,7 @@ services:
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin
 
       # for debugging purposes only, remove in production
-      KC_LOG_LEVEL: DEBUG
+      #KC_LOG_LEVEL: DEBUG
       
     command: start-dev --http-port=8080
     ports:
